@@ -1,6 +1,6 @@
 package com.buttongames.butterfly.util;
 
-import org.apache.commons.io.IOUtils;
+import com.google.common.io.ByteStreams;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -51,7 +51,7 @@ public class CollectionUtils {
      * @throws IOException
      */
     public static byte[] readInputStream(final InputStream is) throws IOException {
-        return IOUtils.toByteArray(is);
+        return ByteStreams.toByteArray(is);
     }
 }
 
