@@ -17,6 +17,7 @@ dependencies {
 
     compile group: 'com.sparkjava', name: 'spark-core', version: '2.7.2'
     compile group: 'com.google.guava', name: 'guava', version: '23.5-jre'
+    compile group: 'org.slf4j', name: 'slf4j-simple', version:'1.7.21'
 }
 
 jar {

@@ -2,18 +2,22 @@ package com.buttongames.butterfly.http;
 
 import com.buttongames.butterfly.compression.Lz77;
 import com.buttongames.butterfly.encryption.Rc4;
+import com.buttongames.butterfly.http.exception.InvalidRequestException;
 import com.buttongames.butterfly.http.exception.InvalidRequestMethodException;
 import com.buttongames.butterfly.http.exception.InvalidRequestModelException;
 import com.buttongames.butterfly.http.exception.InvalidRequestModuleException;
 import com.buttongames.butterfly.http.exception.MismatchedRequestUriException;
 import com.buttongames.butterfly.http.handlers.ServicesRequestHandler;
 import com.buttongames.butterfly.xml.BinaryXmlUtils;
+import com.buttongames.butterfly.xml.XmlUtils;
 import com.google.common.collect.ImmutableSet;
+import org.w3c.dom.Element;
+import org.xml.sax.SAXException;
 import spark.Request;
 import spark.utils.StringUtils;
 
+import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.security.GeneralSecurityException;
 
 import static spark.Spark.exception;
@@ -63,10 +67,15 @@ public class ButterflyHttpServer {
     }
 
     /**
+     * Handler for requests for the <code>services<code> module.
+     */
+    private ServicesRequestHandler servicesRequestHandler;
+
+    /**
      * Constructor.
      */
     public ButterflyHttpServer() {
-
+        this.servicesRequestHandler = new ServicesRequestHandler();
     }
 
     /**
@@ -96,12 +105,11 @@ public class ButterflyHttpServer {
         // configure our root route; its handler will parse the request and go from there
         post("/", ((request, response) -> {
             // send the request to the right module handler
-            final String requestBody = validateAndUnpackRequest(request);
+            final Element requestBody = validateAndUnpackRequest(request);
             final String requestModule = request.queryParams("module");
-            final String requestMethod = request.queryParams("method");
 
             if (requestModule.equals("services")) {
-                return ServicesRequestHandler.handleRequest(requestBody, requestMethod, response);
+                return this.servicesRequestHandler.handleRequest(requestBody, request, response);
             } else {
                 throw new InvalidRequestModuleException();
             }
@@ -119,13 +127,17 @@ public class ButterflyHttpServer {
     }
 
     /**
-     * Do some basic validation on the request before we handle it. Returns the request
-     * body in plaintext form for handling, if it was a valid request.
-     * TODO: Remove all the hardcoded stuff.
-     * @param request The request to validate and unpack
-     * @return A string representing the plaintext version of the packet, in XML format.
+     * Validates incoming requests for basic sanity checks, and returns the request
+     * as a plaintext XML document.
+     * @param request The incoming request.
+     * @return An <code>Element</code> representing the root of the request document
+     * @throws GeneralSecurityException
+     * @throws IOException
+     * @throws ParserConfigurationException
+     * @throws SAXException
      */
-    private String validateAndUnpackRequest(Request request) throws GeneralSecurityException, IOException {
+    private Element validateAndUnpackRequest(Request request)
+            throws GeneralSecurityException, IOException, ParserConfigurationException, SAXException {
         final String requestUriModel = request.queryParams("model");
         final String requestUriModule = request.queryParams("module");
         final String requestUriMethod = request.queryParams("method");
@@ -163,9 +175,30 @@ public class ButterflyHttpServer {
 
         // read the request body into an XML document and check its properties
         // to verify it matches the request URI
-        // TODO: Implement
+        final Element rootNode = XmlUtils.byteArrayToXmlFile(reqBody);
+
+        if (rootNode == null ||
+                !rootNode.getNodeName().equals("call")) {
+            throw new InvalidRequestException();
+        }
+
+        final Element moduleNode = (Element) rootNode.getFirstChild();
+        final String requestBodyModel = rootNode.getAttribute("model");
+        final String requestBodyModule = moduleNode.getNodeName();
+        final String requestBodyMethod = moduleNode.getAttribute("method");
+
+        if (StringUtils.isBlank(requestBodyModel) ||
+                StringUtils.isBlank(requestBodyModule) ||
+                StringUtils.isBlank(requestBodyMethod) ||
+                !requestBodyModel.equals(requestUriModel) ||
+                !requestBodyModule.equals(requestUriModule) ||
+                !requestBodyMethod.equals(requestUriMethod)) {
+            throw new MismatchedRequestUriException();
+        }
+
+        // TODO: Verify the PCBID
 
         // 4) return the XML document
-        return new String(reqBody, StandardCharsets.UTF_8);
+        return rootNode;
     }
 }

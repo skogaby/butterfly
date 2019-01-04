@@ -1,6 +1,8 @@
 package com.buttongames.butterfly.http.handlers;
 
 import com.buttongames.butterfly.http.exception.InvalidRequestMethodException;
+import org.w3c.dom.Element;
+import spark.Request;
 import spark.Response;
 
 /**
@@ -10,27 +12,30 @@ import spark.Response;
 public class ServicesRequestHandler extends BaseRequestHandler {
 
     /**
-     * Handles all requests to the <code>services/code> module.
-     * @param request
-     * @param requestMethod
-     * @param response
-     * @return
+     * Handles an incoming request for the services module.
+     * @param requestBody The XML document of the incoming request.
+     * @param request The Spark request
+     * @param response The Spark response
+     * @return A response object for Spark
      */
-    public static Object handleRequest(String request, String requestMethod, Response response) {
+    @Override
+    public Object handleRequest(final Element requestBody, final Request request, final Response response) {
+        final String requestMethod = request.queryParams("method");
+
         if (requestMethod.equals("get")) {
-            return  handleGetRequest(request, response);
+            return handleGetRequest(request, response);
         } else {
             throw new InvalidRequestMethodException();
         }
     }
 
     /**
-     * Handles <code>services.get</code> requests.
-     * @param request
-     * @param response
-     * @return
+     * Handles an incoming request for the given module.
+     * @param request The Spark request
+     * @param response The Spark response
+     * @return A response object for Spark
      */
-    private static Object handleGetRequest(String request, Response response) {
+    private static Object handleGetRequest(final Request request, final Response response) {
         // TODO: Implement
         return "Womp womp";
     }
