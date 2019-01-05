@@ -19,6 +19,7 @@ dependencies {
     compile group: 'com.google.guava', name: 'guava', version: '23.5-jre'
     compile group: 'org.slf4j', name: 'slf4j-simple', version:'1.7.21'
     compile group: 'com.jamesmurty.utils', name: 'java-xmlbuilder', version:'1.2'
+    compile group: 'org.apache.logging.log4j', name: 'log4j-core', version: '2.11.1'
 }
 
 jar {

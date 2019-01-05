@@ -7,10 +7,19 @@ import com.buttongames.butterfly.http.exception.InvalidRequestMethodException;
 import com.buttongames.butterfly.http.exception.InvalidRequestModelException;
 import com.buttongames.butterfly.http.exception.InvalidRequestModuleException;
 import com.buttongames.butterfly.http.exception.MismatchedRequestUriException;
+import com.buttongames.butterfly.http.handlers.EventLogRequestHandler;
+import com.buttongames.butterfly.http.handlers.FacilityRequestHandler;
+import com.buttongames.butterfly.http.handlers.MessageRequestHandler;
+import com.buttongames.butterfly.http.handlers.PackageRequestHandler;
+import com.buttongames.butterfly.http.handlers.PcbEventRequestHandler;
+import com.buttongames.butterfly.http.handlers.PcbTrackerRequestHandler;
 import com.buttongames.butterfly.http.handlers.ServicesRequestHandler;
+import com.buttongames.butterfly.http.handlers.TaxRequestHandler;
 import com.buttongames.butterfly.xml.BinaryXmlUtils;
 import com.buttongames.butterfly.xml.XmlUtils;
 import com.google.common.collect.ImmutableSet;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 import spark.Request;
@@ -23,7 +32,6 @@ import static com.buttongames.butterfly.util.Constants.COMPRESSION_HEADER;
 import static com.buttongames.butterfly.util.Constants.CRYPT_KEY_HEADER;
 import static com.buttongames.butterfly.util.Constants.LZ77_COMPRESSION;
 import static spark.Spark.exception;
-import static spark.Spark.halt;
 import static spark.Spark.port;
 import static spark.Spark.post;
 import static spark.Spark.stop;
@@ -35,6 +43,8 @@ import static spark.Spark.threadPool;
  * @author skogaby (skogabyskogaby@gmail.com)
  */
 public class ButterflyHttpServer {
+
+    private static final Logger LOG = LogManager.getLogger(ButterflyHttpServer.class);
 
     /**
      * Static set of all the models this server supports.
@@ -50,19 +60,34 @@ public class ButterflyHttpServer {
     // TODO: Make this not hardcoded
     static {
         SUPPORTED_MODELS = ImmutableSet.of("MDX:J:A:A:2018042300");
-        SUPPORTED_MODULES = ImmutableSet.of("services");
+        SUPPORTED_MODULES = ImmutableSet.of("services", "pcbtracker", "message", "facility", "pcbevent",
+                "package", "eventlog", "tax");
     }
 
     /**
-     * Handler for requests for the <code>services<code> module.
+     * Handler for requests to the various supported modules.
      */
     private ServicesRequestHandler servicesRequestHandler;
+    private PcbEventRequestHandler pcbEventRequestHandler;
+    private PcbTrackerRequestHandler pcbTrackerRequestHandler;
+    private MessageRequestHandler messageRequestHandler;
+    private FacilityRequestHandler facilityRequestHandler;
+    private PackageRequestHandler packageRequestHandler;
+    private EventLogRequestHandler eventLogRequestHandler;
+    private TaxRequestHandler taxRequestHandler;
 
     /**
      * Constructor.
      */
     public ButterflyHttpServer() {
         this.servicesRequestHandler = new ServicesRequestHandler();
+        this.pcbEventRequestHandler = new PcbEventRequestHandler();
+        this.pcbTrackerRequestHandler = new PcbTrackerRequestHandler();
+        this.messageRequestHandler = new MessageRequestHandler();
+        this.facilityRequestHandler = new FacilityRequestHandler();
+        this.packageRequestHandler = new PackageRequestHandler();
+        this.eventLogRequestHandler = new EventLogRequestHandler();
+        this.taxRequestHandler = new TaxRequestHandler();
     }
 
     /**
@@ -80,6 +105,9 @@ public class ButterflyHttpServer {
         this.configureRoutesAndExceptions();
     }
 
+    /**
+     * Stops the HTTP server.
+     */
     public void stopServer() {
         stop();
     }
@@ -97,6 +125,20 @@ public class ButterflyHttpServer {
 
             if (requestModule.equals("services")) {
                 return this.servicesRequestHandler.handleRequest(requestBody, request, response);
+            } else if (requestModule.equals("pcbevent")) {
+                return this.pcbEventRequestHandler.handleRequest(requestBody, request, response);
+            } else if (requestModule.equals("pcbtracker")) {
+                return this.pcbTrackerRequestHandler.handleRequest(requestBody, request, response);
+            } else if (requestModule.equals("message")) {
+                return this.messageRequestHandler.handleRequest(requestBody, request, response);
+            } else if (requestModule.equals("facility")) {
+                return this.facilityRequestHandler.handleRequest(requestBody, request, response);
+            } else if (requestModule.equals("package")) {
+                return this.packageRequestHandler.handleRequest(requestBody, request, response);
+            } else if (requestModule.equals("eventlog")) {
+                return this.eventLogRequestHandler.handleRequest(requestBody, request, response);
+            } else if (requestModule.equals("tax")) {
+                return this.taxRequestHandler.handleRequest(requestBody, request, response);
             } else {
                 throw new InvalidRequestModuleException();
             }
@@ -135,16 +177,17 @@ public class ButterflyHttpServer {
         final String requestUriModule = request.queryParams("module");
         final String requestUriMethod = request.queryParams("method");
 
-        System.out.println("Got a request for " +
-                requestUriModule + "." + requestUriMethod);
+        LOG.info("Request received: '" + requestUriModel + "::" + requestUriModule + "." + requestUriMethod + "'");
 
         // 1) validate the model is supported
         if (!SUPPORTED_MODELS.contains(requestUriModel)) {
+            LOG.warn("Invalid model requested: " + requestUriModel);
             throw new InvalidRequestModelException();
         }
 
         // 2) validate the module is supported
         if (!SUPPORTED_MODULES.contains(requestUriModule)) {
+            LOG.warn("Invalid module requested: " + requestUriModule);
             throw new InvalidRequestModuleException();
         }
 

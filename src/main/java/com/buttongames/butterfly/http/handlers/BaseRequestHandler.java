@@ -5,6 +5,8 @@ import com.buttongames.butterfly.encryption.Rc4;
 import com.buttongames.butterfly.xml.BinaryXmlUtils;
 import com.google.common.net.MediaType;
 import com.jamesmurty.utils.XMLBuilder2;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.w3c.dom.Element;
 import spark.Request;
 import spark.Response;
@@ -29,6 +31,8 @@ import static com.buttongames.butterfly.util.Constants.LZ77_COMPRESSION;
  * @author skogaby (skogabyskogaby@gmail.com)
  */
 public abstract class BaseRequestHandler {
+
+    private final Logger LOG = LogManager.getLogger(BaseRequestHandler.class);
 
     /**
      * Handles an incoming request for the given module.
@@ -92,7 +96,9 @@ public abstract class BaseRequestHandler {
             rawResponse.getOutputStream().flush();
             rawResponse.getOutputStream().close();
 
-            System.out.println("Sent a response!");
+            LOG.info("Response sent: '" + request.queryParams("model") + "::" +
+                    request.queryParams("module") + "." + request.queryParams("method") + "'");
+
             return 200;
         } catch (IOException e) {
             e.printStackTrace();

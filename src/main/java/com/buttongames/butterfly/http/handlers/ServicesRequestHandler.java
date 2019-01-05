@@ -3,6 +3,8 @@ package com.buttongames.butterfly.http.handlers;
 import com.buttongames.butterfly.http.exception.InvalidRequestMethodException;
 import com.google.common.collect.ImmutableMap;
 import com.jamesmurty.utils.XMLBuilder2;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.w3c.dom.Element;
 import spark.Request;
 import spark.Response;
@@ -14,6 +16,8 @@ import java.util.Map;
  * @author skogaby (skogabyskogaby@gmail.com)
  */
 public class ServicesRequestHandler extends BaseRequestHandler {
+
+    private final Logger LOG = LogManager.getLogger(ServicesRequestHandler.class);
 
     /**
      * URL to return in the <code>services.get</code> request.
@@ -49,7 +53,7 @@ public class ServicesRequestHandler extends BaseRequestHandler {
     }
 
     /**
-     * Handles an incoming request for the services module.
+     * Handles an incoming request for the <code>services</code> module.
      * @param requestBody The XML document of the incoming request.
      * @param request The Spark request
      * @param response The Spark response
@@ -67,12 +71,14 @@ public class ServicesRequestHandler extends BaseRequestHandler {
     }
 
     /**
-     * Handles an incoming request for the given module.
+     * Handles an incoming request for <code>services.get</code>
      * @param request The Spark request
      * @param response The Spark response
      * @return A response object for Spark
      */
     private Object handleGetRequest(final Request request, final Response response) {
+        LOG.debug("Handling the services.get request");
+
         // TODO: Remove all the hardcoded stuff
         XMLBuilder2 respBuilder = XMLBuilder2.create("response")
                 .elem("services")
