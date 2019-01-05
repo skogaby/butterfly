@@ -1,8 +1,8 @@
 package com.buttongames.butterfly.http.handlers;
 
 import com.buttongames.butterfly.http.exception.InvalidRequestMethodException;
+import com.buttongames.butterfly.xml.KXmlBuilder;
 import com.google.common.collect.ImmutableMap;
-import com.jamesmurty.utils.XMLBuilder2;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.w3c.dom.Element;
@@ -80,18 +80,11 @@ public class ServicesRequestHandler extends BaseRequestHandler {
         LOG.debug("Handling the services.get request");
 
         // TODO: Remove all the hardcoded stuff
-        XMLBuilder2 respBuilder = XMLBuilder2.create("response")
-                .elem("services")
-                        .attr("expire", "600")
-                        .attr("method", "get")
-                        .attr("mode", "operation")
-                        .attr("status", "0");
+        KXmlBuilder respBuilder = KXmlBuilder.create("response")
+                .e("services").a("expire", "600").a("method", "get").a("mode", "operation").a("status", "0");
 
         for (Map.Entry<String, String> entry : SERVICES_URLS.entrySet()) {
-            respBuilder = respBuilder.elem("item")
-                    .attr("name", entry.getKey())
-                    .attr("url", entry.getValue())
-                    .up();
+            respBuilder = respBuilder.e("item").a("name", entry.getKey()).a("url", entry.getValue()).up();
         }
 
         return this.sendResponse(request, response, respBuilder);

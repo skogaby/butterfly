@@ -4,7 +4,7 @@ import com.buttongames.butterfly.compression.Lz77;
 import com.buttongames.butterfly.encryption.Rc4;
 import com.buttongames.butterfly.xml.BinaryXmlUtils;
 import com.google.common.net.MediaType;
-import com.jamesmurty.utils.XMLBuilder2;
+import com.jamesmurty.utils.BaseXMLBuilder;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.w3c.dom.Element;
@@ -43,7 +43,7 @@ public abstract class BaseRequestHandler {
      */
     public abstract Object handleRequest(final Element requestBody, final Request request, final Response response);
 
-    protected Object sendResponse(final Request request, final Response response, final XMLBuilder2 respBody) {
+    protected Object sendResponse(final Request request, final Response response, final BaseXMLBuilder respBody) {
         // get the bytes of the XML document
         final ByteArrayOutputStream bos = new ByteArrayOutputStream();
 

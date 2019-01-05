@@ -1,7 +1,7 @@
 package com.buttongames.butterfly.http.handlers;
 
 import com.buttongames.butterfly.http.exception.InvalidRequestMethodException;
-import com.jamesmurty.utils.XMLBuilder2;
+import com.buttongames.butterfly.xml.KXmlBuilder;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.w3c.dom.Element;
@@ -44,7 +44,7 @@ public class MessageRequestHandler extends BaseRequestHandler {
         LOG.debug("Handling the message.get request");
 
         // TODO: Remove all the hardcoded stuff and actually do something with the input
-        XMLBuilder2 respBuilder = XMLBuilder2.create("response")
+        KXmlBuilder respBuilder = KXmlBuilder.create("response")
                 .e("message").a("expire", "1800").a("status", "0")
                     .e("item").a("end", "604800").a("name", "sys.mainte").a("start", "0").up()
                     .e("item").a("end", "604800").a("name", "sys.eacoin.mainte").a("start", "0");

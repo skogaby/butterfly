@@ -1,7 +1,7 @@
 package com.buttongames.butterfly.http.handlers;
 
 import com.buttongames.butterfly.http.exception.InvalidRequestMethodException;
-import com.jamesmurty.utils.XMLBuilder2;
+import com.buttongames.butterfly.xml.KXmlBuilder;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.w3c.dom.Element;
@@ -44,12 +44,12 @@ public class EventLogRequestHandler extends BaseRequestHandler {
         LOG.debug("Handling the eventlog.write request");
 
         // TODO: actually store the events coming in from the client
-        XMLBuilder2 respBuilder = XMLBuilder2.create("response")
+        KXmlBuilder respBuilder = KXmlBuilder.create("response")
                 .e("eventlog")
-                    .e("gamesession").a("__type", "s64").t("0").up()
-                    .e("logsendflg").a("__type", "s32").t("0").up()
-                    .e("logerrlevel").a("__type", "s32").t("0").up()
-                    .e("evtidnosendflg").a("__type", "s32").t("0");
+                    .writeS64("gamesession", 0).up()
+                    .writeS32("logsendflg", 0).up()
+                    .writeS32("logerrlevel", 0).up()
+                    .writeS32("evtidnosendflg", 0);
 
         return this.sendResponse(request, response, respBuilder);
     }

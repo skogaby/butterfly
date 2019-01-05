@@ -1,7 +1,7 @@
 package com.buttongames.butterfly.http.handlers;
 
 import com.buttongames.butterfly.http.exception.InvalidRequestMethodException;
-import com.jamesmurty.utils.XMLBuilder2;
+import com.buttongames.butterfly.xml.KXmlBuilder;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.w3c.dom.Element;
@@ -44,39 +44,39 @@ public class FacilityRequestHandler extends BaseRequestHandler {
         LOG.debug("Handling the facility.get request");
 
         // TODO: Remove all the hardcoded stuff
-        XMLBuilder2 respBuilder = XMLBuilder2.create("response")
+        KXmlBuilder respBuilder = KXmlBuilder.create("response")
                 .e("facility")
                     .e("location")
-                        .e("id").a("__type", "str").t("US-01").up()
-                        .e("country").a("__type", "str").t("US").up()
-                        .e("region").a("__type", "str").t("TX").up()
-                        .e("name").a("__type", "str").t("BUTTERFLY").up()
-                        .e("type").a("__type", "u8").t("0").up().up()
+                        .writeStr("id", "US-01").up()
+                        .writeStr("country", "US").up()
+                        .writeStr("region", "TX").up()
+                        .writeStr("name", "BUTTERFLY").up()
+                        .writeU8("type", 0).up().up()
                     .e("line")
-                        .e("id").a("__type", "str").t("3").up()
-                        .e("class").a("__type", "u8").t("8").up()
-                        .e("upclass").a("__type", "u8").t("8").up()
-                        .e("rtt").a("__type", "u16").t("40").up().up()
+                        .writeStr("id", "3").up()
+                        .writeU8("class", 8).up()
+                        .writeU8("upclass", 8).up()
+                        .writeU16("rtt", 40).up().up()
                     .e("public")
-                        .e("flag").a("__type", "u8").t("1").up()
-                        .e("name").a("__type", "str").t("BUTTERFLY").up()
-                        .e("lattitude").a("__type", "str").t("0").up()
-                        .e("longitude").a("__type", "str").t("0").up().up()
+                        .writeU8("flag", 1).up()
+                        .writeStr("name", "BUTTERFLY").up()
+                        .writeStr("lattitude", "0").up()
+                        .writeStr("longitude", "0").up().up()
                     .e("share")
                         .e("eacoin")
-                            .e("notchamount").a("__type", "s32").t("0").up()
-                            .e("notchcount").a("__type", "s32").t("0").up()
-                            .e("supplylimit").a("__type", "s32").t("1000000").up().up()
+                            .writeS32("notchamount", 0).up()
+                            .writeS32("notchcount", 0).up()
+                            .writeS32("supplylimit", 1000000).up().up()
                         .e("url")
-                            .e("eapass").a("__type", "str").t("http://eagate.573.jp/").up()
-                            .e("arcadefan").a("__type", "str").t("http://eagate.573.jp/").up()
-                            .e("konaminetdx").a("__type", "str").t("http://eagate.573.jp/").up()
-                            .e("konamiid").a("__type", "str").t("http://eagate.573.jp/").up()
-                            .e("eagate").a("__type", "str").t("http://eagate.573.jp/").up().up().up()
+                            .writeStr("eapass", "http://eagate.573.jp/").up()
+                            .writeStr("arcadefan", "http://eagate.573.jp/").up()
+                            .writeStr("konaminetdx", "http://eagate.573.jp/").up()
+                            .writeStr("konamiid", "http://eagate.573.jp/").up()
+                            .writeStr("eagate", "http://eagate.573.jp/").up().up().up()
                     .e("portfw")
-                        .e("globalip").a("__type", "ip4").t("1.0.0.127").up()
-                        .e("globalport").a("__type", "u16").t("8888").up()
-                        .e("privateport").a("__type", "u16").t("8888");
+                        .writeIp("globalip", "1.0.0.127").up()
+                        .writeU16("globalport", 8888).up()
+                        .writeU16("privateport", 8888);
 
         return this.sendResponse(request, response, respBuilder);
     }

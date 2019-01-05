@@ -1,7 +1,7 @@
 package com.buttongames.butterfly.http.handlers;
 
 import com.buttongames.butterfly.http.exception.InvalidRequestMethodException;
-import com.jamesmurty.utils.XMLBuilder2;
+import com.buttongames.butterfly.xml.KXmlBuilder;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.w3c.dom.Element;
@@ -43,7 +43,7 @@ public class PackageRequestHandler extends BaseRequestHandler {
     private Object handleListRequest(final Request request, final Response response) {
         LOG.debug("Handling the package.list request");
 
-        XMLBuilder2 respBuilder = XMLBuilder2.create("response")
+        KXmlBuilder respBuilder = KXmlBuilder.create("response")
                 .e("package");
 
         return this.sendResponse(request, response, respBuilder);

@@ -1,7 +1,7 @@
 package com.buttongames.butterfly.http.handlers;
 
 import com.buttongames.butterfly.http.exception.InvalidRequestMethodException;
-import com.jamesmurty.utils.XMLBuilder2;
+import com.buttongames.butterfly.xml.KXmlBuilder;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.w3c.dom.Element;
@@ -44,13 +44,8 @@ public class PcbTrackerRequestHandler extends BaseRequestHandler {
         LOG.debug("Handling the pcbtracker.alive request");
 
         // TODO: Remove all the hardcoded stuff and actually do something with the input
-        XMLBuilder2 respBuilder = XMLBuilder2.create("response")
-                .elem("pcbtracker")
-                        .attr("ecenable", "1")
-                        .attr("eclimit", "0")
-                        .attr("expire", "0")
-                        .attr("limit", "0")
-                        .attr("status", "0");
+        KXmlBuilder respBuilder = KXmlBuilder.create("response")
+                .e("pcbtracker").a("ecenable", "1").a("eclimit", "0").a("expire", "0").a("limit", "0").a("status", "0");
 
         return this.sendResponse(request, response, respBuilder);
     }

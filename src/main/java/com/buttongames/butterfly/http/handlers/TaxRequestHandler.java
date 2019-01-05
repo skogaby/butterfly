@@ -1,7 +1,7 @@
 package com.buttongames.butterfly.http.handlers;
 
 import com.buttongames.butterfly.http.exception.InvalidRequestMethodException;
-import com.jamesmurty.utils.XMLBuilder2;
+import com.buttongames.butterfly.xml.KXmlBuilder;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.w3c.dom.Element;
@@ -44,9 +44,9 @@ public class TaxRequestHandler extends BaseRequestHandler {
         LOG.debug("Handling the tax.get_phase request");
 
         // TODO: remove the hardcoded value, actually store phase per PCBID
-        XMLBuilder2 respBuilder = XMLBuilder2.create("response")
+        KXmlBuilder respBuilder = KXmlBuilder.create("response")
                 .e("tax")
-                    .e("phase").a("__type", "s32").t("0");
+                    .writeS32("phase", 0);
 
         return this.sendResponse(request, response, respBuilder);
     }
