@@ -18,8 +18,10 @@ import spark.utils.StringUtils;
 
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
-import java.security.GeneralSecurityException;
 
+import static com.buttongames.butterfly.util.Constants.COMPRESSION_HEADER;
+import static com.buttongames.butterfly.util.Constants.CRYPT_KEY_HEADER;
+import static com.buttongames.butterfly.util.Constants.LZ77_COMPRESSION;
 import static spark.Spark.exception;
 import static spark.Spark.halt;
 import static spark.Spark.port;
@@ -33,21 +35,6 @@ import static spark.Spark.threadPool;
  * @author skogaby (skogabyskogaby@gmail.com)
  */
 public class ButterflyHttpServer {
-
-    /**
-     * Name of the HTTP header that contains the crypto key, if present.
-     */
-    private static final String CRYPT_KEY_HEADER = "X-Eamuse-Info";
-
-    /**
-     * Name of the HTTP header that says whether the packet is compressed.
-     */
-    private static final String COMPRESSION_HEADER = "X-Compress";
-
-    /**
-     * Value for the X-Compress header to indicate the packet is compressed.
-     */
-    private static final String LZ77_COMPRESSION = "lz77";
 
     /**
      * Static set of all the models this server supports.
@@ -116,14 +103,22 @@ public class ButterflyHttpServer {
         }));
 
         // configure the exception handlers
-        exception(InvalidRequestMethodException.class,
-                ((exception, request, response) -> halt(400, "Invalid request method.")));
-        exception(InvalidRequestModelException.class,
-                ((exception, request, response) -> halt(400, "Invalid request model.")));
-        exception(InvalidRequestModuleException.class,
-                ((exception, request, response) -> halt(400, "Invalid request module.")));
-        exception(MismatchedRequestUriException.class,
-                (((exception, request, response) -> halt(400, "Request URI does not match request body"))));
+        exception(InvalidRequestMethodException.class, ((exception, request, response) -> {
+                    response.status(400);
+                    response.body("Invalid request method.");
+                }));
+        exception(InvalidRequestModelException.class, ((exception, request, response) -> {
+                    response.status(400);
+                    response.body("Invalid request model.");
+                }));
+        exception(InvalidRequestModuleException.class, ((exception, request, response) -> {
+                    response.status(400);
+                    response.body("Invalid request module.");
+                }));
+        exception(MismatchedRequestUriException.class, (((exception, request, response) -> {
+                    response.status(400);
+                    response.body("Request URI does not match request body");
+                })));
     }
 
     /**
@@ -131,16 +126,18 @@ public class ButterflyHttpServer {
      * as a plaintext XML document.
      * @param request The incoming request.
      * @return An <code>Element</code> representing the root of the request document
-     * @throws GeneralSecurityException
      * @throws IOException
      * @throws ParserConfigurationException
      * @throws SAXException
      */
     private Element validateAndUnpackRequest(Request request)
-            throws GeneralSecurityException, IOException, ParserConfigurationException, SAXException {
+            throws IOException, ParserConfigurationException, SAXException {
         final String requestUriModel = request.queryParams("model");
         final String requestUriModule = request.queryParams("module");
         final String requestUriMethod = request.queryParams("method");
+
+        System.out.println("Got a request for " +
+                requestUriModule + "." + requestUriMethod);
 
         // 1) validate the model is supported
         if (!SUPPORTED_MODELS.contains(requestUriModel)) {

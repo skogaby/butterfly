@@ -29,13 +29,17 @@ public class Rc4 {
      * @return The decrypted data
      * @throws GeneralSecurityException
      */
-    public static byte[] decrypt(final byte[] data, final String key)
-            throws GeneralSecurityException {
-        final byte[] keyBytes = getKeyFromEamuseHeader(key);
-        final SecretKey sk = new SecretKeySpec(keyBytes, 0, keyBytes.length, "RC4");
-        final Cipher cipher = Cipher.getInstance("RC4");
-        cipher.init(Cipher.DECRYPT_MODE, sk);
-        return cipher.doFinal(data);
+    public static byte[] decrypt(final byte[] data, final String key) {
+        try {
+            final byte[] keyBytes = getKeyFromEamuseHeader(key);
+            final SecretKey sk = new SecretKeySpec(keyBytes, 0, keyBytes.length, "RC4");
+            final Cipher cipher = Cipher.getInstance("RC4");
+            cipher.init(Cipher.DECRYPT_MODE, sk);
+            return cipher.doFinal(data);
+        } catch (GeneralSecurityException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
     /**
@@ -45,8 +49,7 @@ public class Rc4 {
      * @return The encrypted data
      * @throws GeneralSecurityException
      */
-    public static byte[] encrypt(final byte[] data, final String key)
-            throws GeneralSecurityException {
+    public static byte[] encrypt(final byte[] data, final String key) {
         return decrypt(data, key);
     }
 
