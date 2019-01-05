@@ -130,8 +130,7 @@ public class ButterflyHttpServer {
      * @throws ParserConfigurationException
      * @throws SAXException
      */
-    private Element validateAndUnpackRequest(Request request)
-            throws IOException, ParserConfigurationException, SAXException {
+    private Element validateAndUnpackRequest(Request request) {
         final String requestUriModel = request.queryParams("model");
         final String requestUriModule = request.queryParams("module");
         final String requestUriMethod = request.queryParams("method");
@@ -172,7 +171,7 @@ public class ButterflyHttpServer {
 
         // read the request body into an XML document and check its properties
         // to verify it matches the request URI
-        final Element rootNode = XmlUtils.byteArrayToXmlFile(reqBody);
+        Element rootNode = XmlUtils.byteArrayToXmlFile(reqBody);
 
         if (rootNode == null ||
                 !rootNode.getNodeName().equals("call")) {

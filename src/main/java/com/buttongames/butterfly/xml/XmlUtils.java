@@ -52,13 +52,17 @@ public class XmlUtils {
      * @throws IOException
      * @throws SAXException
      */
-    public static Element byteArrayToXmlFile(final byte[] body)
-            throws ParserConfigurationException, IOException, SAXException {
-        final DocumentBuilderFactory builderFactory = DocumentBuilderFactory.newInstance();
-        final DocumentBuilder builder = builderFactory.newDocumentBuilder();
-        final Document reqDocument = builder.parse(new ByteArrayInputStream(body));
-        XmlUtils.clean(reqDocument);
+    public static Element byteArrayToXmlFile(final byte[] body) {
+        try {
+            final DocumentBuilderFactory builderFactory = DocumentBuilderFactory.newInstance();
+            final DocumentBuilder builder = builderFactory.newDocumentBuilder();
+            final Document reqDocument = builder.parse(new ByteArrayInputStream(body));
+            XmlUtils.clean(reqDocument);
 
-        return reqDocument.getDocumentElement();
+            return reqDocument.getDocumentElement();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 }

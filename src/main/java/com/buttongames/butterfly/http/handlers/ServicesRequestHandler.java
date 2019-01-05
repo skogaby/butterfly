@@ -7,8 +7,6 @@ import org.w3c.dom.Element;
 import spark.Request;
 import spark.Response;
 
-import javax.xml.transform.TransformerException;
-import java.io.IOException;
 import java.util.Map;
 
 /**
@@ -58,8 +56,7 @@ public class ServicesRequestHandler extends BaseRequestHandler {
      * @return A response object for Spark
      */
     @Override
-    public Object handleRequest(final Element requestBody, final Request request, final Response response)
-            throws TransformerException, IOException {
+    public Object handleRequest(final Element requestBody, final Request request, final Response response) {
         final String requestMethod = request.queryParams("method");
 
         if (requestMethod.equals("get")) {
@@ -75,8 +72,7 @@ public class ServicesRequestHandler extends BaseRequestHandler {
      * @param response The Spark response
      * @return A response object for Spark
      */
-    private Object handleGetRequest(final Request request, final Response response)
-            throws TransformerException, IOException {
+    private Object handleGetRequest(final Request request, final Response response) {
         // TODO: Remove all the hardcoded stuff
         XMLBuilder2 respBuilder = XMLBuilder2.create("response")
                 .elem("services")

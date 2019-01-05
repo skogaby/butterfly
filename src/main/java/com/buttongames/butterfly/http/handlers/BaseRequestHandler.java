@@ -37,20 +37,24 @@ public abstract class BaseRequestHandler {
      * @param response The Spark response
      * @return A response object for Spark
      */
-    public abstract Object handleRequest(final Element requestBody, final Request request, final Response response)
-            throws TransformerException, IOException;
+    public abstract Object handleRequest(final Element requestBody, final Request request, final Response response);
 
-    protected Object sendResponse(final Request request, final Response response, final XMLBuilder2 respBody)
-            throws TransformerException, IOException {
+    protected Object sendResponse(final Request request, final Response response, final XMLBuilder2 respBody) {
         // get the bytes of the XML document
-        final TransformerFactory transformerFactory = TransformerFactory.newInstance();
-        final Transformer transformer = transformerFactory.newTransformer();
-        transformer.setOutputProperty(OutputKeys.METHOD, "xml");
-
-        final DOMSource source = new DOMSource(respBody.getDocument());
         final ByteArrayOutputStream bos = new ByteArrayOutputStream();
-        final StreamResult result = new StreamResult(bos);
-        transformer.transform(source, result);
+
+        try {
+            final TransformerFactory transformerFactory = TransformerFactory.newInstance();
+            final Transformer transformer = transformerFactory.newTransformer();
+            transformer.setOutputProperty(OutputKeys.METHOD, "xml");
+
+            final DOMSource source = new DOMSource(respBody.getDocument());
+            final StreamResult result = new StreamResult(bos);
+            transformer.transform(source, result);
+        } catch (TransformerException e) {
+            e.printStackTrace();
+            return 500;
+        }
 
         byte[] respBytes = bos.toByteArray();
 
@@ -79,16 +83,20 @@ public abstract class BaseRequestHandler {
         }
 
         // send to the client
-        final HttpServletResponse rawResponse = response.raw();
-        response.type(MediaType.OCTET_STREAM.toString());
-        rawResponse.setContentLength(respBytes.length);
+        try {
+            final HttpServletResponse rawResponse = response.raw();
+            response.type(MediaType.OCTET_STREAM.toString());
+            rawResponse.setContentLength(respBytes.length);
 
-        rawResponse.getOutputStream().write(respBytes);
-        rawResponse.getOutputStream().flush();
-        rawResponse.getOutputStream().close();
+            rawResponse.getOutputStream().write(respBytes);
+            rawResponse.getOutputStream().flush();
+            rawResponse.getOutputStream().close();
 
-        System.out.println("Sent a response!");
-
-        return 200;
+            System.out.println("Sent a response!");
+            return 200;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return 500;
+        }
     }
 }

@@ -29,17 +29,22 @@ public class BinaryXmlUtils {
      * @return
      * @throws IOException
      */
-    public static byte[] binaryToXml(final byte[] input) throws IOException {
-        final String tmpPath = System.getProperty("user.home") + "\\tmpkbin";
-        final DataOutputStream dos = new DataOutputStream(new FileOutputStream(tmpPath));
-        dos.write(input, 0, input.length);
-        dos.flush();
-        dos.close();
+    public static byte[] binaryToXml(final byte[] input) {
+        try {
+            final String tmpPath = System.getProperty("user.home") + "\\tmpkbin";
+            final DataOutputStream dos = new DataOutputStream(new FileOutputStream(tmpPath));
+            dos.write(input, 0, input.length);
+            dos.flush();
+            dos.close();
 
-        // shell out to mon's implementation for now
-        final Process child = Runtime.getRuntime().exec("kbinxml " + tmpPath);
-        final byte[] output = CollectionUtils.readInputStream(child.getInputStream());
-        return output;
+            // shell out to mon's implementation for now
+            final Process child = Runtime.getRuntime().exec("kbinxml " + tmpPath);
+            final byte[] output = CollectionUtils.readInputStream(child.getInputStream());
+            return output;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
     /**
@@ -48,7 +53,7 @@ public class BinaryXmlUtils {
      * @return
      * @throws IOException
      */
-    public static byte[] xmlToBinary(final byte[] input) throws IOException {
+    public static byte[] xmlToBinary(final byte[] input) {
         return binaryToXml(input);
     }
 
