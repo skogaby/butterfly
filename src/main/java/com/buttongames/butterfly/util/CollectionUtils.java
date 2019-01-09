@@ -43,15 +43,5 @@ public class CollectionUtils {
 
         return data;
     }
-
-    /**
-     * Reads all the bytes in an input stream into a new byte array.
-     * @param is The {@code InputStream} to read
-     * @return A byte array containing everything read from the stream
-     * @throws IOException
-     */
-    public static byte[] readInputStream(final InputStream is) throws IOException {
-        return ByteStreams.toByteArray(is);
-    }
 }
 

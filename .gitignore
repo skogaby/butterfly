@@ -32,3 +32,9 @@ gradle-app.setting
 !gradle-wrapper.jar
 .gradletasknamecache
 /bin/
+
+# vscode stuff
+.project
+.classpath
+/.settings/
+/.vscode/

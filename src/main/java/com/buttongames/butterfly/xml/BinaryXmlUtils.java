@@ -1,6 +1,6 @@
 package com.buttongames.butterfly.xml;
 
-import com.buttongames.butterfly.util.CollectionUtils;
+import com.google.common.io.ByteStreams;
 
 import java.io.DataOutputStream;
 import java.io.FileOutputStream;
@@ -39,7 +39,7 @@ public class BinaryXmlUtils {
 
             // shell out to mon's implementation for now
             final Process child = Runtime.getRuntime().exec("kbinxml " + tmpPath);
-            final byte[] output = CollectionUtils.readInputStream(child.getInputStream());
+            final byte[] output = ByteStreams.toByteArray(child.getInputStream());
             return output;
         } catch (Exception e) {
             e.printStackTrace();
