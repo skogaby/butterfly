@@ -32,6 +32,7 @@ gradle-app.setting
 !gradle-wrapper.jar
 .gradletasknamecache
 /bin/
+.DS_Store
 
 # vscode stuff
 .project

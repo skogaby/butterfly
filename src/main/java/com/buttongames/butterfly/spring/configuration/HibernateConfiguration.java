@@ -1,6 +1,8 @@
 package com.buttongames.butterfly.spring.configuration;
 
+import com.buttongames.butterfly.hibernate.dao.impl.ButterflyUserDao;
 import com.buttongames.butterfly.util.PathUtils;
+import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -72,5 +74,10 @@ public class HibernateConfiguration {
                 Paths.get(pathUtils.externalDirectory, SQLITE_DATABASE).toString().replace('\\', '/')));
 
         return source;
+    }
+
+    @Bean
+    public ButterflyUserDao butterflyUserDao(final SessionFactory sessionFactory) {
+        return new ButterflyUserDao(sessionFactory);
     }
 }
