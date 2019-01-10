@@ -2,9 +2,9 @@ package com.buttongames.butterfly.xml;
 
 import com.google.common.io.ByteStreams;
 
-import java.io.DataOutputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 
 /**
@@ -31,16 +31,21 @@ public class BinaryXmlUtils {
      */
     public static byte[] binaryToXml(final byte[] input) {
         try {
-            final String tmpPath = System.getProperty("user.home") + "\\tmpkbin";
-            final DataOutputStream dos = new DataOutputStream(new FileOutputStream(tmpPath));
-            dos.write(input, 0, input.length);
-            dos.flush();
-            dos.close();
+            final ProcessBuilder builder = new ProcessBuilder("python",
+                    "-c",
+                    "import sys; " +
+                        "from kbinxml import KBinXML; " +
+                        "the_bytes = sys.stdin.buffer.read(); "+
+                        "print(KBinXML(the_bytes).to_text())");
+            final Process process = builder.start();
+            final OutputStream stdin = process.getOutputStream();
+            final InputStream stdout = process.getInputStream();
 
-            // shell out to mon's implementation for now
-            final Process child = Runtime.getRuntime().exec("kbinxml " + tmpPath);
-            final byte[] output = ByteStreams.toByteArray(child.getInputStream());
-            return output;
+            stdin.write(input, 0, input.length);
+            stdin.flush();
+            stdin.close();
+
+            return ByteStreams.toByteArray(stdout);
         } catch (Exception e) {
             e.printStackTrace();
             return null;
@@ -54,7 +59,26 @@ public class BinaryXmlUtils {
      * @throws IOException
      */
     public static byte[] xmlToBinary(final byte[] input) {
-        return binaryToXml(input);
+        try {
+            final ProcessBuilder builder = new ProcessBuilder("python",
+                    "-c",
+                    "import sys; " +
+                        "from kbinxml import KBinXML; " +
+                        "the_bytes = sys.stdin.buffer.read(); " +
+                        "sys.stdout.buffer.write(KBinXML(the_bytes).to_binary())");
+            final Process process = builder.start();
+            final OutputStream stdin = process.getOutputStream();
+            final InputStream stdout = process.getInputStream();
+
+            stdin.write(input, 0, input.length);
+            stdin.flush();
+            stdin.close();
+
+            return ByteStreams.toByteArray(stdout);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
     /**

@@ -41,8 +41,6 @@ public class PackageRequestHandler extends BaseRequestHandler {
      * @return A response object for Spark
      */
     private Object handleListRequest(final Request request, final Response response) {
-        LOG.debug("Handling the package.list request");
-
         KXmlBuilder respBuilder = KXmlBuilder.create("response")
                 .e("package");
 

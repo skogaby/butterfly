@@ -708,43 +708,43 @@ public final class KXmlBuilder extends BaseXMLBuilder {
         }
     }
 
-    public KXmlBuilder writeStr(final String name, final String value) {
+    public KXmlBuilder str(final String name, final String value) {
         return e(name).a("__type", "str").t(value);
     }
 
-    public KXmlBuilder writeU8(final String name, final int value) {
+    public KXmlBuilder u8(final String name, final int value) {
         return e(name).a("__type", "u8").t(String.valueOf(value));
     }
 
-    public KXmlBuilder writeU16(final String name, final int value) {
+    public KXmlBuilder u16(final String name, final int value) {
         return e(name).a("__type", "u16").t(String.valueOf(value));
     }
 
-    public KXmlBuilder writeU32(final String name, final long value) {
+    public KXmlBuilder u32(final String name, final long value) {
         return e(name).a("__type", "u32").t(String.valueOf(value));
     }
 
-    public KXmlBuilder writeU64(final String name, final long value) {
+    public KXmlBuilder u64(final String name, final long value) {
         return e(name).a("__type", "u64").t(String.valueOf(value));
     }
 
-    public KXmlBuilder writeS8(final String name, final int value) {
+    public KXmlBuilder s8(final String name, final int value) {
         return e(name).a("__type", "s8").t(String.valueOf(value));
     }
 
-    public KXmlBuilder writeS16(final String name, final int value) {
+    public KXmlBuilder s16(final String name, final int value) {
         return e(name).a("__type", "s16").t(String.valueOf(value));
     }
 
-    public KXmlBuilder writeS32(final String name, final int value) {
+    public KXmlBuilder s32(final String name, final int value) {
         return e(name).a("__type", "s32").t(String.valueOf(value));
     }
 
-    public KXmlBuilder writeS64(final String name, final long value) {
+    public KXmlBuilder s64(final String name, final long value) {
         return e(name).a("__type", "s64").t(String.valueOf(value));
     }
 
-    public KXmlBuilder writeIp(final String name, final String value) {
+    public KXmlBuilder ip(final String name, final String value) {
         return e(name).a("__type", "ip4").t(value);
     }
 }

@@ -77,8 +77,6 @@ public class ServicesRequestHandler extends BaseRequestHandler {
      * @return A response object for Spark
      */
     private Object handleGetRequest(final Request request, final Response response) {
-        LOG.debug("Handling the services.get request");
-
         // TODO: Remove all the hardcoded stuff
         KXmlBuilder respBuilder = KXmlBuilder.create("response")
                 .e("services").a("expire", "600").a("method", "get").a("mode", "operation").a("status", "0");

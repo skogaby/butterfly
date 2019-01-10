@@ -41,8 +41,6 @@ public class PcbEventRequestHandler extends BaseRequestHandler {
      * @return A response object for Spark
      */
     private Object handlePutRequest(final Request request, final Response response) {
-        LOG.debug("Handling the pcbevent.put request");
-
         // TODO: Remove all the hardcoded stuff and actually do something with the input
         KXmlBuilder respBuilder = KXmlBuilder.create("response")
                 .e("pcbevent");

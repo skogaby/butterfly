@@ -41,12 +41,10 @@ public class TaxRequestHandler extends BaseRequestHandler {
      * @return A response object for Spark
      */
     private Object handleGetPhaseRequest(final Request request, final Response response) {
-        LOG.debug("Handling the tax.get_phase request");
-
         // TODO: remove the hardcoded value, actually store phase per PCBID
         KXmlBuilder respBuilder = KXmlBuilder.create("response")
                 .e("tax")
-                    .writeS32("phase", 0);
+                    .s32("phase", 0);
 
         return this.sendResponse(request, response, respBuilder);
     }

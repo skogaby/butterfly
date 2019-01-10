@@ -41,8 +41,6 @@ public class MessageRequestHandler extends BaseRequestHandler {
      * @return A response object for Spark
      */
     private Object handleGetRequest(final Request request, final Response response) {
-        LOG.debug("Handling the message.get request");
-
         // TODO: Remove all the hardcoded stuff and actually do something with the input
         KXmlBuilder respBuilder = KXmlBuilder.create("response")
                 .e("message").a("expire", "1800").a("status", "0")

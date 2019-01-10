@@ -41,8 +41,6 @@ public class PcbTrackerRequestHandler extends BaseRequestHandler {
      * @return A response object for Spark
      */
     private Object handleAliveRequest(final Request request, final Response response) {
-        LOG.debug("Handling the pcbtracker.alive request");
-
         // TODO: Remove all the hardcoded stuff and actually do something with the input
         KXmlBuilder respBuilder = KXmlBuilder.create("response")
                 .e("pcbtracker").a("ecenable", "1").a("eclimit", "0").a("expire", "0").a("limit", "0").a("status", "0");

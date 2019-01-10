@@ -41,15 +41,13 @@ public class EventLogRequestHandler extends BaseRequestHandler {
      * @return A response object for Spark
      */
     private Object handleWriteRequest(final Request request, final Response response) {
-        LOG.debug("Handling the eventlog.write request");
-
         // TODO: actually store the events coming in from the client
         KXmlBuilder respBuilder = KXmlBuilder.create("response")
                 .e("eventlog")
-                    .writeS64("gamesession", 0).up()
-                    .writeS32("logsendflg", 0).up()
-                    .writeS32("logerrlevel", 0).up()
-                    .writeS32("evtidnosendflg", 0);
+                    .s64("gamesession", 0).up()
+                    .s32("logsendflg", 0).up()
+                    .s32("logerrlevel", 0).up()
+                    .s32("evtidnosendflg", 0);
 
         return this.sendResponse(request, response, respBuilder);
     }
