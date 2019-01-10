@@ -5,7 +5,10 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Table;
-import java.io.Serializable;
+import java.io.Externalizable;
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 
 /**
  * Model class for a user within the server. This user is tied to a person -- email
@@ -16,7 +19,7 @@ import java.io.Serializable;
  */
 @Entity
 @Table(name = "users")
-public class ButterflyUser implements Serializable {
+public class ButterflyUser implements Externalizable {
 
     private static final long serialVersionUID = 1L;
 
@@ -34,14 +37,28 @@ public class ButterflyUser implements Serializable {
     @Column(name = "pin")
     private String pin;
 
-    public ButterflyUser() { }
+    public ButterflyUser() {
+
+    }
+
+    public ButterflyUser(final String pin) {
+        this.pin = pin;
+    }
+
+    @Override
+    public void writeExternal(ObjectOutput out) throws IOException {
+        out.writeLong(this.userId);
+        out.writeUTF(this.pin);
+    }
+
+    @Override
+    public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
+        this.userId = in.readLong();
+        this.pin = in.readUTF();
+    }
 
     public long getUserId() {
         return userId;
-    }
-
-    public void setUserId(int userId) {
-        this.userId = userId;
     }
 
     public String getPin() {
