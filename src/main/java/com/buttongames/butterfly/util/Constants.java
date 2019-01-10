@@ -7,6 +7,11 @@ package com.buttongames.butterfly.util;
 public class Constants {
 
     /**
+     * Name of the app.
+     */
+    public static final String APP_NAME = "butterfly";
+
+    /**
     * Name of the HTTP header that contains the crypto key, if present.
     */
     public static final String CRYPT_KEY_HEADER = "X-Eamuse-Info";

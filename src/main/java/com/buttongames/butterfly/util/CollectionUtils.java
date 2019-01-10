@@ -1,9 +1,5 @@
 package com.buttongames.butterfly.util;
 
-import com.google.common.io.ByteStreams;
-
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 
 /**
