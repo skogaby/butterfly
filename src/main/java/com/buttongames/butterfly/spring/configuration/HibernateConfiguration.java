@@ -1,7 +1,6 @@
 package com.buttongames.butterfly.spring.configuration;
 
 import com.buttongames.butterfly.util.PathUtils;
-import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -54,7 +53,7 @@ public class HibernateConfiguration {
 
         final LocalSessionFactoryBean sessionFactory = new LocalSessionFactoryBean();
         sessionFactory.setDataSource(dataSource);
-        sessionFactory.setPackagesToScan("com.fuckmyclassic.model");
+        sessionFactory.setPackagesToScan("com.buttongames.butterfly.model");
         sessionFactory.setHibernateProperties(hibernateProperties);
 
         return sessionFactory;

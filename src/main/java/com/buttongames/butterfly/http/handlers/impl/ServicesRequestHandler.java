@@ -1,10 +1,12 @@
-package com.buttongames.butterfly.http.handlers;
+package com.buttongames.butterfly.http.handlers.impl;
 
 import com.buttongames.butterfly.http.exception.InvalidRequestMethodException;
+import com.buttongames.butterfly.http.handlers.BaseRequestHandler;
 import com.buttongames.butterfly.xml.KXmlBuilder;
 import com.google.common.collect.ImmutableMap;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.stereotype.Component;
 import org.w3c.dom.Element;
 import spark.Request;
 import spark.Response;
@@ -15,6 +17,7 @@ import java.util.Map;
  * Handler for any requests that come to the <code>services</code> module.
  * @author skogaby (skogabyskogaby@gmail.com)
  */
+@Component
 public class ServicesRequestHandler extends BaseRequestHandler {
 
     private final Logger LOG = LogManager.getLogger(ServicesRequestHandler.class);

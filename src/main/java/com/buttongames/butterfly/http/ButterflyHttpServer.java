@@ -7,19 +7,21 @@ import com.buttongames.butterfly.http.exception.InvalidRequestMethodException;
 import com.buttongames.butterfly.http.exception.InvalidRequestModelException;
 import com.buttongames.butterfly.http.exception.InvalidRequestModuleException;
 import com.buttongames.butterfly.http.exception.MismatchedRequestUriException;
-import com.buttongames.butterfly.http.handlers.EventLogRequestHandler;
-import com.buttongames.butterfly.http.handlers.FacilityRequestHandler;
-import com.buttongames.butterfly.http.handlers.MessageRequestHandler;
-import com.buttongames.butterfly.http.handlers.PackageRequestHandler;
-import com.buttongames.butterfly.http.handlers.PcbEventRequestHandler;
-import com.buttongames.butterfly.http.handlers.PcbTrackerRequestHandler;
-import com.buttongames.butterfly.http.handlers.ServicesRequestHandler;
-import com.buttongames.butterfly.http.handlers.TaxRequestHandler;
+import com.buttongames.butterfly.http.handlers.impl.EventLogRequestHandler;
+import com.buttongames.butterfly.http.handlers.impl.FacilityRequestHandler;
+import com.buttongames.butterfly.http.handlers.impl.MessageRequestHandler;
+import com.buttongames.butterfly.http.handlers.impl.PackageRequestHandler;
+import com.buttongames.butterfly.http.handlers.impl.PcbEventRequestHandler;
+import com.buttongames.butterfly.http.handlers.impl.PcbTrackerRequestHandler;
+import com.buttongames.butterfly.http.handlers.impl.ServicesRequestHandler;
+import com.buttongames.butterfly.http.handlers.impl.TaxRequestHandler;
 import com.buttongames.butterfly.xml.BinaryXmlUtils;
 import com.buttongames.butterfly.xml.XmlUtils;
 import com.google.common.collect.ImmutableSet;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 import spark.Request;
@@ -42,6 +44,7 @@ import static spark.Spark.threadPool;
  * requests, then delegates the responsibility to the appropriate handler.
  * @author skogaby (skogabyskogaby@gmail.com)
  */
+@Component
 public class ButterflyHttpServer {
 
     private static final Logger LOG = LogManager.getLogger(ButterflyHttpServer.class);
@@ -64,30 +67,50 @@ public class ButterflyHttpServer {
                 "package", "eventlog", "tax");
     }
 
-    /**
-     * Handler for requests to the various supported modules.
-     */
-    private ServicesRequestHandler servicesRequestHandler;
-    private PcbEventRequestHandler pcbEventRequestHandler;
-    private PcbTrackerRequestHandler pcbTrackerRequestHandler;
-    private MessageRequestHandler messageRequestHandler;
-    private FacilityRequestHandler facilityRequestHandler;
-    private PackageRequestHandler packageRequestHandler;
-    private EventLogRequestHandler eventLogRequestHandler;
-    private TaxRequestHandler taxRequestHandler;
+    /** Handler for requests for the <code>services</code> module. */
+    private final ServicesRequestHandler servicesRequestHandler;
+
+    /** Handler for requests for the <code>pcbevent</code> module. */
+    private final PcbEventRequestHandler pcbEventRequestHandler;
+
+    /** Handler for requests for the <code>pcbtracker</code> module. */
+    private final PcbTrackerRequestHandler pcbTrackerRequestHandler;
+
+    /** Handler for requests for the <code>message</code> module. */
+    private final MessageRequestHandler messageRequestHandler;
+
+    /** Handler for requests for the <code>facility</code> module. */
+    private final FacilityRequestHandler facilityRequestHandler;
+
+    /** Handler for requests for the <code>package</code> module. */
+    private final PackageRequestHandler packageRequestHandler;
+
+    /** Handler for requests for the <code>eventlog</code> module. */
+    private final EventLogRequestHandler eventLogRequestHandler;
+
+    /** Handler for requests for the <code>tax</code> module. */
+    private final TaxRequestHandler taxRequestHandler;
 
     /**
      * Constructor.
      */
-    public ButterflyHttpServer() {
-        this.servicesRequestHandler = new ServicesRequestHandler();
-        this.pcbEventRequestHandler = new PcbEventRequestHandler();
-        this.pcbTrackerRequestHandler = new PcbTrackerRequestHandler();
-        this.messageRequestHandler = new MessageRequestHandler();
-        this.facilityRequestHandler = new FacilityRequestHandler();
-        this.packageRequestHandler = new PackageRequestHandler();
-        this.eventLogRequestHandler = new EventLogRequestHandler();
-        this.taxRequestHandler = new TaxRequestHandler();
+    @Autowired
+    public ButterflyHttpServer(final ServicesRequestHandler servicesRequestHandler,
+                               final PcbEventRequestHandler pcbEventRequestHandler,
+                               final PcbTrackerRequestHandler pcbTrackerRequestHandler,
+                               final MessageRequestHandler messageRequestHandler,
+                               final FacilityRequestHandler facilityRequestHandler,
+                               final PackageRequestHandler packageRequestHandler,
+                               final EventLogRequestHandler eventLogRequestHandler,
+                               final TaxRequestHandler taxRequestHandler) {
+        this.servicesRequestHandler = servicesRequestHandler;
+        this.pcbEventRequestHandler = pcbEventRequestHandler;
+        this.pcbTrackerRequestHandler = pcbTrackerRequestHandler;
+        this.messageRequestHandler = messageRequestHandler;
+        this.facilityRequestHandler = facilityRequestHandler;
+        this.packageRequestHandler = packageRequestHandler;
+        this.eventLogRequestHandler = eventLogRequestHandler;
+        this.taxRequestHandler = taxRequestHandler;
     }
 
     /**

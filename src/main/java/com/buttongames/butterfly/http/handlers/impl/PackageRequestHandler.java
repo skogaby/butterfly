@@ -1,23 +1,26 @@
-package com.buttongames.butterfly.http.handlers;
+package com.buttongames.butterfly.http.handlers.impl;
 
 import com.buttongames.butterfly.http.exception.InvalidRequestMethodException;
+import com.buttongames.butterfly.http.handlers.BaseRequestHandler;
 import com.buttongames.butterfly.xml.KXmlBuilder;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.stereotype.Component;
 import org.w3c.dom.Element;
 import spark.Request;
 import spark.Response;
 
 /**
- * Handler for any requests that come to the <code>pcbevent</code> module.
+ * Handler for any requests that come to the <code>package</code> module.
  * @author skogaby (skogabyskogaby@gmail.com)
  */
-public class PcbEventRequestHandler extends BaseRequestHandler {
+@Component
+public class PackageRequestHandler extends BaseRequestHandler {
 
-    private final Logger LOG = LogManager.getLogger(PcbEventRequestHandler.class);
+    private final Logger LOG = LogManager.getLogger(PackageRequestHandler.class);
 
     /**
-     * Handles an incoming request for the <code>pcbevent</code> module.
+     * Handles an incoming request for the <code>package</code> module.
      * @param requestBody The XML document of the incoming request.
      * @param request The Spark request
      * @param response The Spark response
@@ -27,23 +30,22 @@ public class PcbEventRequestHandler extends BaseRequestHandler {
     public Object handleRequest(final Element requestBody, final Request request, final Response response) {
         final String requestMethod = request.queryParams("method");
 
-        if (requestMethod.equals("put")) {
-            return handlePutRequest(request, response);
+        if (requestMethod.equals("list")) {
+            return handleListRequest(request, response);
         } else {
             throw new InvalidRequestMethodException();
         }
     }
 
     /**
-     * Handles an incoming request for <code>pcbevent.put</code>
+     * Handles an incoming request for <code>package.list</code>
      * @param request The Spark request
      * @param response The Spark response
      * @return A response object for Spark
      */
-    private Object handlePutRequest(final Request request, final Response response) {
-        // TODO: Remove all the hardcoded stuff and actually do something with the input
+    private Object handleListRequest(final Request request, final Response response) {
         KXmlBuilder respBuilder = KXmlBuilder.create("response")
-                .e("pcbevent");
+                .e("package");
 
         return this.sendResponse(request, response, respBuilder);
     }

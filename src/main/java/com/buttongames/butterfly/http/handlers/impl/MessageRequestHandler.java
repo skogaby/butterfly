@@ -1,9 +1,11 @@
-package com.buttongames.butterfly.http.handlers;
+package com.buttongames.butterfly.http.handlers.impl;
 
 import com.buttongames.butterfly.http.exception.InvalidRequestMethodException;
+import com.buttongames.butterfly.http.handlers.BaseRequestHandler;
 import com.buttongames.butterfly.xml.KXmlBuilder;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.stereotype.Component;
 import org.w3c.dom.Element;
 import spark.Request;
 import spark.Response;
@@ -12,6 +14,7 @@ import spark.Response;
  * Handler for any requests that come to the <code>message</code> module.
  * @author skogaby (skogabyskogaby@gmail.com)
  */
+@Component
 public class MessageRequestHandler extends BaseRequestHandler {
 
     private final Logger LOG = LogManager.getLogger(MessageRequestHandler.class);
