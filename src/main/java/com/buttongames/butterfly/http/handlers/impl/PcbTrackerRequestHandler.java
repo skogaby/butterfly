@@ -28,7 +28,7 @@ public class PcbTrackerRequestHandler extends BaseRequestHandler {
      */
     @Override
     public Object handleRequest(final Element requestBody, final Request request, final Response response) {
-        final String requestMethod = request.queryParams("method");
+        final String requestMethod = request.attribute("method");
 
         if (requestMethod.equals("alive")) {
             return handleAliveRequest(request, response);

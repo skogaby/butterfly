@@ -42,7 +42,7 @@ public class PcbEventRequestHandler extends BaseRequestHandler {
      */
     @Override
     public Object handleRequest(final Element requestBody, final Request request, final Response response) {
-        final String requestMethod = request.queryParams("method");
+        final String requestMethod = request.attribute("method");
 
         if (requestMethod.equals("put")) {
             return handlePutRequest(requestBody, request, response);
@@ -60,8 +60,8 @@ public class PcbEventRequestHandler extends BaseRequestHandler {
      */
     private Object handlePutRequest(final Element requestBody, final Request request, final Response response) {
         // log the event to the database
-        final String reqModel = requestBody.getAttribute("model");
-        final String reqPcbId = requestBody.getAttribute("srcid");
+        final String reqModel = request.attribute("model");
+        final String reqPcbId = request.attribute("pcbid");
         final XPath xpath = XPathFactory.newInstance().newXPath();
 
         // TODO: finish this

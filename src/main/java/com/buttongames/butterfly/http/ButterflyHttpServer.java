@@ -144,7 +144,7 @@ public class ButterflyHttpServer {
         post("/", ((request, response) -> {
             // send the request to the right module handler
             final Element requestBody = validateAndUnpackRequest(request);
-            final String requestModule = request.queryParams("module");
+            final String requestModule = request.attribute("module");
 
             if (requestModule.equals("services")) {
                 return this.servicesRequestHandler.handleRequest(requestBody, request, response);
@@ -246,6 +246,7 @@ public class ButterflyHttpServer {
 
         final Element moduleNode = (Element) rootNode.getFirstChild();
         final String requestBodyModel = rootNode.getAttribute("model");
+        final String requestBodyPcbId = rootNode.getAttribute("srcid");
         final String requestBodyModule = moduleNode.getNodeName();
         final String requestBodyMethod = moduleNode.getAttribute("method");
 
@@ -257,6 +258,13 @@ public class ButterflyHttpServer {
                 !requestBodyMethod.equals(requestUriMethod)) {
             throw new MismatchedRequestUriException();
         }
+
+        // set the model, pcbid, module, and method as request "attributes" so they can be
+        // used by the request handlers if needed
+        request.attribute("model", requestBodyModel);
+        request.attribute("pcbid", requestBodyPcbId);
+        request.attribute("module", requestBodyModule);
+        request.attribute("method", requestBodyMethod);
 
         // TODO: Verify the PCBID
 

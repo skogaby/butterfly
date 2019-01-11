@@ -28,7 +28,7 @@ public class EventLogRequestHandler extends BaseRequestHandler {
      */
     @Override
     public Object handleRequest(final Element requestBody, final Request request, final Response response) {
-        final String requestMethod = request.queryParams("method");
+        final String requestMethod = request.attribute("method");
 
         if (requestMethod.equals("write")) {
             return handleWriteRequest(request, response);
