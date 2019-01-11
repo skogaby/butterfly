@@ -9,6 +9,7 @@ import java.io.Externalizable;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
+import java.time.LocalDateTime;
 
 /**
  * Model class for a user within the server. This user is tied to a person -- email
@@ -32,6 +33,12 @@ public class ButterflyUser implements Externalizable {
     private long id;
 
     /**
+     * The date and time this user was registered.
+     */
+    @Column(name = "register_time")
+    private LocalDateTime registerTime;
+
+    /**
      * The user's card PIN.
      */
     @Column(name = "pin")
@@ -46,21 +53,31 @@ public class ButterflyUser implements Externalizable {
     @Override
     public void writeExternal(ObjectOutput out) throws IOException {
         out.writeLong(this.id);
+        out.writeObject(this.registerTime);
         out.writeUTF(this.pin);
     }
 
     @Override
     public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
         this.setId(in.readLong());
+        this.setRegisterTime((LocalDateTime) in.readObject());
         this.setPin(in.readUTF());
+    }
+
+    public long getId() {
+        return id;
     }
 
     private void setId(long id) {
         this.id = id;
     }
 
-    public long getId() {
-        return id;
+    public LocalDateTime getRegisterTime() {
+        return registerTime;
+    }
+
+    public void setRegisterTime(LocalDateTime registerTime) {
+        this.registerTime = registerTime;
     }
 
     public String getPin() {

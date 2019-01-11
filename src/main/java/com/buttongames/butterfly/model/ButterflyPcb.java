@@ -93,12 +93,12 @@ public class ButterflyPcb implements Externalizable {
         this.setPort(in.readInt());
     }
 
-    private void setId(long id) {
-        this.id = id;
-    }
-
     public long getId() {
         return id;
+    }
+
+    private void setId(long id) {
+        this.id = id;
     }
 
     public ButterflyUser getUser() {
