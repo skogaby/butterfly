@@ -79,7 +79,7 @@ public class XmlUtils {
      */
     public static String strValueAtPath(final Element doc, final String path) {
         try {
-            return (String) XPATH.compile(path).evaluate(doc, XPathConstants.STRING);
+            return (String) XPATH.compile("/" + path).evaluate(doc, XPathConstants.STRING);
         } catch (Exception e) {
             e.printStackTrace();
             return "";
@@ -94,7 +94,7 @@ public class XmlUtils {
      */
     public static Boolean boolValueAtPath(final Element doc, final String path) {
         try {
-            return (Boolean) XPATH.compile(path).evaluate(doc, XPathConstants.BOOLEAN);
+            return (Boolean) XPATH.compile("/" + path).evaluate(doc, XPathConstants.BOOLEAN);
         } catch (Exception e) {
             e.printStackTrace();
             return null;
@@ -109,7 +109,7 @@ public class XmlUtils {
      */
     public static Double doubleValueAtPath(final Element doc, final String path) {
         try {
-            return (Double) XPATH.compile(path).evaluate(doc, XPathConstants.NUMBER);
+            return (Double) XPATH.compile("/" + path).evaluate(doc, XPathConstants.NUMBER);
         } catch (Exception e) {
             e.printStackTrace();
             return null;
@@ -124,7 +124,7 @@ public class XmlUtils {
      */
     public static Long longValueAtPath(final Element doc, final String path) {
         try {
-            return Long.parseLong((String) XPATH.compile(path).evaluate(doc, XPathConstants.STRING));
+            return Long.parseLong((String) XPATH.compile("/" + path).evaluate(doc, XPathConstants.STRING));
         } catch (Exception e) {
             e.printStackTrace();
             return null;
@@ -139,7 +139,7 @@ public class XmlUtils {
      */
     public static Integer intValueAtPath(final Element doc, final String path) {
         try {
-            return ((Double) XPATH.compile(path).evaluate(doc, XPathConstants.NUMBER)).intValue();
+            return ((Double) XPATH.compile("/" + path).evaluate(doc, XPathConstants.NUMBER)).intValue();
         } catch (Exception e) {
             e.printStackTrace();
             return null;
