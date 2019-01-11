@@ -29,7 +29,7 @@ public class ButterflyUser implements Externalizable {
     @Id
     @GeneratedValue
     @Column(name = "id")
-    private long userId;
+    private long id;
 
     /**
      * The user's card PIN.
@@ -37,9 +37,7 @@ public class ButterflyUser implements Externalizable {
     @Column(name = "pin")
     private String pin;
 
-    public ButterflyUser() {
-
-    }
+    public ButterflyUser() { }
 
     public ButterflyUser(final String pin) {
         this.pin = pin;
@@ -47,18 +45,22 @@ public class ButterflyUser implements Externalizable {
 
     @Override
     public void writeExternal(ObjectOutput out) throws IOException {
-        out.writeLong(this.userId);
+        out.writeLong(this.id);
         out.writeUTF(this.pin);
     }
 
     @Override
     public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
-        this.userId = in.readLong();
-        this.pin = in.readUTF();
+        this.setId(in.readLong());
+        this.setPin(in.readUTF());
     }
 
-    public long getUserId() {
-        return userId;
+    private void setId(long id) {
+        this.id = id;
+    }
+
+    public long getId() {
+        return id;
     }
 
     public String getPin() {

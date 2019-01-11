@@ -1,5 +1,6 @@
 package com.buttongames.butterfly.spring.configuration;
 
+import com.buttongames.butterfly.hibernate.dao.impl.ButterflyPcbDao;
 import com.buttongames.butterfly.hibernate.dao.impl.ButterflyUserDao;
 import com.buttongames.butterfly.util.PathUtils;
 import org.hibernate.SessionFactory;
@@ -79,5 +80,10 @@ public class HibernateConfiguration {
     @Bean
     public ButterflyUserDao butterflyUserDao(final SessionFactory sessionFactory) {
         return new ButterflyUserDao(sessionFactory);
+    }
+
+    @Bean
+    public ButterflyPcbDao butterflyPcbDao(final SessionFactory sessionFactory) {
+        return new ButterflyPcbDao(sessionFactory);
     }
 }
