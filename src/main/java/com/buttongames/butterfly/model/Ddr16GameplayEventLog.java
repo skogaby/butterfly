@@ -78,16 +78,16 @@ public class Ddr16GameplayEventLog implements Externalizable {
     private long numData2;
 
     /** The location ID for the facility of the machine. */
-    // TODO: Make this a real Facility reference
-    @Column(name = "location_id")
-    private String locationId;
+    @ManyToOne
+    @JoinColumn(name = "facility_id")
+    private Ddr16Facility facility;
 
     public Ddr16GameplayEventLog() { }
 
     public Ddr16GameplayEventLog(final ButterflyUser machineOwner, final String pcbId, final String model, final int retryCount,
                                  final String eventId, final int eventOrder, final long pcbTime, final long gameSession,
                                  final String stringData1, final String stringData2, final long numData1, final long numData2,
-                                 final String locationId) {
+                                 final Ddr16Facility facility) {
         this.machineOwner = machineOwner;
         this.pcbId = pcbId;
         this.model = model;
@@ -100,7 +100,7 @@ public class Ddr16GameplayEventLog implements Externalizable {
         this.stringData2 = stringData2;
         this.numData1 = numData1;
         this.numData2 = numData2;
-        this.locationId = locationId;
+        this.facility = facility;
     }
 
     @Override
@@ -118,7 +118,7 @@ public class Ddr16GameplayEventLog implements Externalizable {
         out.writeUTF(this.stringData2);
         out.writeLong(this.numData1);
         out.writeLong(this.numData2);
-        out.writeUTF(this.locationId);
+        out.writeObject(this.facility);
     }
 
     @Override
@@ -136,7 +136,7 @@ public class Ddr16GameplayEventLog implements Externalizable {
         this.setStringData2(in.readUTF());
         this.setNumData1(in.readLong());
         this.setNumData2(in.readLong());
-        this.setLocationId(in.readUTF());
+        this.setFacility((Ddr16Facility) in.readObject());
     }
 
     public long getId() {
@@ -243,11 +243,11 @@ public class Ddr16GameplayEventLog implements Externalizable {
         this.numData2 = numData2;
     }
 
-    public String getLocationId() {
-        return locationId;
+    public Ddr16Facility getFacility() {
+        return facility;
     }
 
-    public void setLocationId(String locationId) {
-        this.locationId = locationId;
+    public void setFacility(Ddr16Facility facility) {
+        this.facility = facility;
     }
 }
