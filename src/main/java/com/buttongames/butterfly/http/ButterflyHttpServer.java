@@ -268,7 +268,7 @@ public class ButterflyHttpServer {
 
         // TODO: Verify the PCBID
 
-        // 4) return the XML document
-        return rootNode;
+        // 4) return the node corresponding to the actual call
+        return moduleNode;
     }
 }

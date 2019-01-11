@@ -9,6 +9,9 @@ import org.xml.sax.SAXException;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathFactory;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 
@@ -17,6 +20,8 @@ import java.io.IOException;
  * @author skogaby (skogabyskogaby@gmail.com)
  */
 public class XmlUtils {
+
+    private static final XPath XPATH = XPathFactory.newInstance().newXPath();
 
     /**
      * Scrubs empty nodes from a document so we don't accidentally read them.
@@ -60,6 +65,81 @@ public class XmlUtils {
             XmlUtils.clean(reqDocument);
 
             return reqDocument.getDocumentElement();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    /**
+     * Reads the String value at the given XPath expression from the given document.
+     * @param doc
+     * @param path
+     * @return
+     */
+    public static String strValueAtPath(final Element doc, final String path) {
+        try {
+            return (String) XPATH.compile(path).evaluate(doc, XPathConstants.STRING);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "";
+        }
+    }
+
+    /**
+     * Reads the boolean value at the given XPath expression from the given document.
+     * @param doc
+     * @param path
+     * @return
+     */
+    public static Boolean boolValueAtPath(final Element doc, final String path) {
+        try {
+            return (Boolean) XPATH.compile(path).evaluate(doc, XPathConstants.BOOLEAN);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    /**
+     * Reads the double value at the given XPath expression from the given document.
+     * @param doc
+     * @param path
+     * @return
+     */
+    public static Double doubleValueAtPath(final Element doc, final String path) {
+        try {
+            return (Double) XPATH.compile(path).evaluate(doc, XPathConstants.NUMBER);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    /**
+     * Reads the long value at the given XPath expression from the given document.
+     * @param doc
+     * @param path
+     * @return
+     */
+    public static Long longValueAtPath(final Element doc, final String path) {
+        try {
+            return Long.parseLong((String) XPATH.compile(path).evaluate(doc, XPathConstants.STRING));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    /**
+     * Reads the integer value at the given XPath expression from the given document.
+     * @param doc
+     * @param path
+     * @return
+     */
+    public static Integer intValueAtPath(final Element doc, final String path) {
+        try {
+            return ((Double) XPATH.compile(path).evaluate(doc, XPathConstants.NUMBER)).intValue();
         } catch (Exception e) {
             e.printStackTrace();
             return null;
