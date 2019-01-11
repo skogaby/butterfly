@@ -4,8 +4,6 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import java.io.Externalizable;
 import java.io.IOException;
@@ -27,11 +25,6 @@ public class Ddr16Facility implements Externalizable {
     @GeneratedValue
     @Column(name = "id")
     private long id;
-
-    /** The user who owns the machine this event occurred on. */
-    @ManyToOne
-    @JoinColumn(name = "user_id")
-    private ButterflyUser machineOwner;
 
     /** The PCBID for this facility. */
     @Column(name = "pcb_id")
@@ -79,10 +72,9 @@ public class Ddr16Facility implements Externalizable {
 
     public Ddr16Facility() { }
 
-    public Ddr16Facility(final ButterflyUser machineOwner, final String pcbId, final String locationId, final String name,
+    public Ddr16Facility(final String pcbId, final String locationId, final String name,
                          final String country, final String region, final boolean isPublic, final String latitude, final String longitude,
                          final int notchAmount, final int notchCount, final int supplyLimit) {
-        this.machineOwner = machineOwner;
         this.pcbId = pcbId;
         this.locationId = locationId;
         this.name = name;
@@ -99,7 +91,6 @@ public class Ddr16Facility implements Externalizable {
     @Override
     public void writeExternal(ObjectOutput out) throws IOException {
         out.writeLong(this.id);
-        out.writeObject(this.machineOwner);
         out.writeUTF(this.pcbId);
         out.writeUTF(this.locationId);
         out.writeUTF(this.name);
@@ -116,7 +107,6 @@ public class Ddr16Facility implements Externalizable {
     @Override
     public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
         this.setId(in.readLong());
-        this.setMachineOwner((ButterflyUser) in.readObject());
         this.setPcbId(in.readUTF());
         this.setLocationId(in.readUTF());
         this.setName(in.readUTF());
@@ -136,14 +126,6 @@ public class Ddr16Facility implements Externalizable {
 
     private void setId(long id) {
         this.id = id;
-    }
-
-    public ButterflyUser getMachineOwner() {
-        return machineOwner;
-    }
-
-    public void setMachineOwner(ButterflyUser machineOwner) {
-        this.machineOwner = machineOwner;
     }
 
     public String getPcbId() {

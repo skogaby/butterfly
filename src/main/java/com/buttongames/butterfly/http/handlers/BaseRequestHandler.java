@@ -43,6 +43,13 @@ public abstract class BaseRequestHandler {
      */
     public abstract Object handleRequest(final Element requestBody, final Request request, final Response response);
 
+    /**
+     * Sends the response to the client.
+     * @param request The original request.
+     * @param response The response object we can use to send the data.
+     * @param respBody The XML document of the response.
+     * @return
+     */
     protected Object sendResponse(final Request request, final Response response, final BaseXMLBuilder respBody) {
         // get the bytes of the XML document
         final ByteArrayOutputStream bos = new ByteArrayOutputStream();

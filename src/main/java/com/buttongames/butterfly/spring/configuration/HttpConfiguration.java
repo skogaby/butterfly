@@ -1,5 +1,6 @@
 package com.buttongames.butterfly.spring.configuration;
 
+import com.buttongames.butterfly.hibernate.dao.impl.Ddr16PcbEventLogDao;
 import com.buttongames.butterfly.http.ButterflyHttpServer;
 import com.buttongames.butterfly.http.handlers.impl.EventLogRequestHandler;
 import com.buttongames.butterfly.http.handlers.impl.FacilityRequestHandler;
@@ -56,8 +57,8 @@ public class HttpConfiguration {
     }
 
     @Bean
-    public PcbEventRequestHandler pcbEventRequestHandler() {
-        return new PcbEventRequestHandler();
+    public PcbEventRequestHandler pcbEventRequestHandler(final Ddr16PcbEventLogDao pcbEventLogDao) {
+        return new PcbEventRequestHandler(pcbEventLogDao);
     }
 
     @Bean

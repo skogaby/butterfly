@@ -28,11 +28,6 @@ public class Ddr16GameplayEventLog implements Externalizable {
     @Column(name = "id")
     private long id;
 
-    /** The user who owns the machine this event occurred on. */
-    @ManyToOne
-    @JoinColumn(name = "user_id")
-    private ButterflyUser machineOwner;
-
     /** The PCBID of the event. */
     @Column(name = "pcbid")
     private String pcbId;
@@ -84,11 +79,10 @@ public class Ddr16GameplayEventLog implements Externalizable {
 
     public Ddr16GameplayEventLog() { }
 
-    public Ddr16GameplayEventLog(final ButterflyUser machineOwner, final String pcbId, final String model, final int retryCount,
+    public Ddr16GameplayEventLog(final String pcbId, final String model, final int retryCount,
                                  final String eventId, final int eventOrder, final long pcbTime, final long gameSession,
                                  final String stringData1, final String stringData2, final long numData1, final long numData2,
                                  final Ddr16Facility facility) {
-        this.machineOwner = machineOwner;
         this.pcbId = pcbId;
         this.model = model;
         this.retryCount = retryCount;
@@ -106,7 +100,6 @@ public class Ddr16GameplayEventLog implements Externalizable {
     @Override
     public void writeExternal(ObjectOutput out) throws IOException {
         out.writeLong(this.id);
-        out.writeObject(this.machineOwner);
         out.writeUTF(this.pcbId);
         out.writeUTF(this.model);
         out.writeInt(this.retryCount);
@@ -124,7 +117,6 @@ public class Ddr16GameplayEventLog implements Externalizable {
     @Override
     public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
         this.setId(in.readLong());
-        this.setMachineOwner((ButterflyUser) in.readObject());
         this.setPcbId(in.readUTF());
         this.setModel(in.readUTF());
         this.setRetryCount(in.readInt());
@@ -145,14 +137,6 @@ public class Ddr16GameplayEventLog implements Externalizable {
 
     private void setId(long id) {
         this.id = id;
-    }
-
-    public ButterflyUser getMachineOwner() {
-        return machineOwner;
-    }
-
-    public void setMachineOwner(ButterflyUser machineOwner) {
-        this.machineOwner = machineOwner;
     }
 
     public String getPcbId() {

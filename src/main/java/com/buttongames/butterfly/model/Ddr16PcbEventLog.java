@@ -4,8 +4,6 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import java.io.Externalizable;
 import java.io.IOException;
@@ -28,11 +26,6 @@ public class Ddr16PcbEventLog implements Externalizable {
     @GeneratedValue
     @Column(name = "id")
     private long id;
-
-    /** The user who owns the machine this event occurred on. */
-    @ManyToOne
-    @JoinColumn(name = "user_id")
-    private ButterflyUser machineOwner;
 
     /** The PCBID of the event. */
     @Column(name = "pcbid")
@@ -64,9 +57,8 @@ public class Ddr16PcbEventLog implements Externalizable {
 
     public Ddr16PcbEventLog() { }
 
-    public Ddr16PcbEventLog(final ButterflyUser machineOwner, final String pcbId, String model, final LocalDateTime time1,
+    public Ddr16PcbEventLog(final String pcbId, String model, final LocalDateTime time1,
                             final LocalDateTime time2, final long sequence, final String name, final int value) {
-        this.machineOwner = machineOwner;
         this.pcbId = pcbId;
         this.model = model;
         this.time1 = time1;
@@ -79,7 +71,6 @@ public class Ddr16PcbEventLog implements Externalizable {
     @Override
     public void writeExternal(ObjectOutput out) throws IOException {
         out.writeLong(this.id);
-        out.writeObject(this.machineOwner);
         out.writeUTF(this.pcbId);
         out.writeUTF(this.model);
         out.writeObject(this.time1);
@@ -92,7 +83,6 @@ public class Ddr16PcbEventLog implements Externalizable {
     @Override
     public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
         this.setId(in.readLong());
-        this.setMachineOwner((ButterflyUser) in.readObject());
         this.setPcbId(in.readUTF());
         this.setModel(in.readUTF());
         this.setTime1((LocalDateTime) in.readObject());
@@ -108,14 +98,6 @@ public class Ddr16PcbEventLog implements Externalizable {
 
     private void setId(long id) {
         this.id = id;
-    }
-
-    public ButterflyUser getMachineOwner() {
-        return machineOwner;
-    }
-
-    public void setMachineOwner(ButterflyUser machineOwner) {
-        this.machineOwner = machineOwner;
     }
 
     public String getPcbId() {
