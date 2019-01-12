@@ -10,6 +10,7 @@ import com.buttongames.butterfly.model.Machine;
 import com.buttongames.butterfly.xml.KXmlBuilder;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.w3c.dom.Element;
 import spark.Request;
@@ -34,6 +35,7 @@ public class FacilityRequestHandler extends BaseRequestHandler {
      */
     private final MachineDao machineDao;
 
+    @Autowired
     public FacilityRequestHandler(final Ddr16ShopDao shopDao,
                                   final MachineDao machineDao) {
         this.shopDao = shopDao;

@@ -4,6 +4,7 @@ import com.buttongames.butterfly.hibernate.dao.impl.Ddr16GameplayEventLogDao;
 import com.buttongames.butterfly.hibernate.dao.impl.Ddr16PcbEventLogDao;
 import com.buttongames.butterfly.hibernate.dao.impl.Ddr16ShopDao;
 import com.buttongames.butterfly.hibernate.dao.impl.MachineDao;
+import com.buttongames.butterfly.hibernate.dao.impl.UserPhasesDao;
 import com.buttongames.butterfly.http.ButterflyHttpServer;
 import com.buttongames.butterfly.http.handlers.impl.EventLogRequestHandler;
 import com.buttongames.butterfly.http.handlers.impl.FacilityRequestHandler;
@@ -78,7 +79,7 @@ public class HttpConfiguration {
     }
 
     @Bean
-    public TaxRequestHandler taxRequestHandler() {
-        return new TaxRequestHandler();
+    public TaxRequestHandler taxRequestHandler(final MachineDao machineDao, final UserPhasesDao userPhasesDao) {
+        return new TaxRequestHandler(machineDao, userPhasesDao);
     }
 }

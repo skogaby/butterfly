@@ -9,6 +9,7 @@ import com.buttongames.butterfly.xml.KXmlBuilder;
 import com.buttongames.butterfly.xml.XmlUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.w3c.dom.Element;
 import spark.Request;
@@ -30,6 +31,7 @@ public class PcbEventRequestHandler extends BaseRequestHandler {
      */
     private final Ddr16PcbEventLogDao pcbEventLogDao;
 
+    @Autowired
     public PcbEventRequestHandler(final Ddr16PcbEventLogDao pcbEventLogDao) {
         this.pcbEventLogDao = pcbEventLogDao;
     }

@@ -9,6 +9,7 @@ import com.buttongames.butterfly.xml.KXmlBuilder;
 import com.buttongames.butterfly.xml.XmlUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.w3c.dom.Element;
 import spark.Request;
@@ -31,6 +32,7 @@ public class EventLogRequestHandler extends BaseRequestHandler {
      */
     private final Ddr16GameplayEventLogDao gameplayEventLogDao;
 
+    @Autowired
     public EventLogRequestHandler(final Ddr16GameplayEventLogDao gameplayEventLogDao) {
         this.gameplayEventLogDao = gameplayEventLogDao;
     }
