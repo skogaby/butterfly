@@ -11,12 +11,12 @@ import java.io.ObjectInput;
 import java.io.ObjectOutput;
 
 /**
- * Model class that represents a facility housing a DDR 16 machine.
+ * Model class that represents a shop housing a DDR 16 machine.
  * @author skogaby (skogabyskogaby@gmail.com)
  */
 @Entity
-@Table(name = "ddr_16_facilities")
-public class Ddr16Facility implements Externalizable {
+@Table(name = "ddr_16_shops")
+public class Ddr16Shop implements Externalizable {
 
     private static final long serialVersionUID = 1L;
 
@@ -70,11 +70,11 @@ public class Ddr16Facility implements Externalizable {
     @Column(name = "supply_limit")
     private int supplyLimit;
 
-    public Ddr16Facility() { }
+    public Ddr16Shop() { }
 
-    public Ddr16Facility(final String pcbId, final String locationId, final String name,
-                         final String country, final String region, final boolean isPublic, final String latitude, final String longitude,
-                         final int notchAmount, final int notchCount, final int supplyLimit) {
+    public Ddr16Shop(final String pcbId, final String locationId, final String name,
+                     final String country, final String region, final boolean isPublic, final String latitude, final String longitude,
+                     final int notchAmount, final int notchCount, final int supplyLimit) {
         this.pcbId = pcbId;
         this.locationId = locationId;
         this.name = name;
@@ -105,7 +105,7 @@ public class Ddr16Facility implements Externalizable {
     }
 
     @Override
-    public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
+    public void readExternal(ObjectInput in) throws IOException {
         this.setId(in.readLong());
         this.setPcbId(in.readUTF());
         this.setLocationId(in.readUTF());

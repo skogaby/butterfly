@@ -41,7 +41,7 @@ public class UserPhases implements Externalizable {
     /**
      * The user's phase for DDR Ace.
      */
-    @Column
+    @Column(name = "ddr_16_phase")
     private int ddr16Phase;
 
     public UserPhases() { }

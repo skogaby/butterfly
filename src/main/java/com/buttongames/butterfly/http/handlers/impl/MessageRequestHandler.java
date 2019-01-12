@@ -2,9 +2,11 @@ package com.buttongames.butterfly.http.handlers.impl;
 
 import com.buttongames.butterfly.http.exception.InvalidRequestMethodException;
 import com.buttongames.butterfly.http.handlers.BaseRequestHandler;
+import com.buttongames.butterfly.util.PropertyNames;
 import com.buttongames.butterfly.xml.KXmlBuilder;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.w3c.dom.Element;
 import spark.Request;
@@ -18,6 +20,12 @@ import spark.Response;
 public class MessageRequestHandler extends BaseRequestHandler {
 
     private final Logger LOG = LogManager.getLogger(MessageRequestHandler.class);
+
+    /**
+     * Says whether or not this server is running in maintenance mode.
+     */
+    @Value(PropertyNames.MAINT_MODE)
+    private String isMaintenance;
 
     /**
      * Handles an incoming request for the <code>message</code> module.
@@ -44,11 +52,16 @@ public class MessageRequestHandler extends BaseRequestHandler {
      * @return A response object for Spark
      */
     private Object handleGetRequest(final Request request, final Response response) {
-        // TODO: Remove all the hardcoded stuff and actually do something with the input
-        KXmlBuilder respBuilder = KXmlBuilder.create("response")
-                .e("message").a("expire", "1800").a("status", "0")
+        final boolean isMaint = Boolean.parseBoolean(this.isMaintenance);
+        KXmlBuilder respBuilder = KXmlBuilder.create("response");
+
+        if (isMaint) {
+                respBuilder = respBuilder.e("message").a("expire", "1800").a("status", "0")
                     .e("item").a("end", "604800").a("name", "sys.mainte").a("start", "0").up()
                     .e("item").a("end", "604800").a("name", "sys.eacoin.mainte").a("start", "0");
+        } else {
+            respBuilder = respBuilder.e("message");
+        }
 
         return this.sendResponse(request, response, respBuilder);
     }

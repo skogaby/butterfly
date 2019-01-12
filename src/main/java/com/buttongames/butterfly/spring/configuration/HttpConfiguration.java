@@ -15,6 +15,7 @@ import com.buttongames.butterfly.http.handlers.impl.TaxRequestHandler;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.PropertySource;
 
 /**
  * Bean config class for <code>com.buttongames.butterfly.http</code> package.
@@ -22,6 +23,7 @@ import org.springframework.context.annotation.Configuration;
  */
 @Configuration
 @ComponentScan({"com.buttongames.butterfly.spring.configuration"})
+@PropertySource("classpath:butterfly.properties")
 public class HttpConfiguration {
 
     @Bean

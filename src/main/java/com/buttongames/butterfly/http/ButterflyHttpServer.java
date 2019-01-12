@@ -17,12 +17,15 @@ import com.buttongames.butterfly.http.handlers.impl.PcbEventRequestHandler;
 import com.buttongames.butterfly.http.handlers.impl.PcbTrackerRequestHandler;
 import com.buttongames.butterfly.http.handlers.impl.ServicesRequestHandler;
 import com.buttongames.butterfly.http.handlers.impl.TaxRequestHandler;
+import com.buttongames.butterfly.model.Machine;
+import com.buttongames.butterfly.util.PropertyNames;
 import com.buttongames.butterfly.xml.BinaryXmlUtils;
 import com.buttongames.butterfly.xml.XmlUtils;
 import com.google.common.collect.ImmutableSet;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
@@ -68,6 +71,10 @@ public class ButterflyHttpServer {
         SUPPORTED_MODULES = ImmutableSet.of("services", "pcbtracker", "message", "facility", "pcbevent",
                 "package", "eventlog", "tax");
     }
+
+    /** The port the server listens on */
+    @Value(PropertyNames.PORT)
+    private String port;
 
     /** Handler for requests for the <code>services</code> module. */
     private final ServicesRequestHandler servicesRequestHandler;
@@ -131,7 +138,7 @@ public class ButterflyHttpServer {
 
         // once routes are configured, the server automatically begins
         threadPool(maxThreads, minThreads, timeOutMillis);
-        port(80);
+        port(Integer.parseInt(this.port));
         this.configureRoutesAndExceptions();
     }
 
@@ -260,8 +267,13 @@ public class ButterflyHttpServer {
         final String requestBodyModule = moduleNode.getNodeName();
         final String requestBodyMethod = moduleNode.getAttribute("method");
 
-        // check if the PCB exists in the database
-        if (this.machineDao.findByPcbId(requestBodyPcbId) == null) {
+        // check if the PCB exists and is unbanned in the database
+        final Machine machine = this.machineDao.findByPcbId(requestBodyPcbId);
+        machine.setEnabled(true);
+        machineDao.update(machine);
+
+        if (machine == null ||
+                !machine.isEnabled()) {
             throw new InvalidPcbIdException();
         }
 

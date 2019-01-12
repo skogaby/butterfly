@@ -2,7 +2,7 @@ package com.buttongames.butterfly.spring.configuration;
 
 import com.buttongames.butterfly.hibernate.dao.impl.MachineDao;
 import com.buttongames.butterfly.hibernate.dao.impl.ButterflyUserDao;
-import com.buttongames.butterfly.hibernate.dao.impl.Ddr16FacilityDao;
+import com.buttongames.butterfly.hibernate.dao.impl.Ddr16ShopDao;
 import com.buttongames.butterfly.hibernate.dao.impl.Ddr16GameplayEventLogDao;
 import com.buttongames.butterfly.hibernate.dao.impl.Ddr16PcbEventLogDao;
 import com.buttongames.butterfly.hibernate.dao.impl.UserPhasesDao;
@@ -87,7 +87,7 @@ public class HibernateConfiguration {
     }
 
     @Bean
-    public MachineDao butterflyPcbDao(final SessionFactory sessionFactory) {
+    public MachineDao machineDao(final SessionFactory sessionFactory) {
         return new MachineDao(sessionFactory);
     }
 
@@ -107,7 +107,7 @@ public class HibernateConfiguration {
     }
 
     @Bean
-    public Ddr16FacilityDao ddr16FacilityDao(final SessionFactory sessionFactory) {
-        return new Ddr16FacilityDao(sessionFactory);
+    public Ddr16ShopDao ddr16ShopDao(final SessionFactory sessionFactory) {
+        return new Ddr16ShopDao(sessionFactory);
     }
 }
