@@ -2,6 +2,7 @@ package com.buttongames.butterfly.spring.configuration;
 
 import com.buttongames.butterfly.hibernate.dao.impl.Ddr16GameplayEventLogDao;
 import com.buttongames.butterfly.hibernate.dao.impl.Ddr16PcbEventLogDao;
+import com.buttongames.butterfly.hibernate.dao.impl.Ddr16ShopDao;
 import com.buttongames.butterfly.hibernate.dao.impl.MachineDao;
 import com.buttongames.butterfly.http.ButterflyHttpServer;
 import com.buttongames.butterfly.http.handlers.impl.EventLogRequestHandler;
@@ -47,8 +48,8 @@ public class HttpConfiguration {
     }
 
     @Bean
-    public FacilityRequestHandler facilityRequestHandler() {
-        return new FacilityRequestHandler();
+    public FacilityRequestHandler facilityRequestHandler(final Ddr16ShopDao shopDao, final MachineDao machineDao) {
+        return new FacilityRequestHandler(shopDao, machineDao);
     }
 
     @Bean

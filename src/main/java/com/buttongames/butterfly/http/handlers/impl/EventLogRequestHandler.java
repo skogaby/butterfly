@@ -31,7 +31,6 @@ public class EventLogRequestHandler extends BaseRequestHandler {
      */
     private final Ddr16GameplayEventLogDao gameplayEventLogDao;
 
-
     public EventLogRequestHandler(final Ddr16GameplayEventLogDao gameplayEventLogDao) {
         this.gameplayEventLogDao = gameplayEventLogDao;
     }

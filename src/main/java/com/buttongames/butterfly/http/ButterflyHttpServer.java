@@ -9,6 +9,7 @@ import com.buttongames.butterfly.http.exception.InvalidRequestMethodException;
 import com.buttongames.butterfly.http.exception.InvalidRequestModelException;
 import com.buttongames.butterfly.http.exception.InvalidRequestModuleException;
 import com.buttongames.butterfly.http.exception.MismatchedRequestUriException;
+import com.buttongames.butterfly.http.exception.NoShopForMachineException;
 import com.buttongames.butterfly.http.handlers.impl.EventLogRequestHandler;
 import com.buttongames.butterfly.http.handlers.impl.FacilityRequestHandler;
 import com.buttongames.butterfly.http.handlers.impl.MessageRequestHandler;
@@ -199,9 +200,13 @@ public class ButterflyHttpServer {
                     response.body("Request URI does not match request body.");
                 })));
         exception(InvalidPcbIdException.class, (((exception, request, response) -> {
-            response.status(403);
-            response.body("PCBID is not valid or nonexistent.");
-        })));
+                    response.status(403);
+                    response.body("PCBID is not valid or nonexistent.");
+                })));
+        exception(NoShopForMachineException.class, (((exception, request, response) -> {
+                    response.status(403);
+                    response.body("No shop exists for the given PCBID.");
+                })));
     }
 
     /**
