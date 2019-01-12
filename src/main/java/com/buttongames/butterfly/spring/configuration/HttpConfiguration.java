@@ -12,6 +12,7 @@ import com.buttongames.butterfly.http.handlers.impl.MessageRequestHandler;
 import com.buttongames.butterfly.http.handlers.impl.PackageRequestHandler;
 import com.buttongames.butterfly.http.handlers.impl.PcbEventRequestHandler;
 import com.buttongames.butterfly.http.handlers.impl.PcbTrackerRequestHandler;
+import com.buttongames.butterfly.http.handlers.impl.PlayerDataRequestHandler;
 import com.buttongames.butterfly.http.handlers.impl.ServicesRequestHandler;
 import com.buttongames.butterfly.http.handlers.impl.TaxRequestHandler;
 import org.springframework.context.annotation.Bean;
@@ -37,10 +38,11 @@ public class HttpConfiguration {
                                                    final PackageRequestHandler packageRequestHandler,
                                                    final EventLogRequestHandler eventLogRequestHandler,
                                                    final TaxRequestHandler taxRequestHandler,
+                                                   final PlayerDataRequestHandler playerDataRequestHandler,
                                                    final MachineDao machineDao) {
         return new ButterflyHttpServer(servicesRequestHandler, pcbEventRequestHandler, pcbTrackerRequestHandler,
                 messageRequestHandler, facilityRequestHandler, packageRequestHandler, eventLogRequestHandler,
-                taxRequestHandler, machineDao);
+                taxRequestHandler, playerDataRequestHandler, machineDao);
     }
 
     @Bean
@@ -76,6 +78,11 @@ public class HttpConfiguration {
     @Bean
     public ServicesRequestHandler servicesRequestHandler() {
         return new ServicesRequestHandler();
+    }
+
+    @Bean
+    public PlayerDataRequestHandler playerDataRequestHandler() {
+        return new PlayerDataRequestHandler();
     }
 
     @Bean

@@ -10,12 +10,14 @@ import com.buttongames.butterfly.http.exception.InvalidRequestModelException;
 import com.buttongames.butterfly.http.exception.InvalidRequestModuleException;
 import com.buttongames.butterfly.http.exception.MismatchedRequestUriException;
 import com.buttongames.butterfly.http.exception.NoShopForMachineException;
+import com.buttongames.butterfly.http.exception.UnsupportedRequestException;
 import com.buttongames.butterfly.http.handlers.impl.EventLogRequestHandler;
 import com.buttongames.butterfly.http.handlers.impl.FacilityRequestHandler;
 import com.buttongames.butterfly.http.handlers.impl.MessageRequestHandler;
 import com.buttongames.butterfly.http.handlers.impl.PackageRequestHandler;
 import com.buttongames.butterfly.http.handlers.impl.PcbEventRequestHandler;
 import com.buttongames.butterfly.http.handlers.impl.PcbTrackerRequestHandler;
+import com.buttongames.butterfly.http.handlers.impl.PlayerDataRequestHandler;
 import com.buttongames.butterfly.http.handlers.impl.ServicesRequestHandler;
 import com.buttongames.butterfly.http.handlers.impl.TaxRequestHandler;
 import com.buttongames.butterfly.model.Machine;
@@ -70,7 +72,7 @@ public class ButterflyHttpServer {
     static {
         SUPPORTED_MODELS = ImmutableSet.of("MDX:J:A:A:2018042300");
         SUPPORTED_MODULES = ImmutableSet.of("services", "pcbtracker", "message", "facility", "pcbevent",
-                "package", "eventlog", "tax");
+                "package", "eventlog", "tax", "playerdata");
     }
 
     /** The port the server listens on */
@@ -101,6 +103,9 @@ public class ButterflyHttpServer {
     /** Handler for requests for the <code>tax</code> module. */
     private final TaxRequestHandler taxRequestHandler;
 
+    /** Handler for requests for the <code>playerdata</code> module. */
+    private final PlayerDataRequestHandler playerDataRequestHandler;
+
     /** DAO for interacting with <code>Machine</code> objects in the database. */
     private final MachineDao machineDao;
 
@@ -116,6 +121,7 @@ public class ButterflyHttpServer {
                                final PackageRequestHandler packageRequestHandler,
                                final EventLogRequestHandler eventLogRequestHandler,
                                final TaxRequestHandler taxRequestHandler,
+                               final PlayerDataRequestHandler playerDataRequestHandler,
                                final MachineDao machineDao) {
         this.servicesRequestHandler = servicesRequestHandler;
         this.pcbEventRequestHandler = pcbEventRequestHandler;
@@ -125,6 +131,7 @@ public class ButterflyHttpServer {
         this.packageRequestHandler = packageRequestHandler;
         this.eventLogRequestHandler = eventLogRequestHandler;
         this.taxRequestHandler = taxRequestHandler;
+        this.playerDataRequestHandler = playerDataRequestHandler;
         this.machineDao = machineDao;
     }
 
@@ -177,6 +184,8 @@ public class ButterflyHttpServer {
                 return this.eventLogRequestHandler.handleRequest(requestBody, request, response);
             } else if (requestModule.equals("tax")) {
                 return this.taxRequestHandler.handleRequest(requestBody, request, response);
+            } else if (requestModule.equals("playerdata")) {
+                return this.playerDataRequestHandler.handleRequest(requestBody, request, response);
             } else {
                 throw new InvalidRequestModuleException();
             }
@@ -207,6 +216,10 @@ public class ButterflyHttpServer {
                     response.status(403);
                     response.body("No shop exists for the given PCBID.");
                 })));
+        exception(UnsupportedRequestException.class, (((exception, request, response) -> {
+            response.status(400);
+            response.body("This request is probably valid, but currently unsupported.");
+        })));
     }
 
     /**
