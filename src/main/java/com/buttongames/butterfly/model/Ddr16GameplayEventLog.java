@@ -11,6 +11,7 @@ import java.io.Externalizable;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
+import java.time.LocalDateTime;
 
 /**
  * Model class that represents a gameplay event from a DDR 16 machine.
@@ -50,7 +51,7 @@ public class Ddr16GameplayEventLog implements Externalizable {
 
     /** The PCB time of the event. */
     @Column(name = "pcb_time")
-    private long pcbTime;
+    private LocalDateTime pcbTime;
 
     /** The game session of the event. */
     @Column(name = "game_session")
@@ -73,16 +74,15 @@ public class Ddr16GameplayEventLog implements Externalizable {
     private long numData2;
 
     /** The location ID for the facility of the machine. */
-    @ManyToOne
-    @JoinColumn(name = "facility_id")
-    private Ddr16Facility facility;
+    @Column(name = "location_id")
+    private String locationId;
 
     public Ddr16GameplayEventLog() { }
 
     public Ddr16GameplayEventLog(final String pcbId, final String model, final int retryCount,
-                                 final String eventId, final int eventOrder, final long pcbTime, final long gameSession,
+                                 final String eventId, final int eventOrder, final LocalDateTime pcbTime, final long gameSession,
                                  final String stringData1, final String stringData2, final long numData1, final long numData2,
-                                 final Ddr16Facility facility) {
+                                 final String locationId) {
         this.pcbId = pcbId;
         this.model = model;
         this.retryCount = retryCount;
@@ -94,7 +94,7 @@ public class Ddr16GameplayEventLog implements Externalizable {
         this.stringData2 = stringData2;
         this.numData1 = numData1;
         this.numData2 = numData2;
-        this.facility = facility;
+        this.locationId = locationId;
     }
 
     @Override
@@ -105,13 +105,13 @@ public class Ddr16GameplayEventLog implements Externalizable {
         out.writeInt(this.retryCount);
         out.writeUTF(this.eventId);
         out.writeInt(this.eventOrder);
-        out.writeLong(this.pcbTime);
+        out.writeObject(this.pcbTime);
         out.writeLong(this.gameSession);
         out.writeUTF(this.stringData1);
         out.writeUTF(this.stringData2);
         out.writeLong(this.numData1);
         out.writeLong(this.numData2);
-        out.writeObject(this.facility);
+        out.writeUTF(this.locationId);
     }
 
     @Override
@@ -122,13 +122,13 @@ public class Ddr16GameplayEventLog implements Externalizable {
         this.setRetryCount(in.readInt());
         this.setEventId(in.readUTF());
         this.setEventOrder(in.readInt());
-        this.setPcbTime(in.readLong());
+        this.setPcbTime((LocalDateTime) in.readObject());
         this.setGameSession(in.readLong());
         this.setStringData1(in.readUTF());
         this.setStringData2(in.readUTF());
         this.setNumData1(in.readLong());
         this.setNumData2(in.readLong());
-        this.setFacility((Ddr16Facility) in.readObject());
+        this.setLocationId(in.readUTF());
     }
 
     public long getId() {
@@ -179,11 +179,11 @@ public class Ddr16GameplayEventLog implements Externalizable {
         this.eventOrder = eventOrder;
     }
 
-    public long getPcbTime() {
+    public LocalDateTime getPcbTime() {
         return pcbTime;
     }
 
-    public void setPcbTime(long pcbTime) {
+    public void setPcbTime(LocalDateTime pcbTime) {
         this.pcbTime = pcbTime;
     }
 
@@ -227,11 +227,11 @@ public class Ddr16GameplayEventLog implements Externalizable {
         this.numData2 = numData2;
     }
 
-    public Ddr16Facility getFacility() {
-        return facility;
+    public String getLocationId() {
+        return locationId;
     }
 
-    public void setFacility(Ddr16Facility facility) {
-        this.facility = facility;
+    public void setLocationId(String locationId) {
+        this.locationId = locationId;
     }
 }

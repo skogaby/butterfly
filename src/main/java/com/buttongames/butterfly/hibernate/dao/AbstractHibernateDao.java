@@ -53,7 +53,7 @@ public abstract class AbstractHibernateDao<T extends Serializable> {
         this.currentSession.close();
     }
 
-    public void closeCurrentSessionwithTransaction() {
+    public void closeCurrentSessionWithTransaction() {
         this.currentTransaction.commit();
         this.currentSession.close();
     }
@@ -99,7 +99,7 @@ public abstract class AbstractHibernateDao<T extends Serializable> {
                     operation.call(entities[i]);
                 }
 
-                this.closeCurrentSessionwithTransaction();
+                this.closeCurrentSessionWithTransaction();
             } catch (Exception e) {
                 this.currentTransaction.rollback();
             }

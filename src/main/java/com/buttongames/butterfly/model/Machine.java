@@ -19,7 +19,7 @@ import java.time.LocalDateTime;
  */
 @Entity
 @Table(name = "machines")
-public class ButterflyPcb implements Externalizable {
+public class Machine implements Externalizable {
 
     private static final long serialVersionUID = 1L;
 
@@ -62,10 +62,10 @@ public class ButterflyPcb implements Externalizable {
     @Column(name = "port")
     private int port;
 
-    public ButterflyPcb() { }
+    public Machine() { }
 
-    public ButterflyPcb(final ButterflyUser user, final String pcbId, final LocalDateTime registerTime,
-                        final boolean enabled, final int port) {
+    public Machine(final ButterflyUser user, final String pcbId, final LocalDateTime registerTime,
+                   final boolean enabled, final int port) {
         this.user = user;
         this.pcbId = pcbId;
         this.registerTime = registerTime;

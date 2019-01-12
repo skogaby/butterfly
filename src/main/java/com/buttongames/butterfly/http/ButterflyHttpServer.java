@@ -2,6 +2,8 @@ package com.buttongames.butterfly.http;
 
 import com.buttongames.butterfly.compression.Lz77;
 import com.buttongames.butterfly.encryption.Rc4;
+import com.buttongames.butterfly.hibernate.dao.impl.MachineDao;
+import com.buttongames.butterfly.http.exception.InvalidPcbIdException;
 import com.buttongames.butterfly.http.exception.InvalidRequestException;
 import com.buttongames.butterfly.http.exception.InvalidRequestMethodException;
 import com.buttongames.butterfly.http.exception.InvalidRequestModelException;
@@ -91,6 +93,9 @@ public class ButterflyHttpServer {
     /** Handler for requests for the <code>tax</code> module. */
     private final TaxRequestHandler taxRequestHandler;
 
+    /** DAO for interacting with <code>Machine</code> objects in the database. */
+    private final MachineDao machineDao;
+
     /**
      * Constructor.
      */
@@ -102,7 +107,8 @@ public class ButterflyHttpServer {
                                final FacilityRequestHandler facilityRequestHandler,
                                final PackageRequestHandler packageRequestHandler,
                                final EventLogRequestHandler eventLogRequestHandler,
-                               final TaxRequestHandler taxRequestHandler) {
+                               final TaxRequestHandler taxRequestHandler,
+                               final MachineDao machineDao) {
         this.servicesRequestHandler = servicesRequestHandler;
         this.pcbEventRequestHandler = pcbEventRequestHandler;
         this.pcbTrackerRequestHandler = pcbTrackerRequestHandler;
@@ -111,6 +117,7 @@ public class ButterflyHttpServer {
         this.packageRequestHandler = packageRequestHandler;
         this.eventLogRequestHandler = eventLogRequestHandler;
         this.taxRequestHandler = taxRequestHandler;
+        this.machineDao = machineDao;
     }
 
     /**
@@ -182,8 +189,12 @@ public class ButterflyHttpServer {
                 }));
         exception(MismatchedRequestUriException.class, (((exception, request, response) -> {
                     response.status(400);
-                    response.body("Request URI does not match request body");
+                    response.body("Request URI does not match request body.");
                 })));
+        exception(InvalidPcbIdException.class, (((exception, request, response) -> {
+            response.status(403);
+            response.body("PCBID is not valid or nonexistent.");
+        })));
     }
 
     /**
@@ -214,7 +225,7 @@ public class ButterflyHttpServer {
             throw new InvalidRequestModuleException();
         }
 
-        // 3) validate that the request URI matches the request body;
+        // 3) validate that the PCBID exists in the database
         final String encryptionKey = request.headers(CRYPT_KEY_HEADER);
         final String compressionScheme = request.headers(COMPRESSION_HEADER);
         byte[] reqBody = request.bodyAsBytes();
@@ -235,8 +246,7 @@ public class ButterflyHttpServer {
             reqBody = BinaryXmlUtils.binaryToXml(reqBody);
         }
 
-        // read the request body into an XML document and check its properties
-        // to verify it matches the request URI
+        // read the request body into an XML document
         Element rootNode = XmlUtils.byteArrayToXmlFile(reqBody);
 
         if (rootNode == null ||
@@ -250,6 +260,12 @@ public class ButterflyHttpServer {
         final String requestBodyModule = moduleNode.getNodeName();
         final String requestBodyMethod = moduleNode.getAttribute("method");
 
+        // check if the PCB exists in the database
+        if (this.machineDao.findByPcbId(requestBodyPcbId) == null) {
+            throw new InvalidPcbIdException();
+        }
+
+        // 4) validate that the request URI matches the request body
         if (StringUtils.isBlank(requestBodyModel) ||
                 StringUtils.isBlank(requestBodyModule) ||
                 StringUtils.isBlank(requestBodyMethod) ||
@@ -266,9 +282,7 @@ public class ButterflyHttpServer {
         request.attribute("module", requestBodyModule);
         request.attribute("method", requestBodyMethod);
 
-        // TODO: Verify the PCBID
-
-        // 4) return the node corresponding to the actual call
+        // 5) return the node corresponding to the actual call
         return moduleNode;
     }
 }
