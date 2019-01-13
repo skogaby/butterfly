@@ -58,10 +58,19 @@ public class PlayerDataRequestHandler extends BaseRequestHandler {
             final String dataid = XmlUtils.strValueAtPath(requestBody, "/playerdata/data/dataid");
 
             if (mode.equals("userload")) {
-                // events request
                 if (refid.equals("X0000000000000000000000000000000") &&
                         dataid.equals("X0000000000000000000000000000000")) {
                     return handleEventsRequest(request, response);
+                }
+            } else if (mode.equals("rivalload")) {
+                int loadFlag = XmlUtils.intValueAtPath(requestBody, "/playerdata/data/loadflag");
+
+                if (loadFlag == 1) {
+                    return handleRivalLoad1Request(request, response);
+                } else if (loadFlag == 2) {
+                    return  handleRivalLoad2Request(request, response);
+                } else if (loadFlag == 4) {
+                    return handleGlobalScoresRequest(request, response);
                 }
             }
         }
@@ -77,10 +86,62 @@ public class PlayerDataRequestHandler extends BaseRequestHandler {
     private Object handleEventsRequest(final Request request, final Response response) {
         final String requestModel = request.attribute("model");
 
+        // TODO: This is almost *definitely* not supposed to be a static response...
         if (this.getSanitizedModel(requestModel).equals("mdx_2018042300")) {
             return this.sendResponse(request, response, EVENTS_RESPONSE_2018042300);
         } else {
             throw new UnsupportedRequestException();
         }
+    }
+
+    /**
+     * Handles a <code>rivalload</code> request with a loadflag of 1.
+     * @param request The Spark request
+     * @param response The Spark response
+     * @return A response object for Spark
+     */
+    private Object handleRivalLoad1Request(final Request request, final Response response) {
+        // TODO: Implement this properly and load rival data...
+        final KXmlBuilder respBuilder = KXmlBuilder.create("response")
+                .e("playerdata")
+                    .s32("result", 0).up()
+                    .e("data")
+                        .s32("recordtype", 0);
+
+        return this.sendResponse(request, response, respBuilder);
+    }
+
+    /**
+     * Handles a <code>rivalload</code> request with a loadflag of 2.
+     * @param request The Spark request
+     * @param response The Spark response
+     * @return A response object for Spark
+     */
+    private Object handleRivalLoad2Request(final Request request, final Response response) {
+        // TODO: Implement this properly and load rival data...
+        final KXmlBuilder respBuilder = KXmlBuilder.create("response")
+                .e("playerdata")
+                .s32("result", 0).up()
+                .e("data")
+                .s32("recordtype", 0);
+
+        return this.sendResponse(request, response, respBuilder);
+    }
+
+    /**
+     * Handles a request for the global server scores.
+     * @param request The Spark request
+     * @param response The Spark response
+     * @return A response object for Spark
+     */
+    private Object handleGlobalScoresRequest(final Request request, final Response response) {
+        // TODO: Implement this properly and load/save scores...
+        final KXmlBuilder respBuilder = KXmlBuilder.create("response")
+                .e("playerdata")
+                .s32("result", 0).up()
+                .e("data")
+                .s32("recordtype", 0);
+
+        return this.sendResponse(request, response, respBuilder);
     }
 }
