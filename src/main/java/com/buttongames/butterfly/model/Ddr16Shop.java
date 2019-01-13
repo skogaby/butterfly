@@ -50,42 +50,16 @@ public class Ddr16Shop implements Externalizable {
     @Column(name = "is_public")
     private boolean isPublic;
 
-    /** The latitude of the facility. */
-    @Column(name = "latitude")
-    private String latitude;
-
-    /** The longitude of the facility. */
-    @Column(name = "longitude")
-    private String longitude;
-
-    /** The notch amount for the facility. */
-    @Column(name = "notch_amount")
-    private int notchAmount;
-
-    /** The notch count for the facility. */
-    @Column(name = "notch_count")
-    private int notchCount;
-
-    /** The supply limit for the facility. */
-    @Column(name = "supply_limit")
-    private int supplyLimit;
-
     public Ddr16Shop() { }
 
     public Ddr16Shop(final String pcbId, final String locationId, final String name,
-                     final String country, final String region, final boolean isPublic, final String latitude, final String longitude,
-                     final int notchAmount, final int notchCount, final int supplyLimit) {
+                     final String country, final String region, final boolean isPublic) {
         this.pcbId = pcbId;
         this.locationId = locationId;
         this.name = name;
         this.country = country;
         this.region = region;
         this.isPublic = isPublic;
-        this.latitude = latitude;
-        this.longitude = longitude;
-        this.notchAmount = notchAmount;
-        this.notchCount = notchCount;
-        this.supplyLimit = supplyLimit;
     }
 
     @Override
@@ -97,11 +71,6 @@ public class Ddr16Shop implements Externalizable {
         out.writeUTF(this.country);
         out.writeUTF(this.region);
         out.writeBoolean(this.isPublic);
-        out.writeUTF(this.latitude);
-        out.writeUTF(this.longitude);
-        out.writeInt(this.notchAmount);
-        out.writeInt(this.notchCount);
-        out.writeInt(this.supplyLimit);
     }
 
     @Override
@@ -113,11 +82,6 @@ public class Ddr16Shop implements Externalizable {
         this.setCountry(in.readUTF());
         this.setRegion(in.readUTF());
         this.setPublic(in.readBoolean());
-        this.setLatitude(in.readUTF());
-        this.setLongitude(in.readUTF());
-        this.setNotchAmount(in.readInt());
-        this.setNotchCount(in.readInt());
-        this.setSupplyLimit(in.readInt());
     }
 
     public long getId() {
@@ -174,45 +138,5 @@ public class Ddr16Shop implements Externalizable {
 
     public void setPublic(boolean aPublic) {
         isPublic = aPublic;
-    }
-
-    public String getLatitude() {
-        return latitude;
-    }
-
-    public void setLatitude(String latitude) {
-        this.latitude = latitude;
-    }
-
-    public String getLongitude() {
-        return longitude;
-    }
-
-    public void setLongitude(String longitude) {
-        this.longitude = longitude;
-    }
-
-    public int getNotchAmount() {
-        return notchAmount;
-    }
-
-    public void setNotchAmount(int notchAmount) {
-        this.notchAmount = notchAmount;
-    }
-
-    public int getNotchCount() {
-        return notchCount;
-    }
-
-    public void setNotchCount(int notchCount) {
-        this.notchCount = notchCount;
-    }
-
-    public int getSupplyLimit() {
-        return supplyLimit;
-    }
-
-    public void setSupplyLimit(int supplyLimit) {
-        this.supplyLimit = supplyLimit;
     }
 }
