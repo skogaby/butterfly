@@ -2,10 +2,12 @@ package com.buttongames.butterfly.http.handlers.impl;
 
 import com.buttongames.butterfly.http.exception.InvalidRequestMethodException;
 import com.buttongames.butterfly.http.handlers.BaseRequestHandler;
+import com.buttongames.butterfly.util.PropertyNames;
 import com.buttongames.butterfly.xml.KXmlBuilder;
 import com.google.common.collect.ImmutableMap;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.w3c.dom.Element;
 import spark.Request;
@@ -22,38 +24,19 @@ public class ServicesRequestHandler extends BaseRequestHandler {
 
     private final Logger LOG = LogManager.getLogger(ServicesRequestHandler.class);
 
+    /** The port the server listens on */
+    @Value(PropertyNames.PORT)
+    private String port;
+
     /**
      * URL to return in the <code>services.get</code> request.
      */
-    private static final String HOST_URL = "http://localhost";
+    private String hostUrl = "http://localhost";
 
     /**
      * Mapping of services to their URLs.
      */
-    private static final ImmutableMap<String, String> SERVICES_URLS;
-
-    static {
-        SERVICES_URLS = ImmutableMap.<String, String> builder()
-                .put("cardmng", HOST_URL)
-                .put("facility", HOST_URL)
-                .put("message", HOST_URL)
-                .put("numbering", HOST_URL)
-                .put("package", HOST_URL)
-                .put("pcbevent", HOST_URL)
-                .put("pcbtracker", HOST_URL)
-                .put("pkglist", HOST_URL)
-                .put("posevent", HOST_URL)
-                .put("userdata", HOST_URL)
-                .put("userid", HOST_URL)
-                .put("eacoin", HOST_URL)
-                .put("local", HOST_URL)
-                .put("local2", HOST_URL)
-                .put("lobby", HOST_URL)
-                .put("lobby2", HOST_URL)
-                .put("ntp", "ntp://pool.ntp.org/")
-                .put("keepalive", "http://127.0.0.1/keepalive?pa=127.0.0.1&amp;ia=127.0.0.1&amp;ga=127.0.0.1&amp;ma=127.0.0.1&amp;t1=2&amp;t2=10")
-                .build();
-    }
+    private ImmutableMap<String, String> servicesUrls;
 
     /**
      * Handles an incoming request for the <code>services</code> module.
@@ -80,11 +63,40 @@ public class ServicesRequestHandler extends BaseRequestHandler {
      * @return A response object for Spark
      */
     private Object handleGetRequest(final Request request, final Response response) {
+        // init the URLs if they're null, check the port in the process
         // TODO: Remove all the hardcoded stuff
+        if (servicesUrls == null) {
+            if (!port.equals("80")) {
+                hostUrl = hostUrl + ":" + port;
+            }
+
+            servicesUrls = ImmutableMap.<String, String> builder()
+                    .put("cardmng", hostUrl)
+                    .put("facility", hostUrl)
+                    .put("message", hostUrl)
+                    .put("numbering", hostUrl)
+                    .put("package", hostUrl)
+                    .put("pcbevent", hostUrl)
+                    .put("pcbtracker", hostUrl)
+                    .put("pkglist", hostUrl)
+                    .put("posevent", hostUrl)
+                    .put("userdata", hostUrl)
+                    .put("userid", hostUrl)
+                    .put("eacoin", hostUrl)
+                    .put("local", hostUrl)
+                    .put("local2", hostUrl)
+                    .put("lobby", hostUrl)
+                    .put("lobby2", hostUrl)
+                    .put("ntp", "ntp://pool.ntp.org/")
+                    .put("keepalive", "http://127.0.0.1/keepalive?pa=127.0.0.1&amp;ia=127.0.0.1&amp;ga=127.0.0.1&amp;ma=127.0.0.1&amp;t1=2&amp;t2=10")
+                    .build();
+        }
+
+        // send the response
         KXmlBuilder respBuilder = KXmlBuilder.create("response")
                 .e("services").a("expire", "600").a("method", "get").a("mode", "operation").a("status", "0");
 
-        for (Map.Entry<String, String> entry : SERVICES_URLS.entrySet()) {
+        for (Map.Entry<String, String> entry : servicesUrls.entrySet()) {
             respBuilder = respBuilder.e("item").a("name", entry.getKey()).a("url", entry.getValue()).up();
         }
 

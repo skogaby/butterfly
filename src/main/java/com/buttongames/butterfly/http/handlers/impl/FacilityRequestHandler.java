@@ -88,7 +88,7 @@ public class FacilityRequestHandler extends BaseRequestHandler {
                         .str("id", "").up()
                         .u8("class", 0).up()
                     .e("public")
-                        .u8("flag", shop.isPublic() ? 1 : 0).up()
+                        .u8("flag", 0).up()
                         .str("name", shop.getName()).up()
                         .str("lattitude", shop.getLatitude()).up()
                         .str("longitude", shop.getLongitude()).up().up()

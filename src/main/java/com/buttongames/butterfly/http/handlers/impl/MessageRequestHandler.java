@@ -53,14 +53,12 @@ public class MessageRequestHandler extends BaseRequestHandler {
      */
     private Object handleGetRequest(final Request request, final Response response) {
         final boolean isMaint = Boolean.parseBoolean(this.isMaintenance);
-        KXmlBuilder respBuilder = KXmlBuilder.create("response");
+        KXmlBuilder respBuilder = KXmlBuilder.create("response").e("message");
 
         if (isMaint) {
-                respBuilder = respBuilder.e("message").a("expire", "1800").a("status", "0")
+                respBuilder = respBuilder.a("expire", "1800").a("status", "0")
                     .e("item").a("end", "604800").a("name", "sys.mainte").a("start", "0").up()
                     .e("item").a("end", "604800").a("name", "sys.eacoin.mainte").a("start", "0");
-        } else {
-            respBuilder = respBuilder.e("message");
         }
 
         return this.sendResponse(request, response, respBuilder);
