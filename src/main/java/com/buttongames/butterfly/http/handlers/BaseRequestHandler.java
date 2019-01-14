@@ -21,6 +21,9 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 import static com.buttongames.butterfly.util.Constants.COMPRESSION_HEADER;
 import static com.buttongames.butterfly.util.Constants.CRYPT_KEY_HEADER;
@@ -48,7 +51,7 @@ public abstract class BaseRequestHandler {
      * @param request The original request.
      * @param response The response object we can use to send the data.
      * @param respBody The XML document of the response.
-     * @return
+     * @return A response object for Spark
      */
     protected Object sendResponse(final Request request, final Response response, final BaseXMLBuilder respBody) {
         // get the bytes of the XML document
@@ -68,6 +71,39 @@ public abstract class BaseRequestHandler {
         }
 
         byte[] respBytes = bos.toByteArray();
+        return this.sendBytesToClient(respBytes, request, response);
+    }
+
+    /**
+     * Sends the response to the client.
+     * @param request The original request.
+     * @param response The response object we can use to send the data.
+     * @param responsePath The path of the resource file with the XML response to send.
+     * @return A response object for Spark
+     */
+    protected Object sendStaticResponse(final Request request, final Response response, final String responsePath) {
+        try {
+            // read in the static response file, encrypt it, compress it, and send it
+            final Path path = Paths.get(ClassLoader.getSystemResource(responsePath).toURI());
+            byte[] respBody = Files.readAllBytes(path);
+
+            return this.sendBytesToClient(respBody, request, response);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return 500;
+        }
+    }
+
+    /**
+     * Takes the raw, unencrypted and decompressed bytes, transforms them as necessary, and sends
+     * them to the client.
+     * @param respBytes The bytes to send.
+     * @param request The original request.
+     * @param response The response object we can use to send the data.
+     * @return A response object for Spark
+     */
+    private Object sendBytesToClient(byte[] respBytes, final Request request, final Response response) {
+        response.header("Connection", "keep-alive");
 
         // convert them to binary XML
         if (!BinaryXmlUtils.isBinaryXML(respBytes)) {
@@ -97,7 +133,6 @@ public abstract class BaseRequestHandler {
         try {
             final HttpServletResponse rawResponse = response.raw();
             response.type(MediaType.OCTET_STREAM.toString());
-            rawResponse.setContentLength(respBytes.length);
 
             rawResponse.getOutputStream().write(respBytes);
             rawResponse.getOutputStream().flush();

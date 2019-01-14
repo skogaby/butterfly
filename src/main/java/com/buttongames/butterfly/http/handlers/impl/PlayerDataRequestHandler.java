@@ -11,11 +11,6 @@ import org.w3c.dom.Element;
 import spark.Request;
 import spark.Response;
 
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-
 /**
  * Handler for any requests that come to the <code>playerdata</code> module.
  * @author skogaby (skogabyskogaby@gmail.com)
@@ -24,21 +19,6 @@ import java.nio.file.Paths;
 public class PlayerDataRequestHandler extends BaseRequestHandler {
 
     private final Logger LOG = LogManager.getLogger(PcbEventRequestHandler.class);
-
-    /**
-     * Since this response is static (as far as I know right now...), let's just cache it in memory. It's a little large.
-     */
-    private static KXmlBuilder EVENTS_RESPONSE_2018042300;
-
-    static {
-        try {
-            final Path events20180423Path = Paths.get(ClassLoader.getSystemResource("static_responses/mdx_2018042300/events.xml").toURI());
-            EVENTS_RESPONSE_2018042300 = KXmlBuilder.parse(new String(Files.readAllBytes(events20180423Path), StandardCharsets.UTF_8));
-        } catch (Exception e) {
-            e.printStackTrace();
-            System.exit(1);
-        }
-    }
 
     /**
      * Handles an incoming request for the <code>playerdata</code> module.
@@ -58,11 +38,15 @@ public class PlayerDataRequestHandler extends BaseRequestHandler {
             final String dataid = XmlUtils.strValueAtPath(requestBody, "/playerdata/data/dataid");
 
             if (mode.equals("userload")) {
+                LOG.info("Handling a userload request");
+
                 if (refid.equals("X0000000000000000000000000000000") &&
                         dataid.equals("X0000000000000000000000000000000")) {
                     return handleEventsRequest(request, response);
                 }
             } else if (mode.equals("rivalload")) {
+                LOG.info("Handling a rivalload request");
+
                 int loadFlag = XmlUtils.intValueAtPath(requestBody, "/playerdata/data/loadflag");
 
                 if (loadFlag == 1) {
@@ -88,7 +72,7 @@ public class PlayerDataRequestHandler extends BaseRequestHandler {
 
         // TODO: This is almost *definitely* not supposed to be a static response...
         if (this.getSanitizedModel(requestModel).equals("mdx_2018042300")) {
-            return this.sendResponse(request, response, EVENTS_RESPONSE_2018042300);
+            return this.sendStaticResponse(request, response, "static_responses/mdx_2018042300/events.xml");
         } else {
             throw new UnsupportedRequestException();
         }
