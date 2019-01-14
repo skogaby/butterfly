@@ -110,8 +110,9 @@ public abstract class BaseRequestHandler {
             respBytes = BinaryXmlUtils.xmlToBinary(respBytes);
         }
 
+        // TODO: FIX THIS SHIT
         // compress if needed
-        final String compressionScheme = request.headers(COMPRESSION_HEADER);
+        /*final String compressionScheme = request.headers(COMPRESSION_HEADER);
 
         if (!StringUtils.isBlank(compressionScheme) &&
                 compressionScheme.equals(LZ77_COMPRESSION)) {
@@ -119,7 +120,10 @@ public abstract class BaseRequestHandler {
             response.header(COMPRESSION_HEADER, LZ77_COMPRESSION);
         } else {
             response.header(COMPRESSION_HEADER, "none");
-        }
+        }*/
+
+        // TODO: For some reason this is breaking on very large responses (i.e. events). Fix later, leave uncompressed for now.
+        response.header(COMPRESSION_HEADER, "none");
 
         // encrypt if needed
         final String encryptionKey = request.headers(CRYPT_KEY_HEADER);

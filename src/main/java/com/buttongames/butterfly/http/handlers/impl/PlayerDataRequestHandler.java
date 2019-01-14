@@ -65,16 +65,8 @@ public class PlayerDataRequestHandler extends BaseRequestHandler {
      */
     private Object handleEventsRequest(final Request request, final Response response) {
         if (this.getSanitizedModel(request.attribute("model")).equals("mdx_2018042300")) {
-            // TODO: This is almost *definitely* not supposed to be a static response. That being
-            // said, loading the file directly and sending it isn't working out, so I need
-            // to recreate the events response via code, unfortunately. In the meantime,
-            // send an empty response...
-            final KXmlBuilder respBuilder = KXmlBuilder.create("response")
-                    .e("playerdata")
-                    .s32("result", 0).up()
-                    .bool("is_new", false);
-
-            return this.sendResponse(request, response, respBuilder);
+            // TODO: This is almost *definitely* not supposed to be a static response
+            return this.sendStaticResponse(request, response, "static_responses/mdx_2018042300/events.xml");
         } else {
             throw new UnsupportedRequestException();
         }
