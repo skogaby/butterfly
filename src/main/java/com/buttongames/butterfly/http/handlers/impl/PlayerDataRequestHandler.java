@@ -99,9 +99,9 @@ public class PlayerDataRequestHandler extends BaseRequestHandler {
         // TODO: Implement this properly and load rival data...
         final KXmlBuilder respBuilder = KXmlBuilder.create("response")
                 .e("playerdata")
-                .s32("result", 0).up()
+                    .s32("result", 0).up()
                 .e("data")
-                .s32("recordtype", 0);
+                    .s32("recordtype", 0);
 
         return this.sendResponse(request, response, respBuilder);
     }
@@ -116,9 +116,9 @@ public class PlayerDataRequestHandler extends BaseRequestHandler {
         // TODO: Implement this properly and load/save scores...
         final KXmlBuilder respBuilder = KXmlBuilder.create("response")
                 .e("playerdata")
-                .s32("result", 0).up()
+                    .s32("result", 0).up()
                 .e("data")
-                .s32("recordtype", 0);
+                    .s32("recordtype", 0);
 
         return this.sendResponse(request, response, respBuilder);
     }

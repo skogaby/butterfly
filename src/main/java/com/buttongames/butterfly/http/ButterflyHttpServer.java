@@ -2,6 +2,7 @@ package com.buttongames.butterfly.http;
 
 import com.buttongames.butterfly.compression.Lz77;
 import com.buttongames.butterfly.encryption.Rc4;
+import com.buttongames.butterfly.hibernate.dao.impl.ButterflyUserDao;
 import com.buttongames.butterfly.hibernate.dao.impl.MachineDao;
 import com.buttongames.butterfly.http.exception.InvalidPcbIdException;
 import com.buttongames.butterfly.http.exception.InvalidRequestException;
@@ -9,7 +10,6 @@ import com.buttongames.butterfly.http.exception.InvalidRequestMethodException;
 import com.buttongames.butterfly.http.exception.InvalidRequestModelException;
 import com.buttongames.butterfly.http.exception.InvalidRequestModuleException;
 import com.buttongames.butterfly.http.exception.MismatchedRequestUriException;
-import com.buttongames.butterfly.http.exception.NoShopForMachineException;
 import com.buttongames.butterfly.http.exception.UnsupportedRequestException;
 import com.buttongames.butterfly.http.handlers.impl.EventLogRequestHandler;
 import com.buttongames.butterfly.http.handlers.impl.FacilityRequestHandler;
@@ -20,6 +20,7 @@ import com.buttongames.butterfly.http.handlers.impl.PcbTrackerRequestHandler;
 import com.buttongames.butterfly.http.handlers.impl.PlayerDataRequestHandler;
 import com.buttongames.butterfly.http.handlers.impl.ServicesRequestHandler;
 import com.buttongames.butterfly.http.handlers.impl.TaxRequestHandler;
+import com.buttongames.butterfly.model.ButterflyUser;
 import com.buttongames.butterfly.model.Machine;
 import com.buttongames.butterfly.util.PropertyNames;
 import com.buttongames.butterfly.xml.BinaryXmlUtils;
@@ -37,6 +38,7 @@ import spark.utils.StringUtils;
 
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
+import java.time.LocalDateTime;
 
 import static com.buttongames.butterfly.util.Constants.COMPRESSION_HEADER;
 import static com.buttongames.butterfly.util.Constants.CRYPT_KEY_HEADER;
@@ -109,6 +111,9 @@ public class ButterflyHttpServer {
     /** DAO for interacting with <code>Machine</code> objects in the database. */
     private final MachineDao machineDao;
 
+    /** DAO for interacting with <code>ButterflyUser</code> objects in the database. */
+    private final ButterflyUserDao userDao;
+
     /**
      * Constructor.
      */
@@ -122,7 +127,8 @@ public class ButterflyHttpServer {
                                final EventLogRequestHandler eventLogRequestHandler,
                                final TaxRequestHandler taxRequestHandler,
                                final PlayerDataRequestHandler playerDataRequestHandler,
-                               final MachineDao machineDao) {
+                               final MachineDao machineDao,
+                               final ButterflyUserDao userDao) {
         this.servicesRequestHandler = servicesRequestHandler;
         this.pcbEventRequestHandler = pcbEventRequestHandler;
         this.pcbTrackerRequestHandler = pcbTrackerRequestHandler;
@@ -133,6 +139,7 @@ public class ButterflyHttpServer {
         this.taxRequestHandler = taxRequestHandler;
         this.playerDataRequestHandler = playerDataRequestHandler;
         this.machineDao = machineDao;
+        this.userDao = userDao;
     }
 
     /**
@@ -212,10 +219,6 @@ public class ButterflyHttpServer {
                     response.status(403);
                     response.body("PCBID is not valid or nonexistent.");
                 })));
-        exception(NoShopForMachineException.class, (((exception, request, response) -> {
-                    response.status(403);
-                    response.body("No shop exists for the given PCBID.");
-                })));
         exception(UnsupportedRequestException.class, (((exception, request, response) -> {
             response.status(400);
             response.body("This request is probably valid, but currently unsupported.");
@@ -286,12 +289,16 @@ public class ButterflyHttpServer {
         final String requestBodyMethod = moduleNode.getAttribute("method");
 
         // check if the PCB exists and is unbanned in the database
-        final Machine machine = this.machineDao.findByPcbId(requestBodyPcbId);
-        machine.setEnabled(true);
-        machineDao.update(machine);
+        Machine machine = this.machineDao.findByPcbId(requestBodyPcbId);
 
-        if (machine == null ||
-                !machine.isEnabled()) {
+        if (machine == null) {
+            // create a machine and just ban it for now, unban it later if you want
+            final ButterflyUser newUser = new ButterflyUser("0000", LocalDateTime.now());
+            userDao.create(newUser);
+
+            machine = new Machine(newUser, requestBodyPcbId, LocalDateTime.now(), false, 0);
+            machineDao.create(machine);
+
             throw new InvalidPcbIdException();
         }
 

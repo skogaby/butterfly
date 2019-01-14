@@ -1,5 +1,6 @@
 package com.buttongames.butterfly.spring.configuration;
 
+import com.buttongames.butterfly.hibernate.dao.impl.ButterflyUserDao;
 import com.buttongames.butterfly.hibernate.dao.impl.Ddr16GameplayEventLogDao;
 import com.buttongames.butterfly.hibernate.dao.impl.Ddr16PcbEventLogDao;
 import com.buttongames.butterfly.hibernate.dao.impl.Ddr16ShopDao;
@@ -39,10 +40,11 @@ public class HttpConfiguration {
                                                    final EventLogRequestHandler eventLogRequestHandler,
                                                    final TaxRequestHandler taxRequestHandler,
                                                    final PlayerDataRequestHandler playerDataRequestHandler,
-                                                   final MachineDao machineDao) {
+                                                   final MachineDao machineDao,
+                                                   final ButterflyUserDao userDao) {
         return new ButterflyHttpServer(servicesRequestHandler, pcbEventRequestHandler, pcbTrackerRequestHandler,
                 messageRequestHandler, facilityRequestHandler, packageRequestHandler, eventLogRequestHandler,
-                taxRequestHandler, playerDataRequestHandler, machineDao);
+                taxRequestHandler, playerDataRequestHandler, machineDao, userDao);
     }
 
     @Bean

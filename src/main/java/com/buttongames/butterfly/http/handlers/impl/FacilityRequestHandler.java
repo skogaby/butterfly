@@ -3,10 +3,9 @@ package com.buttongames.butterfly.http.handlers.impl;
 import com.buttongames.butterfly.hibernate.dao.impl.Ddr16ShopDao;
 import com.buttongames.butterfly.hibernate.dao.impl.MachineDao;
 import com.buttongames.butterfly.http.exception.InvalidRequestMethodException;
-import com.buttongames.butterfly.http.exception.NoShopForMachineException;
 import com.buttongames.butterfly.http.handlers.BaseRequestHandler;
 import com.buttongames.butterfly.model.Ddr16Shop;
-import com.buttongames.butterfly.model.Machine;
+import com.buttongames.butterfly.util.StringUtils;
 import com.buttongames.butterfly.xml.KXmlBuilder;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -68,13 +67,13 @@ public class FacilityRequestHandler extends BaseRequestHandler {
      */
     private Object handleGetRequest(final Request request, final Response response) {
         final String reqPcbId = request.attribute("pcbid");
-        final Ddr16Shop shop = this.shopDao.findByPcbId(reqPcbId);
+        Ddr16Shop shop = this.shopDao.findByPcbId(reqPcbId);
 
+        // if no shop exists for this PCB, just make a default one
         if (shop == null) {
-            throw new NoShopForMachineException();
+            shop = new Ddr16Shop(reqPcbId, StringUtils.getRandomHexString(8), "BUTTERFLY", "US", "1", true);
+            shopDao.create(shop);
         }
-
-        final Machine machine = this.machineDao.findByPcbId(reqPcbId);
 
         KXmlBuilder respBuilder = KXmlBuilder.create("response")
                 .e("facility")

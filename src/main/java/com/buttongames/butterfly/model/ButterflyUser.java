@@ -46,8 +46,9 @@ public class ButterflyUser implements Externalizable {
 
     public ButterflyUser() { }
 
-    public ButterflyUser(final String pin) {
+    public ButterflyUser(final String pin, final LocalDateTime registerTime) {
         this.pin = pin;
+        this.registerTime = registerTime;
     }
 
     @Override
