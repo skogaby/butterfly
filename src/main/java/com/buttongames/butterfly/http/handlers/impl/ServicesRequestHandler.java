@@ -88,7 +88,7 @@ public class ServicesRequestHandler extends BaseRequestHandler {
                     .put("lobby", hostUrl)
                     .put("lobby2", hostUrl)
                     .put("ntp", "ntp://pool.ntp.org/")
-                    .put("keepalive", "http://127.0.0.1/keepalive?pa=127.0.0.1&amp;ia=127.0.0.1&amp;ga=127.0.0.1&amp;ma=127.0.0.1&amp;t1=2&amp;t2=10")
+                    .put("keepalive", "http://127.0.0.1/keepalive?pa=127.0.0.1&ia=127.0.0.1&ga=127.0.0.1&ma=127.0.0.1&t1=2&t2=10")
                     .build();
         }
 

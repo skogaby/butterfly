@@ -744,6 +744,10 @@ public final class KXmlBuilder extends BaseXMLBuilder {
         return e(name).a("__type", "s64").t(String.valueOf(value));
     }
 
+    public KXmlBuilder bool(final String name, final boolean value) {
+        return e(name).a("__type", "bool").t(value ? "1" : "0");
+    }
+
     public KXmlBuilder ip(final String name, final String value) {
         return e(name).a("__type", "ip4").t(value);
     }

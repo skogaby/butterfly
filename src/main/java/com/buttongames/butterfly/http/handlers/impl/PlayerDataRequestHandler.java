@@ -38,15 +38,11 @@ public class PlayerDataRequestHandler extends BaseRequestHandler {
             final String dataid = XmlUtils.strValueAtPath(requestBody, "/playerdata/data/dataid");
 
             if (mode.equals("userload")) {
-                LOG.info("Handling a userload request");
-
                 if (refid.equals("X0000000000000000000000000000000") &&
                         dataid.equals("X0000000000000000000000000000000")) {
                     return handleEventsRequest(request, response);
                 }
             } else if (mode.equals("rivalload")) {
-                LOG.info("Handling a rivalload request");
-
                 int loadFlag = XmlUtils.intValueAtPath(requestBody, "/playerdata/data/loadflag");
 
                 if (loadFlag == 1) {
@@ -68,11 +64,17 @@ public class PlayerDataRequestHandler extends BaseRequestHandler {
      * @return A response object for Spark
      */
     private Object handleEventsRequest(final Request request, final Response response) {
-        final String requestModel = request.attribute("model");
+        if (this.getSanitizedModel(request.attribute("model")).equals("mdx_2018042300")) {
+            // TODO: This is almost *definitely* not supposed to be a static response. That being
+            // said, loading the file directly and sending it isn't working out, so I need
+            // to recreate the events response via code, unfortunately. In the meantime,
+            // send an empty response...
+            final KXmlBuilder respBuilder = KXmlBuilder.create("response")
+                    .e("playerdata")
+                    .s32("result", 0).up()
+                    .bool("is_new", false);
 
-        // TODO: This is almost *definitely* not supposed to be a static response...
-        if (this.getSanitizedModel(requestModel).equals("mdx_2018042300")) {
-            return this.sendStaticResponse(request, response, "static_responses/mdx_2018042300/events.xml");
+            return this.sendResponse(request, response, respBuilder);
         } else {
             throw new UnsupportedRequestException();
         }
