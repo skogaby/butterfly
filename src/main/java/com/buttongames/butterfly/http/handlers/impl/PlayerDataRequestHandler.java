@@ -2,7 +2,7 @@ package com.buttongames.butterfly.http.handlers.impl;
 
 import com.buttongames.butterfly.http.exception.UnsupportedRequestException;
 import com.buttongames.butterfly.http.handlers.BaseRequestHandler;
-import com.buttongames.butterfly.xml.KXmlBuilder;
+import com.buttongames.butterfly.xml.builder.KXmlBuilder;
 import com.buttongames.butterfly.xml.XmlUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

@@ -6,7 +6,7 @@ import com.buttongames.butterfly.http.exception.InvalidRequestMethodException;
 import com.buttongames.butterfly.http.handlers.BaseRequestHandler;
 import com.buttongames.butterfly.model.Ddr16Shop;
 import com.buttongames.butterfly.util.StringUtils;
-import com.buttongames.butterfly.xml.KXmlBuilder;
+import com.buttongames.butterfly.xml.builder.KXmlBuilder;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;

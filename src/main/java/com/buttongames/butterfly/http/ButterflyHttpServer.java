@@ -4,6 +4,7 @@ import com.buttongames.butterfly.compression.Lz77;
 import com.buttongames.butterfly.encryption.Rc4;
 import com.buttongames.butterfly.hibernate.dao.impl.ButterflyUserDao;
 import com.buttongames.butterfly.hibernate.dao.impl.MachineDao;
+import com.buttongames.butterfly.http.exception.CardCipherException;
 import com.buttongames.butterfly.http.exception.InvalidPcbIdException;
 import com.buttongames.butterfly.http.exception.InvalidRequestException;
 import com.buttongames.butterfly.http.exception.InvalidRequestMethodException;
@@ -220,9 +221,13 @@ public class ButterflyHttpServer {
                     response.body("PCBID is not valid or nonexistent.");
                 })));
         exception(UnsupportedRequestException.class, (((exception, request, response) -> {
-            response.status(400);
-            response.body("This request is probably valid, but currently unsupported.");
-        })));
+                    response.status(400);
+                    response.body("This request is probably valid, but currently unsupported.");
+                })));
+        exception(CardCipherException.class, (((exception, request, response) -> {
+                    response.status(403);
+                    response.body(exception.getMessage());
+                })));
     }
 
     /**
