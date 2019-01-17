@@ -1,4 +1,4 @@
-package com.buttongames.butterfly.model;
+package com.buttongames.butterfly.model.ddr16;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -16,11 +16,13 @@ import java.io.ObjectOutput;
  */
 @Entity
 @Table(name = "ddr_16_shops")
-public class Ddr16Shop implements Externalizable {
+public class Shop implements Externalizable {
 
     private static final long serialVersionUID = 1L;
 
-    /** ID of the event, primary key. */
+    /**
+     * ID of the object, primary key.
+     */
     @Id
     @GeneratedValue
     @Column(name = "id")
@@ -50,10 +52,10 @@ public class Ddr16Shop implements Externalizable {
     @Column(name = "is_public")
     private boolean isPublic;
 
-    public Ddr16Shop() { }
+    public Shop() { }
 
-    public Ddr16Shop(final String pcbId, final String locationId, final String name,
-                     final String country, final String region, final boolean isPublic) {
+    public Shop(final String pcbId, final String locationId, final String name,
+                final String country, final String region, final boolean isPublic) {
         this.pcbId = pcbId;
         this.locationId = locationId;
         this.name = name;

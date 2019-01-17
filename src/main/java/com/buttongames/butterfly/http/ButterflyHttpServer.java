@@ -226,7 +226,7 @@ public class ButterflyHttpServer {
                 })));
         exception(CardCipherException.class, (((exception, request, response) -> {
                     response.status(403);
-                    response.body(exception.getMessage());
+                    response.body("Issue with converting the requested card ID, likely invalid ID.");
                 })));
     }
 
@@ -298,7 +298,8 @@ public class ButterflyHttpServer {
 
         if (machine == null) {
             // create a machine and just ban it for now, unban it later if you want
-            final ButterflyUser newUser = new ButterflyUser("0000", LocalDateTime.now());
+            final LocalDateTime now = LocalDateTime.now();
+            final ButterflyUser newUser = new ButterflyUser("0000", now, now);
             userDao.create(newUser);
 
             machine = new Machine(newUser, requestBodyPcbId, LocalDateTime.now(), false, 0);

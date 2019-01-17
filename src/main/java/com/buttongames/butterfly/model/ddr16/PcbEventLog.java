@@ -1,4 +1,4 @@
-package com.buttongames.butterfly.model;
+package com.buttongames.butterfly.model.ddr16;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -17,7 +17,7 @@ import java.time.LocalDateTime;
  */
 @Entity
 @Table(name = "ddr_16_pcb_event_logs")
-public class Ddr16PcbEventLog implements Externalizable {
+public class PcbEventLog implements Externalizable {
 
     private static final long serialVersionUID = 1L;
 
@@ -55,10 +55,10 @@ public class Ddr16PcbEventLog implements Externalizable {
     @Column(name = "value")
     private int value;
 
-    public Ddr16PcbEventLog() { }
+    public PcbEventLog() { }
 
-    public Ddr16PcbEventLog(final String pcbId, String model, final LocalDateTime time1,
-                            final LocalDateTime time2, final long sequence, final String name, final int value) {
+    public PcbEventLog(final String pcbId, String model, final LocalDateTime time1,
+                       final LocalDateTime time2, final long sequence, final String name, final int value) {
         this.pcbId = pcbId;
         this.model = model;
         this.time1 = time1;

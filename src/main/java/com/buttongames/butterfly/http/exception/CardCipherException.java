@@ -6,11 +6,4 @@ package com.buttongames.butterfly.http.exception;
  */
 public class CardCipherException extends RuntimeException {
 
-    public CardCipherException() {
-        super();
-    }
-
-    public CardCipherException(final String message) {
-        super(message);
-    }
 }

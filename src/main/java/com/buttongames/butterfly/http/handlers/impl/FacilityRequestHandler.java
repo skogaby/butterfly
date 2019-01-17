@@ -1,10 +1,10 @@
 package com.buttongames.butterfly.http.handlers.impl;
 
-import com.buttongames.butterfly.hibernate.dao.impl.Ddr16ShopDao;
+import com.buttongames.butterfly.hibernate.dao.impl.ddr16.ShopDao;
 import com.buttongames.butterfly.hibernate.dao.impl.MachineDao;
 import com.buttongames.butterfly.http.exception.InvalidRequestMethodException;
 import com.buttongames.butterfly.http.handlers.BaseRequestHandler;
-import com.buttongames.butterfly.model.Ddr16Shop;
+import com.buttongames.butterfly.model.ddr16.Shop;
 import com.buttongames.butterfly.util.StringUtils;
 import com.buttongames.butterfly.xml.builder.KXmlBuilder;
 import org.apache.logging.log4j.LogManager;
@@ -27,7 +27,7 @@ public class FacilityRequestHandler extends BaseRequestHandler {
     /**
      * DAO for interacting with Ddr16Shops in the database.
      */
-    private final Ddr16ShopDao shopDao;
+    private final ShopDao shopDao;
 
     /**
      * DAO for interacting with Machines in the database.
@@ -35,7 +35,7 @@ public class FacilityRequestHandler extends BaseRequestHandler {
     private final MachineDao machineDao;
 
     @Autowired
-    public FacilityRequestHandler(final Ddr16ShopDao shopDao,
+    public FacilityRequestHandler(final ShopDao shopDao,
                                   final MachineDao machineDao) {
         this.shopDao = shopDao;
         this.machineDao = machineDao;
@@ -67,11 +67,11 @@ public class FacilityRequestHandler extends BaseRequestHandler {
      */
     private Object handleGetRequest(final Request request, final Response response) {
         final String reqPcbId = request.attribute("pcbid");
-        Ddr16Shop shop = this.shopDao.findByPcbId(reqPcbId);
+        Shop shop = this.shopDao.findByPcbId(reqPcbId);
 
         // if no shop exists for this PCB, just make a default one
         if (shop == null) {
-            shop = new Ddr16Shop(reqPcbId, StringUtils.getRandomHexString(8), "BUTTERFLY", "US", "1", true);
+            shop = new Shop(reqPcbId, StringUtils.getRandomHexString(8), "BUTTERFLY", "US", "1", true);
             shopDao.create(shop);
         }
 

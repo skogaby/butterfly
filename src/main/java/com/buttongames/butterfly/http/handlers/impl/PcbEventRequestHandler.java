@@ -1,9 +1,9 @@
 package com.buttongames.butterfly.http.handlers.impl;
 
-import com.buttongames.butterfly.hibernate.dao.impl.Ddr16PcbEventLogDao;
+import com.buttongames.butterfly.hibernate.dao.impl.ddr16.PcbEventLogDao;
 import com.buttongames.butterfly.http.exception.InvalidRequestMethodException;
 import com.buttongames.butterfly.http.handlers.BaseRequestHandler;
-import com.buttongames.butterfly.model.Ddr16PcbEventLog;
+import com.buttongames.butterfly.model.ddr16.PcbEventLog;
 import com.buttongames.butterfly.util.TimeUtils;
 import com.buttongames.butterfly.xml.builder.KXmlBuilder;
 import com.buttongames.butterfly.xml.XmlUtils;
@@ -29,10 +29,10 @@ public class PcbEventRequestHandler extends BaseRequestHandler {
     /**
      * The DAO for creating new PCB event logs.
      */
-    private final Ddr16PcbEventLogDao pcbEventLogDao;
+    private final PcbEventLogDao pcbEventLogDao;
 
     @Autowired
-    public PcbEventRequestHandler(final Ddr16PcbEventLogDao pcbEventLogDao) {
+    public PcbEventRequestHandler(final PcbEventLogDao pcbEventLogDao) {
         this.pcbEventLogDao = pcbEventLogDao;
     }
 
@@ -71,7 +71,7 @@ public class PcbEventRequestHandler extends BaseRequestHandler {
         final int value = XmlUtils.intValueAtPath(requestBody, "/pcbevent/item/value");
         final LocalDateTime time2 = TimeUtils.timeFromEpoch(XmlUtils.longValueAtPath(requestBody, "/pcbevent/item/time"));
 
-        final Ddr16PcbEventLog event = new Ddr16PcbEventLog(reqPcbId, reqModel, time1, time2, sequence, name, value);
+        final PcbEventLog event = new PcbEventLog(reqPcbId, reqModel, time1, time2, sequence, name, value);
         this.pcbEventLogDao.create(event);
 
         // send the response

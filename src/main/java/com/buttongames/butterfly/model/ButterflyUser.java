@@ -33,36 +33,45 @@ public class ButterflyUser implements Externalizable {
     private long id;
 
     /**
+     * The user's card PIN.
+     */
+    @Column(name = "pin")
+    private String pin;
+
+    /**
      * The date and time this user was registered.
      */
     @Column(name = "register_time")
     private LocalDateTime registerTime;
 
     /**
-     * The user's card PIN.
+     * The date and time this user last logged into a game on a card.
      */
-    @Column(name = "pin")
-    private String pin;
+    @Column(name = "last_play_time")
+    private LocalDateTime lastPlayTime;
 
     public ButterflyUser() { }
 
-    public ButterflyUser(final String pin, final LocalDateTime registerTime) {
+    public ButterflyUser(final String pin, final LocalDateTime registerTime, final LocalDateTime lastPlayTime) {
         this.pin = pin;
         this.registerTime = registerTime;
+        this.lastPlayTime = lastPlayTime;
     }
 
     @Override
     public void writeExternal(ObjectOutput out) throws IOException {
         out.writeLong(this.id);
-        out.writeObject(this.registerTime);
         out.writeUTF(this.pin);
+        out.writeObject(this.registerTime);
+        out.writeObject(this.lastPlayTime);
     }
 
     @Override
     public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
         this.setId(in.readLong());
-        this.setRegisterTime((LocalDateTime) in.readObject());
         this.setPin(in.readUTF());
+        this.setRegisterTime((LocalDateTime) in.readObject());
+        this.setLastPlayTime((LocalDateTime) in.readObject());
     }
 
     public long getId() {
@@ -87,5 +96,13 @@ public class ButterflyUser implements Externalizable {
 
     public void setPin(String pin) {
         this.pin = pin;
+    }
+
+    public LocalDateTime getLastPlayTime() {
+        return lastPlayTime;
+    }
+
+    public void setLastPlayTime(LocalDateTime lastPlayTime) {
+        this.lastPlayTime = lastPlayTime;
     }
 }

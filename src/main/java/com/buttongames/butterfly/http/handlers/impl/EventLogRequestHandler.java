@@ -1,9 +1,9 @@
 package com.buttongames.butterfly.http.handlers.impl;
 
-import com.buttongames.butterfly.hibernate.dao.impl.Ddr16GameplayEventLogDao;
+import com.buttongames.butterfly.hibernate.dao.impl.ddr16.GameplayEventLogDao;
 import com.buttongames.butterfly.http.exception.InvalidRequestMethodException;
 import com.buttongames.butterfly.http.handlers.BaseRequestHandler;
-import com.buttongames.butterfly.model.Ddr16GameplayEventLog;
+import com.buttongames.butterfly.model.ddr16.GameplayEventLog;
 import com.buttongames.butterfly.util.TimeUtils;
 import com.buttongames.butterfly.xml.builder.KXmlBuilder;
 import com.buttongames.butterfly.xml.XmlUtils;
@@ -30,10 +30,10 @@ public class EventLogRequestHandler extends BaseRequestHandler {
     /**
      * The DAO for creating gameplay event logs in the database.
      */
-    private final Ddr16GameplayEventLogDao gameplayEventLogDao;
+    private final GameplayEventLogDao gameplayEventLogDao;
 
     @Autowired
-    public EventLogRequestHandler(final Ddr16GameplayEventLogDao gameplayEventLogDao) {
+    public EventLogRequestHandler(final GameplayEventLogDao gameplayEventLogDao) {
         this.gameplayEventLogDao = gameplayEventLogDao;
     }
 
@@ -77,7 +77,7 @@ public class EventLogRequestHandler extends BaseRequestHandler {
         final long numData2 = XmlUtils.longValueAtPath(requestBody, "/eventlog/data/numdata2");
         final String locationId = XmlUtils.strValueAtPath(requestBody, "/eventlog/data/locationid");
 
-        final Ddr16GameplayEventLog event = new Ddr16GameplayEventLog(reqPcbId, reqModel, retryCount, eventId,
+        final GameplayEventLog event = new GameplayEventLog(reqPcbId, reqModel, retryCount, eventId,
                 eventOrder, pcbTime, gameSession, stringData1, stringData2, numData1, numData2, locationId);
         this.gameplayEventLogDao.create(event);
 

@@ -1,10 +1,12 @@
 package com.buttongames.butterfly.spring.configuration;
 
+import com.buttongames.butterfly.hibernate.dao.impl.CardDao;
 import com.buttongames.butterfly.hibernate.dao.impl.MachineDao;
 import com.buttongames.butterfly.hibernate.dao.impl.ButterflyUserDao;
-import com.buttongames.butterfly.hibernate.dao.impl.Ddr16ShopDao;
-import com.buttongames.butterfly.hibernate.dao.impl.Ddr16GameplayEventLogDao;
-import com.buttongames.butterfly.hibernate.dao.impl.Ddr16PcbEventLogDao;
+import com.buttongames.butterfly.hibernate.dao.impl.ddr16.ProfileDao;
+import com.buttongames.butterfly.hibernate.dao.impl.ddr16.ShopDao;
+import com.buttongames.butterfly.hibernate.dao.impl.ddr16.GameplayEventLogDao;
+import com.buttongames.butterfly.hibernate.dao.impl.ddr16.PcbEventLogDao;
 import com.buttongames.butterfly.hibernate.dao.impl.UserPhasesDao;
 import com.buttongames.butterfly.util.PathUtils;
 import org.hibernate.SessionFactory;
@@ -97,17 +99,27 @@ public class HibernateConfiguration {
     }
 
     @Bean
-    public Ddr16GameplayEventLogDao ddr16GameplayEventLogDao(final SessionFactory sessionFactory) {
-        return new Ddr16GameplayEventLogDao(sessionFactory);
+    public GameplayEventLogDao gameplayEventLogDao(final SessionFactory sessionFactory) {
+        return new GameplayEventLogDao(sessionFactory);
     }
 
     @Bean
-    public Ddr16PcbEventLogDao ddr16PcbEventLogDao(final SessionFactory sessionFactory) {
-        return new Ddr16PcbEventLogDao(sessionFactory);
+    public PcbEventLogDao pcbEventLogDao(final SessionFactory sessionFactory) {
+        return new PcbEventLogDao(sessionFactory);
     }
 
     @Bean
-    public Ddr16ShopDao ddr16ShopDao(final SessionFactory sessionFactory) {
-        return new Ddr16ShopDao(sessionFactory);
+    public ShopDao shopDao(final SessionFactory sessionFactory) {
+        return new ShopDao(sessionFactory);
+    }
+
+    @Bean
+    public CardDao cardDao(final SessionFactory sessionFactory) {
+        return new CardDao(sessionFactory);
+    }
+
+    @Bean
+    public ProfileDao userProfileDao(final SessionFactory sessionFactory) {
+        return new ProfileDao(sessionFactory);
     }
 }

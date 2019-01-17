@@ -1,11 +1,9 @@
-package com.buttongames.butterfly.model;
+package com.buttongames.butterfly.model.ddr16;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import java.io.Externalizable;
 import java.io.IOException;
@@ -19,7 +17,7 @@ import java.time.LocalDateTime;
  */
 @Entity
 @Table(name = "ddr_16_gameplay_event_logs")
-public class Ddr16GameplayEventLog implements Externalizable {
+public class GameplayEventLog implements Externalizable {
 
     private static final long serialVersionUID = 1L;
 
@@ -77,12 +75,12 @@ public class Ddr16GameplayEventLog implements Externalizable {
     @Column(name = "location_id")
     private String locationId;
 
-    public Ddr16GameplayEventLog() { }
+    public GameplayEventLog() { }
 
-    public Ddr16GameplayEventLog(final String pcbId, final String model, final int retryCount,
-                                 final String eventId, final int eventOrder, final LocalDateTime pcbTime, final long gameSession,
-                                 final String stringData1, final String stringData2, final long numData1, final long numData2,
-                                 final String locationId) {
+    public GameplayEventLog(final String pcbId, final String model, final int retryCount,
+                            final String eventId, final int eventOrder, final LocalDateTime pcbTime, final long gameSession,
+                            final String stringData1, final String stringData2, final long numData1, final long numData2,
+                            final String locationId) {
         this.pcbId = pcbId;
         this.model = model;
         this.retryCount = retryCount;
