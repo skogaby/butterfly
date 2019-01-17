@@ -39,5 +39,23 @@ public class CollectionUtils {
 
         return data;
     }
+
+    /**
+     * Converts a hex string into an integer array, where each int
+     * is an unsigned byte value.
+     * @param s
+     * @return
+     */
+    public static int[] hexStringToUnsignedByteArray(final String s) {
+        final int len = s.length();
+        final int[] data = new int[len / 2];
+
+        for (int i = 0; i < len; i += 2) {
+            data[i / 2] = (Character.digit(s.charAt(i), 16) << 4)
+                    + Character.digit(s.charAt(i + 1), 16);
+        }
+
+        return data;
+    }
 }
 
