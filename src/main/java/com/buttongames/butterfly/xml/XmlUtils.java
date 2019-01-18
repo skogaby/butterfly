@@ -145,4 +145,18 @@ public class XmlUtils {
             return null;
         }
     }
+    /**
+     * Reads the node at the given XPath expression from the given document.
+     * @param doc
+     * @param path
+     * @return
+     */
+    public static Node nodeAtPath(final Element doc, final String path) {
+        try {
+            return (Node) XPATH.compile("/" + path).evaluate(doc, XPathConstants.NODE);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
 }

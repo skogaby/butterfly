@@ -12,6 +12,8 @@ import com.buttongames.butterfly.http.exception.InvalidRequestModelException;
 import com.buttongames.butterfly.http.exception.InvalidRequestModuleException;
 import com.buttongames.butterfly.http.exception.MismatchedRequestUriException;
 import com.buttongames.butterfly.http.exception.UnsupportedRequestException;
+import com.buttongames.butterfly.http.handlers.impl.CardManageRequestHandler;
+import com.buttongames.butterfly.http.handlers.impl.EacoinRequestHandler;
 import com.buttongames.butterfly.http.handlers.impl.EventLogRequestHandler;
 import com.buttongames.butterfly.http.handlers.impl.FacilityRequestHandler;
 import com.buttongames.butterfly.http.handlers.impl.MessageRequestHandler;
@@ -20,6 +22,7 @@ import com.buttongames.butterfly.http.handlers.impl.PcbEventRequestHandler;
 import com.buttongames.butterfly.http.handlers.impl.PcbTrackerRequestHandler;
 import com.buttongames.butterfly.http.handlers.impl.PlayerDataRequestHandler;
 import com.buttongames.butterfly.http.handlers.impl.ServicesRequestHandler;
+import com.buttongames.butterfly.http.handlers.impl.SystemRequestHandler;
 import com.buttongames.butterfly.http.handlers.impl.TaxRequestHandler;
 import com.buttongames.butterfly.model.ButterflyUser;
 import com.buttongames.butterfly.model.Machine;
@@ -75,7 +78,7 @@ public class ButterflyHttpServer {
     static {
         SUPPORTED_MODELS = ImmutableSet.of("mdx_2018042300");
         SUPPORTED_MODULES = ImmutableSet.of("services", "pcbtracker", "message", "facility", "pcbevent",
-                "package", "eventlog", "tax", "playerdata");
+                "package", "eventlog", "tax", "playerdata", "cardmng", "system", "eacoin");
     }
 
     /** The port the server listens on */
@@ -109,6 +112,15 @@ public class ButterflyHttpServer {
     /** Handler for requests for the <code>playerdata</code> module. */
     private final PlayerDataRequestHandler playerDataRequestHandler;
 
+    /** Handler for requests for the <code>cardmng</code> module. */
+    private final CardManageRequestHandler cardManageRequestHandler;
+
+    /** Handler for requests for the <code>system</code> module. */
+    private final SystemRequestHandler systemRequestHandler;
+
+    /** Handler for requests for the <code>eacoin</code> module. */
+    private final EacoinRequestHandler eacoinRequestHandler;
+
     /** DAO for interacting with <code>Machine</code> objects in the database. */
     private final MachineDao machineDao;
 
@@ -128,6 +140,9 @@ public class ButterflyHttpServer {
                                final EventLogRequestHandler eventLogRequestHandler,
                                final TaxRequestHandler taxRequestHandler,
                                final PlayerDataRequestHandler playerDataRequestHandler,
+                               final CardManageRequestHandler cardManageRequestHandler,
+                               final SystemRequestHandler systemRequestHandler,
+                               final EacoinRequestHandler eacoinRequestHandler,
                                final MachineDao machineDao,
                                final ButterflyUserDao userDao) {
         this.servicesRequestHandler = servicesRequestHandler;
@@ -139,6 +154,9 @@ public class ButterflyHttpServer {
         this.eventLogRequestHandler = eventLogRequestHandler;
         this.taxRequestHandler = taxRequestHandler;
         this.playerDataRequestHandler = playerDataRequestHandler;
+        this.cardManageRequestHandler = cardManageRequestHandler;
+        this.systemRequestHandler = systemRequestHandler;
+        this.eacoinRequestHandler = eacoinRequestHandler;
         this.machineDao = machineDao;
         this.userDao = userDao;
     }
@@ -194,6 +212,12 @@ public class ButterflyHttpServer {
                 return this.taxRequestHandler.handleRequest(requestBody, request, response);
             } else if (requestModule.equals("playerdata")) {
                 return this.playerDataRequestHandler.handleRequest(requestBody, request, response);
+            } else if (requestModule.equals("cardmng")) {
+                return this.cardManageRequestHandler.handleRequest(requestBody, request, response);
+            } else if (requestModule.equals("system")) {
+                return this.systemRequestHandler.handleRequest(requestBody, request, response);
+            } else if (requestModule.equals("eacoin")) {
+                return this.eacoinRequestHandler.handleRequest(requestBody, request, response);
             } else {
                 throw new InvalidRequestModuleException();
             }
@@ -299,7 +323,7 @@ public class ButterflyHttpServer {
         if (machine == null) {
             // create a machine and just ban it for now, unban it later if you want
             final LocalDateTime now = LocalDateTime.now();
-            final ButterflyUser newUser = new ButterflyUser("0000", now, now);
+            final ButterflyUser newUser = new ButterflyUser("0000", now, now, 10000);
             userDao.create(newUser);
 
             machine = new Machine(newUser, requestBodyPcbId, LocalDateTime.now(), false, 0);

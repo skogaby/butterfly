@@ -50,12 +50,20 @@ public class ButterflyUser implements Externalizable {
     @Column(name = "last_play_time")
     private LocalDateTime lastPlayTime;
 
+    /**
+     * The amount of Paseli this user has.
+     */
+    @Column(name = "paseli_balance")
+    private int paseliBalance;
+
     public ButterflyUser() { }
 
-    public ButterflyUser(final String pin, final LocalDateTime registerTime, final LocalDateTime lastPlayTime) {
+    public ButterflyUser(final String pin, final LocalDateTime registerTime, final LocalDateTime lastPlayTime,
+                         final int paseliBalance) {
         this.pin = pin;
         this.registerTime = registerTime;
         this.lastPlayTime = lastPlayTime;
+        this.paseliBalance = paseliBalance;
     }
 
     @Override
@@ -64,6 +72,7 @@ public class ButterflyUser implements Externalizable {
         out.writeUTF(this.pin);
         out.writeObject(this.registerTime);
         out.writeObject(this.lastPlayTime);
+        out.writeInt(this.paseliBalance);
     }
 
     @Override
@@ -72,6 +81,7 @@ public class ButterflyUser implements Externalizable {
         this.setPin(in.readUTF());
         this.setRegisterTime((LocalDateTime) in.readObject());
         this.setLastPlayTime((LocalDateTime) in.readObject());
+        this.setPaseliBalance(in.readInt());
     }
 
     public long getId() {
@@ -104,5 +114,13 @@ public class ButterflyUser implements Externalizable {
 
     public void setLastPlayTime(LocalDateTime lastPlayTime) {
         this.lastPlayTime = lastPlayTime;
+    }
+
+    public int getPaseliBalance() {
+        return paseliBalance;
+    }
+
+    public void setPaseliBalance(int paseliBalance) {
+        this.paseliBalance = paseliBalance;
     }
 }
