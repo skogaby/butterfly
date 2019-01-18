@@ -5,7 +5,7 @@ import com.buttongames.butterfly.http.exception.InvalidRequestMethodException;
 import com.buttongames.butterfly.http.handlers.BaseRequestHandler;
 import com.buttongames.butterfly.model.ddr16.GameplayEventLog;
 import com.buttongames.butterfly.util.TimeUtils;
-import com.buttongames.butterfly.xml.builder.KXmlBuilder;
+import com.buttongames.butterfly.xml.kbinxml.KXmlBuilder;
 import com.buttongames.butterfly.xml.XmlUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

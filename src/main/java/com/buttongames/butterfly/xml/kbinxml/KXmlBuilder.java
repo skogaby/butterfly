@@ -1,4 +1,4 @@
-package com.buttongames.butterfly.xml.builder;
+package com.buttongames.butterfly.xml.kbinxml;
 
 /**
  * CONTEXT: I (skogaby) wanted to extend XMLBuilder2 from java-xmlbuilder to provide convenience

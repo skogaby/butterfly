@@ -1,8 +1,8 @@
 package com.buttongames.butterfly.http.handlers;
 
-import com.buttongames.butterfly.compression.Lz77;
 import com.buttongames.butterfly.encryption.Rc4;
-import com.buttongames.butterfly.xml.BinaryXmlUtils;
+import com.buttongames.butterfly.xml.XmlUtils;
+import com.buttongames.butterfly.xml.kbinxml.PublicKt;
 import com.google.common.net.MediaType;
 import com.jamesmurty.utils.BaseXMLBuilder;
 import org.apache.logging.log4j.LogManager;
@@ -27,7 +27,6 @@ import java.nio.file.Paths;
 
 import static com.buttongames.butterfly.util.Constants.COMPRESSION_HEADER;
 import static com.buttongames.butterfly.util.Constants.CRYPT_KEY_HEADER;
-import static com.buttongames.butterfly.util.Constants.LZ77_COMPRESSION;
 
 /**
  * Base request handler that the others inherit from.
@@ -106,8 +105,8 @@ public abstract class BaseRequestHandler {
         response.header("Connection", "keep-alive");
 
         // convert them to binary XML
-        if (!BinaryXmlUtils.isBinaryXML(respBytes)) {
-            respBytes = BinaryXmlUtils.xmlToBinary(respBytes);
+        if (!XmlUtils.isBinaryXML(respBytes)) {
+            respBytes = PublicKt.kbinEncode(new String(respBytes));
         }
 
         // TODO: FIX THIS SHIT

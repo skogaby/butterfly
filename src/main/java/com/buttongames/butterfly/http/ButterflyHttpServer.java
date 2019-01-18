@@ -27,8 +27,8 @@ import com.buttongames.butterfly.http.handlers.impl.TaxRequestHandler;
 import com.buttongames.butterfly.model.ButterflyUser;
 import com.buttongames.butterfly.model.Machine;
 import com.buttongames.butterfly.util.PropertyNames;
-import com.buttongames.butterfly.xml.BinaryXmlUtils;
 import com.buttongames.butterfly.xml.XmlUtils;
+import com.buttongames.butterfly.xml.kbinxml.PublicKt;
 import com.google.common.collect.ImmutableSet;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -299,13 +299,15 @@ public class ButterflyHttpServer {
         }
 
         // convert the body to plaintext XML if it's binary XML
-        if (BinaryXmlUtils.isBinaryXML(reqBody)) {
-            reqBody = BinaryXmlUtils.binaryToXml(reqBody);
+        Element rootNode = null;
+
+        if (XmlUtils.isBinaryXML(reqBody)) {
+            rootNode = XmlUtils.stringToXmlFile(PublicKt.kbinDecodeToString(reqBody));
+        } else {
+            rootNode = XmlUtils.byteArrayToXmlFile(reqBody);
         }
 
         // read the request body into an XML document
-        Element rootNode = XmlUtils.byteArrayToXmlFile(reqBody);
-
         if (rootNode == null ||
                 !rootNode.getNodeName().equals("call")) {
             throw new InvalidRequestException();

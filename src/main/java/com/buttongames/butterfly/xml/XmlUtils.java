@@ -24,6 +24,30 @@ public class XmlUtils {
     private static final XPath XPATH = XPathFactory.newInstance().newXPath();
 
     /**
+     * First bytes of a plaintext XML response, so we know if an array needs to be converted
+     * to/from binary XML.
+     */
+    private static final byte[] XML_PREFIX = "<?xml".getBytes();
+
+    /**
+     * Says whether or not the input is binary XML.
+     * @param input
+     * @return
+     */
+    public static boolean isBinaryXML(final byte[] input) {
+        boolean isBinary = false;
+
+        for (int i = 0; i < XML_PREFIX.length; i++) {
+            if (input[i] != XML_PREFIX[i]) {
+                isBinary = true;
+                break;
+            }
+        }
+
+        return isBinary;
+    }
+
+    /**
      * Scrubs empty nodes from a document so we don't accidentally read them.
      * @param node The root node of the document to clean.
      */
@@ -49,6 +73,7 @@ public class XmlUtils {
             }
         }
     }
+
     /**
      * Reads the given byte[] into an Element that represents the root node of the XML body.
      * @param body
@@ -62,6 +87,28 @@ public class XmlUtils {
             final DocumentBuilderFactory builderFactory = DocumentBuilderFactory.newInstance();
             final DocumentBuilder builder = builderFactory.newDocumentBuilder();
             final Document reqDocument = builder.parse(new ByteArrayInputStream(body));
+            XmlUtils.clean(reqDocument);
+
+            return reqDocument.getDocumentElement();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    /**
+     * Reads the given string into an Element that represents the root node of the XML body.
+     * @param body
+     * @return
+     * @throws ParserConfigurationException
+     * @throws IOException
+     * @throws SAXException
+     */
+    public static Element stringToXmlFile(final String body) {
+        try {
+            final DocumentBuilderFactory builderFactory = DocumentBuilderFactory.newInstance();
+            final DocumentBuilder builder = builderFactory.newDocumentBuilder();
+            final Document reqDocument = builder.parse(new ByteArrayInputStream(body.getBytes()));
             XmlUtils.clean(reqDocument);
 
             return reqDocument.getDocumentElement();

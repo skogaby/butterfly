@@ -4,7 +4,7 @@ import com.buttongames.butterfly.http.exception.InvalidRequestMethodException;
 import com.buttongames.butterfly.http.handlers.BaseRequestHandler;
 import com.buttongames.butterfly.util.CardIdUtils;
 import com.buttongames.butterfly.xml.XmlUtils;
-import com.buttongames.butterfly.xml.builder.KXmlBuilder;
+import com.buttongames.butterfly.xml.kbinxml.KXmlBuilder;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Component;

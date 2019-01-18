@@ -25,7 +25,7 @@ import com.buttongames.butterfly.model.ddr16.options.SpeedOption;
 import com.buttongames.butterfly.model.ddr16.options.StepZoneOption;
 import com.buttongames.butterfly.model.ddr16.options.TurnOption;
 import com.buttongames.butterfly.util.StringUtils;
-import com.buttongames.butterfly.xml.builder.KXmlBuilder;
+import com.buttongames.butterfly.xml.kbinxml.KXmlBuilder;
 import com.buttongames.butterfly.xml.XmlUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
