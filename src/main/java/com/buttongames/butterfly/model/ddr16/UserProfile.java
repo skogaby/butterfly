@@ -170,6 +170,10 @@ public class UserProfile implements Externalizable {
     @Enumerated(EnumType.STRING)
     private JudgementLayerOption judgementLayerOption;
 
+    /** Whether or not to show the fast/slow results at the end of the game */
+    @Column(name = "show_fast_slow_results")
+    private boolean showFastSlow;
+
     /** Calories from the last day (?) */
     @Column(name = "last_calories")
     private int lastCalories;
@@ -198,7 +202,7 @@ public class UserProfile implements Externalizable {
                        ArrowColorOption arrowColorOption, CutOption cutOption, FreezeArrowOption freezeArrowOption,
                        JumpsOption jumpsOption, ArrowSkinOption arrowSkinOption, ScreenFilterOption screenFilterOption,
                        GuideLinesOption guideLinesOption, LifeGaugeOption lifeGaugeOption, JudgementLayerOption judgementLayerOption,
-                       int lastCalories, UserProfile rival1, UserProfile rival2, UserProfile rival3) {
+                       boolean showFastSlow, int lastCalories, UserProfile rival1, UserProfile rival2, UserProfile rival3) {
         this.user = user;
         this.name = name;
         this.dancerCode = dancerCode;
@@ -225,6 +229,7 @@ public class UserProfile implements Externalizable {
         this.guideLinesOption = guideLinesOption;
         this.lifeGaugeOption = lifeGaugeOption;
         this.judgementLayerOption = judgementLayerOption;
+        this.showFastSlow = showFastSlow;
         this.lastCalories = lastCalories;
         this.rival1 = rival1;
         this.rival2 = rival2;
@@ -260,6 +265,7 @@ public class UserProfile implements Externalizable {
         out.writeObject(this.guideLinesOption);
         out.writeObject(this.lifeGaugeOption);
         out.writeObject(this.judgementLayerOption);
+        out.writeBoolean(this.showFastSlow);
         out.writeInt(this.lastCalories);
         out.writeObject(this.rival1);
         out.writeObject(this.rival2);
@@ -295,6 +301,7 @@ public class UserProfile implements Externalizable {
         this.setGuideLinesOption((GuideLinesOption) in.readObject());
         this.setLifeGaugeOption((LifeGaugeOption) in.readObject());
         this.setJudgementLayerOption((JudgementLayerOption) in.readObject());
+        this.setShowFastSlow(in.readBoolean());
         this.setLastCalories(in.readInt());
         this.setRival1((UserProfile) in.readObject());
         this.setRival2((UserProfile) in.readObject());
@@ -515,6 +522,14 @@ public class UserProfile implements Externalizable {
 
     public void setJudgementLayerOption(JudgementLayerOption judgementLayerOption) {
         this.judgementLayerOption = judgementLayerOption;
+    }
+
+    public boolean isShowFastSlow() {
+        return showFastSlow;
+    }
+
+    public void setShowFastSlow(boolean showFastSlow) {
+        this.showFastSlow = showFastSlow;
     }
 
     public int getLastCalories() {

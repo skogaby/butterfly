@@ -78,7 +78,6 @@ public class CardManageRequestHandler extends BaseRequestHandler {
     private Object handleInquireRequest(final Element requestBody, final Request request, final Response response) {
         final Node requestNode = XmlUtils.nodeAtPath(requestBody, "/cardmng");
         final String cardId = requestNode.getAttributes().getNamedItem("cardid").getNodeValue();
-        final int cardTypeInt = Integer.parseInt(requestNode.getAttributes().getNamedItem("cardtype").getNodeValue());
 
         // see if the card is bound already
         Card card = this.cardDao.findByNfcId(cardId);

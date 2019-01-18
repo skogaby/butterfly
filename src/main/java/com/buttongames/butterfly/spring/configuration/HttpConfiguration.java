@@ -4,6 +4,7 @@ import com.buttongames.butterfly.hibernate.dao.impl.ButterflyUserDao;
 import com.buttongames.butterfly.hibernate.dao.impl.CardDao;
 import com.buttongames.butterfly.hibernate.dao.impl.ddr16.GameplayEventLogDao;
 import com.buttongames.butterfly.hibernate.dao.impl.ddr16.PcbEventLogDao;
+import com.buttongames.butterfly.hibernate.dao.impl.ddr16.ProfileDao;
 import com.buttongames.butterfly.hibernate.dao.impl.ddr16.ShopDao;
 import com.buttongames.butterfly.hibernate.dao.impl.MachineDao;
 import com.buttongames.butterfly.hibernate.dao.impl.UserPhasesDao;
@@ -91,8 +92,9 @@ public class HttpConfiguration {
     }
 
     @Bean
-    public PlayerDataRequestHandler playerDataRequestHandler() {
-        return new PlayerDataRequestHandler();
+    public PlayerDataRequestHandler playerDataRequestHandler(final ButterflyUserDao userDao, final CardDao cardDao,
+                                                             final ProfileDao profileDao) {
+        return new PlayerDataRequestHandler(userDao, cardDao, profileDao);
     }
 
     @Bean
