@@ -2,6 +2,7 @@ package com.buttongames.butterfly.http.handlers.impl;
 
 import com.buttongames.butterfly.hibernate.dao.impl.ButterflyUserDao;
 import com.buttongames.butterfly.hibernate.dao.impl.CardDao;
+import com.buttongames.butterfly.http.exception.InvalidRequestException;
 import com.buttongames.butterfly.http.exception.InvalidRequestMethodException;
 import com.buttongames.butterfly.http.handlers.BaseRequestHandler;
 import com.buttongames.butterfly.model.ButterflyUser;
@@ -60,6 +61,8 @@ public class CardManageRequestHandler extends BaseRequestHandler {
             return this.handleInquireRequest(requestBody, request, response);
         } else if (requestMethod.equals("getrefid")) {
             return this.handleGetRefIdRequest(requestBody, request, response);
+        } else if (requestMethod.equals("authpass")) {
+            return this.handleAuthPassRequest(requestBody, request, response);
         } else {
             throw new InvalidRequestMethodException();
         }
@@ -113,6 +116,11 @@ public class CardManageRequestHandler extends BaseRequestHandler {
         final CardType cardType = CardType.values()[cardTypeInt];
         final String pin = requestNode.getAttributes().getNamedItem("passwd").getNodeValue();
 
+        // make sure the card doesn't already exist
+        if (this.cardDao.findByNfcId(cardId) != null) {
+            throw new InvalidRequestException();
+        }
+
         // create a new user that this card is bound to
         final ButterflyUser newUser = new ButterflyUser(pin, LocalDateTime.now(), LocalDateTime.now(), 10000);
         userDao.create(newUser);
@@ -125,6 +133,35 @@ public class CardManageRequestHandler extends BaseRequestHandler {
         // send a response
         final KXmlBuilder builder = KXmlBuilder.create("response")
                 .e("cardmng").a("dataid", card.getRefId()).a("refid", card.getRefId());
+        return this.sendResponse(request, response, builder);
+    }
+
+    /**
+     * Handles an incoming request for the <code>cardmng.authpass</code> module.
+     * @param requestBody The XML document of the incoming request.
+     * @param request The Spark request
+     * @param response The Spark response
+     * @return A response object for Spark
+     */
+    private Object handleAuthPassRequest(final Element requestBody, final Request request, final Response response) {
+        // this request is to create a new card
+        final Node requestNode = XmlUtils.nodeAtPath(requestBody, "/cardmng");
+        final String pin = requestNode.getAttributes().getNamedItem("pass").getNodeValue();
+        final String refid = requestNode.getAttributes().getNamedItem("refid").getNodeValue();
+
+        // check the pin against the pin of the owner of the ref ID
+        final Card card = this.cardDao.findByRefId(refid);
+
+        if (card == null ||
+                card.getUser() == null) {
+            throw new InvalidRequestException();
+        }
+
+        final int status = (card.getUser().getPin().equals(pin) ? 0 : 116);
+
+        // send the response
+        final KXmlBuilder builder = KXmlBuilder.create("response")
+                .e("cardmng").a("status", String.valueOf(status));
         return this.sendResponse(request, response, builder);
     }
 }

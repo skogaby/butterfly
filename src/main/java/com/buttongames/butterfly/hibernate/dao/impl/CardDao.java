@@ -38,4 +38,20 @@ public class CardDao extends AbstractHibernateDao<Card> {
         this.closeCurrentSession();
         return result;
     }
+
+    /**
+     * Finds a card by its ref ID.
+     * @param refId The ref ID to query for.
+     * @return The matching Card, or null if none are found.
+     */
+    public Card findByRefId(final String refId) {
+        this.openCurrentSession();
+
+        final Query<Card> query = this.currentSession.createQuery("from Card where ref_id = :refId");
+        query.setParameter("refId", refId);
+        final Card result = query.uniqueResult();
+
+        this.closeCurrentSession();
+        return result;
+    }
 }
