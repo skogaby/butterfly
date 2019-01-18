@@ -31,7 +31,7 @@ public class ShopDao extends AbstractHibernateDao<Shop> {
     public Shop findByPcbId(final String pcbId) {
         this.openCurrentSession();
 
-        final Query<Shop> query = this.currentSession.createQuery("from Ddr16Shop where pcb_id = :pcbid");
+        final Query<Shop> query = this.currentSession.createQuery("from Shop where pcb_id = :pcbid");
         query.setParameter("pcbid", pcbId);
         final Shop result = query.uniqueResult();
 

@@ -151,14 +151,4 @@ public abstract class BaseRequestHandler {
             return 500;
         }
     }
-
-    /**
-     * Returns the model of the request, minus the hardware variational and regional codes.
-     * @param reqModel The request model (ex. MDX:A:A:A:2018042300)
-     * @return The sanitized model (ex. mdx_2018042300)
-     */
-    protected String getSanitizedModel(final String reqModel) {
-        final String[] elems = reqModel.split(":");
-        return (elems[0] + "_" + elems[4]).toLowerCase();
-    }
 }

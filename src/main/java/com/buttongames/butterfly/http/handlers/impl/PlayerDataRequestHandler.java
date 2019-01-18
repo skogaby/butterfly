@@ -2,6 +2,7 @@ package com.buttongames.butterfly.http.handlers.impl;
 
 import com.buttongames.butterfly.http.exception.UnsupportedRequestException;
 import com.buttongames.butterfly.http.handlers.BaseRequestHandler;
+import com.buttongames.butterfly.util.StringUtils;
 import com.buttongames.butterfly.xml.builder.KXmlBuilder;
 import com.buttongames.butterfly.xml.XmlUtils;
 import org.apache.logging.log4j.LogManager;
@@ -64,7 +65,7 @@ public class PlayerDataRequestHandler extends BaseRequestHandler {
      * @return A response object for Spark
      */
     private Object handleEventsRequest(final Request request, final Response response) {
-        if (this.getSanitizedModel(request.attribute("model")).equals("mdx_2018042300")) {
+        if (StringUtils.getSanitizedModel(request.attribute("model")).equals("mdx_2018042300")) {
             // TODO: This is almost *definitely* not supposed to be a static response
             return this.sendStaticResponse(request, response, "static_responses/mdx_2018042300/events.xml");
         } else {
