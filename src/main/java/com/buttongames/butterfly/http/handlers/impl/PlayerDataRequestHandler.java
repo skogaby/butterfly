@@ -125,10 +125,11 @@ public class PlayerDataRequestHandler extends BaseRequestHandler {
             final String dataid = XmlUtils.strValueAtPath(requestBody, "/playerdata/data/dataid");
 
             if (mode.equals("userload")) {
-                if (refid.equals("X0000000000000000000000000000000") &&
-                        dataid.equals("X0000000000000000000000000000000")) {
+                // TODO: Figure out how this differs when there's a real refid
+                //if (refid.equals("X0000000000000000000000000000000") &&
+                //        dataid.equals("X0000000000000000000000000000000")) {
                     return handleEventsRequest(request, response);
-                }
+                //}
             } else if (mode.equals("rivalload")) {
                 int loadFlag = XmlUtils.intValueAtPath(requestBody, "/playerdata/data/loadflag");
 
@@ -141,6 +142,8 @@ public class PlayerDataRequestHandler extends BaseRequestHandler {
                 }
             } else if (mode.equals("usernew")) {
                 return this.handleNewUserRequest(refid, request, response);
+            } else if (mode.equals("inheritance")) {
+                return this.handleInheritanceRequest(request, response);
             }
         } else if (requestMethod.equals("usergamedata_send")) {
             return this.handleUserGameDataSendRequest(requestBody, request, response);
@@ -254,7 +257,7 @@ public class PlayerDataRequestHandler extends BaseRequestHandler {
                 .e("playerdata")
                     .s32("result", 0).up()
                     .str("seq", dancerCodeStr).up()
-                    .s32("code", dancerCode)
+                    .s32("code", dancerCode).up()
                     .str("shoparea", "default");
         return this.sendResponse(request, response, builder);
     }
@@ -412,5 +415,20 @@ public class PlayerDataRequestHandler extends BaseRequestHandler {
         profile.setRival3(rival3);
 
         this.profileDao.update(profile);
+    }
+
+    /**
+     * Handles an inheritance request for a new user.
+     * @param request The Spark request
+     * @param response The Spark response
+     * @return A response object for Spark
+     */
+    private Object handleInheritanceRequest(final Request request, final Response response) {
+        // TODO: Confirm if this value actually matters...
+        final KXmlBuilder builder = KXmlBuilder.create("response")
+                .s32("result", 0).up()
+                .s32("InheritanceStatus", 0);
+
+        return this.sendResponse(request, response, builder);
     }
 }
