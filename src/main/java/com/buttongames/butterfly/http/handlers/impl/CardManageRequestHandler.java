@@ -112,7 +112,7 @@ public class CardManageRequestHandler extends BaseRequestHandler {
         final Node requestNode = XmlUtils.nodeAtPath(requestBody, "/cardmng");
         final String cardId = requestNode.getAttributes().getNamedItem("cardid").getNodeValue();
         final int cardTypeInt = Integer.parseInt(requestNode.getAttributes().getNamedItem("cardtype").getNodeValue());
-        final CardType cardType = CardType.values()[cardTypeInt];
+        final CardType cardType = CardType.values()[cardTypeInt - 1];
         final String pin = requestNode.getAttributes().getNamedItem("passwd").getNodeValue();
 
         // make sure the card doesn't already exist
