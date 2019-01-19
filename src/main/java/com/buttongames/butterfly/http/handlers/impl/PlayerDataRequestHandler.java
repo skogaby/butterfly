@@ -261,7 +261,7 @@ public class PlayerDataRequestHandler extends BaseRequestHandler {
                     .s32("result", 0).up()
                     .str("seq", dancerCodeStr).up()
                     .s32("code", dancerCode).up()
-                    .str("shoparea", "default");
+                    .str("shoparea", "asdf");
         return this.sendResponse(request, response, builder);
     }
 
@@ -398,7 +398,7 @@ public class PlayerDataRequestHandler extends BaseRequestHandler {
      * @return The CSV string.
      */
     private String buildCommonCsv(final UserProfile profile) {
-        final String[] elems = "1,0,fffffff,1,0,0,0,0,0,ffffffffffffffff,0,0,0,0,0,0,0,0.000000,0.000000,0.000000,0.000000,0.000000,0.000000,0.000000,0.000000,,0000-0000,,,,,,".split(",");
+        final String[] elems = "1,0,fffffff,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0.000000,0.000000,0.000000,0.000000,0.000000,0.000000,0.000000,0.000000,,0000-0000,,,,,,".split(",");
 
         // modify the contents to send back
         String dancerCodeStr = String.format("%08d", profile.getDancerCode());
@@ -515,7 +515,15 @@ public class PlayerDataRequestHandler extends BaseRequestHandler {
             final boolean displayWeight = common[GAME_COMMON_WEIGHT_DISPLAY_OFFSET].equals("1") ? true : false;
             final DancerOption character = DancerOption.values()[Integer.parseInt(common[GAME_COMMON_CHARACTER_OFFSET])];
             final int extraCharge = Integer.parseInt(common[GAME_COMMON_EXTRA_CHARGE_OFFSET]);
-            final int totalPlays = Integer.parseInt(common[GAME_COMMON_TOTAL_PLAYS_OFFSET]);
+
+            int totalPlays;
+
+            try {
+                totalPlays = Integer.parseInt(common[GAME_COMMON_TOTAL_PLAYS_OFFSET]);
+            } catch(NumberFormatException e) {
+                totalPlays = 0;
+            }
+
             final int singlePlays = Integer.parseInt(common[GAME_COMMON_SINGLE_PLAYS_OFFSET]);
             final int doublePlays = Integer.parseInt(common[GAME_COMMON_DOUBLE_PLAYS_OFFSET]);
             final double weight = Double.parseDouble(common[GAME_COMMON_WEIGHT_OFFSET]);
@@ -620,8 +628,9 @@ public class PlayerDataRequestHandler extends BaseRequestHandler {
     private Object handleInheritanceRequest(final Request request, final Response response) {
         // TODO: Confirm if this value actually matters...
         final KXmlBuilder builder = KXmlBuilder.create("response")
-                .s32("result", 0).up()
-                .s32("InheritanceStatus", 0);
+                .e("playerdata")
+                    .s32("result", 0).up()
+                    .s32("InheritanceStatus", 1);
 
         return this.sendResponse(request, response, builder);
     }

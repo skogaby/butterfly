@@ -71,11 +71,24 @@ public class EventLogRequestHandler extends BaseRequestHandler {
         final int eventOrder = XmlUtils.intValueAtPath(requestBody, "/eventlog/data/eventorder");
         final LocalDateTime pcbTime = TimeUtils.timeFromEpoch(XmlUtils.longValueAtPath(requestBody, "/eventlog/data/pcbtime"));
         final long gameSession = XmlUtils.longValueAtPath(requestBody, "/eventlog/data/gamesession");
-        final String stringData1 = new String(Base64.getDecoder().decode(XmlUtils.strValueAtPath(requestBody, "/eventlog/data/strdata1")));
-        final String stringData2 = new String(Base64.getDecoder().decode(XmlUtils.strValueAtPath(requestBody, "/eventlog/data/strdata2")));
         final long numData1 = XmlUtils.longValueAtPath(requestBody, "/eventlog/data/numdata1");
         final long numData2 = XmlUtils.longValueAtPath(requestBody, "/eventlog/data/numdata2");
         final String locationId = XmlUtils.strValueAtPath(requestBody, "/eventlog/data/locationid");
+
+        String stringData1 = XmlUtils.strValueAtPath(requestBody, "/eventlog/data/strdata1");
+        String stringData2 = XmlUtils.strValueAtPath(requestBody, "/eventlog/data/strdata2");
+
+        try {
+            stringData1 = new String(Base64.getDecoder().decode(stringData1));
+        } catch (IllegalArgumentException e) {
+
+        }
+
+        try {
+            stringData2 = new String(Base64.getDecoder().decode(stringData2));
+        } catch (IllegalArgumentException e) {
+
+        }
 
         final GameplayEventLog event = new GameplayEventLog(reqPcbId, reqModel, retryCount, eventId,
                 eventOrder, pcbTime, gameSession, stringData1, stringData2, numData1, numData2, locationId);
