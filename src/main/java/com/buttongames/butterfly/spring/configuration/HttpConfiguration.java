@@ -113,7 +113,7 @@ public class HttpConfiguration {
     }
 
     @Bean
-    public EacoinRequestHandler eacoinRequestHandler() {
-        return new EacoinRequestHandler();
+    public EacoinRequestHandler eacoinRequestHandler(final CardDao cardDao) {
+        return new EacoinRequestHandler(cardDao);
     }
 }
