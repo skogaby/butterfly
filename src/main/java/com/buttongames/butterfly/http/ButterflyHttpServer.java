@@ -264,7 +264,7 @@ public class ButterflyHttpServer {
      * @throws SAXException
      */
     private Element validateAndUnpackRequest(Request request) {
-        /*final String requestUriModel = request.queryParams("model");
+        final String requestUriModel = request.queryParams("model");
         final String requestUriModule = request.queryParams("module");
         final String requestUriMethod = request.queryParams("method");
 
@@ -280,7 +280,7 @@ public class ButterflyHttpServer {
         if (!SUPPORTED_MODULES.contains(requestUriModule)) {
             LOG.warn("Invalid module requested: " + requestUriModule);
             throw new InvalidRequestModuleException();
-        }*/
+        }
 
         // 3) validate that the PCBID exists in the database
         final String encryptionKey = request.headers(CRYPT_KEY_HEADER);
@@ -333,14 +333,14 @@ public class ButterflyHttpServer {
         }
 
         // 4) validate that the request URI matches the request body
-        /*if (StringUtils.isBlank(requestBodyModel) ||
+        if (StringUtils.isBlank(requestBodyModel) ||
                 StringUtils.isBlank(requestBodyModule) ||
                 StringUtils.isBlank(requestBodyMethod) ||
                 !requestBodyModel.equals(requestUriModel) ||
                 !requestBodyModule.equals(requestUriModule) ||
                 !requestBodyMethod.equals(requestUriMethod)) {
             throw new MismatchedRequestUriException();
-        }*/
+        }
 
         // set the model, pcbid, module, and method as request "attributes" so they can be
         // used by the request handlers if needed

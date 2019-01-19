@@ -282,7 +282,7 @@ public class PlayerDataRequestHandler extends BaseRequestHandler {
         String dancerCodeStr = String.format("%08d", dancerCode);
         dancerCodeStr = dancerCodeStr.substring(0, 4) + "-" + dancerCodeStr.substring(4, 8);
 
-        profile = new UserProfile(card.getUser(), null, dancerCode, 1, true, 0, 0, 0, 0, 0.0, DancerOption.RANDOM,
+        profile = new UserProfile(card.getUser(), null, dancerCode, 1, true, 0, 0, 0, -1, 0.0, DancerOption.RANDOM,
                 SpeedOption.X_1_00, BoostOption.NORMAL, AppearanceOption.VISIBLE, TurnOption.OFF, StepZoneOption.ON,
                 ScrollOption.NORMAL, ArrowColorOption.RAINBOW, CutOption.OFF, FreezeArrowOption.ON, JumpsOption.ON,
                 ArrowSkinOption.NORMAL, ScreenFilterOption.OFF, GuideLinesOption.ARROW_CENTER, LifeGaugeOption.NORMAL,
@@ -326,20 +326,16 @@ public class PlayerDataRequestHandler extends BaseRequestHandler {
         // figure out which fields are requested
         final int recvNum = XmlUtils.intValueAtPath(requestBody, "/playerdata/data/recv_num");
         final String recvCsv = XmlUtils.strValueAtPath(requestBody, "/playerdata/data/recv_csv");
-        String[] tmp = recvCsv.split(",");
+        String[] tmp = recvCsv.split(",", -1);
         String[] colsToSend = new String[recvNum];
 
         for (int i = 0; i < recvNum; i++) {
             colsToSend[i] = tmp[i * 2];
         }
 
-        // iterate through each column and send the response
-        KXmlBuilder builder = KXmlBuilder.create("response")
-                .e("playerdata")
-                    .s32("result", 0).up()
-                    .e("player")
-                        .u32("record_num", recvNum).up()
-                        .e("record");
+        // this response needs to be constructed jankily and manually, because XML libraries don't like the idea
+        // of embedding a sub-element inside the text content of a node
+        String csvStrings = "";
 
         for (String col : colsToSend) {
             String val = null;
@@ -358,12 +354,16 @@ public class PlayerDataRequestHandler extends BaseRequestHandler {
                 throw new InvalidRequestException();
             }
 
-            val = Base64.getEncoder().encodeToString(val.getBytes());
-            builder = builder.str("d", val).up();
+            val = "<d __type=\"str\">" + Base64.getEncoder().encodeToString(val.getBytes()) + "<bin1 __type=\"str\"></bin1></d>";
+            csvStrings += val;
         }
 
+        final String responseStr = String.format("<?xml version='1.0' encoding='UTF-8'?><response><playerdata>" +
+                "<result __type=\"s32\">0</result><player><record_num __type=\"u32\">%d</record_num><record>%s</record>" +
+                "</player></playerdata></response>", recvNum, csvStrings);
+
         // send the response
-        return this.sendResponse(request, response, builder);
+        return this.sendBytesToClient(responseStr.getBytes(), request, response);
     }
 
     /**
@@ -402,16 +402,16 @@ public class PlayerDataRequestHandler extends BaseRequestHandler {
 
             // split these out into CSV arrays, and omit the first 2 elements since those are headers
             if (value.startsWith("ffffffff,COMMON")) {
-                commonElems = value.split(",");
+                commonElems = value.split(",", -1);
                 commonElems = Arrays.copyOfRange(commonElems, 2, commonElems.length);
             } else if (value.startsWith("ffffffff,OPTION")) {
-                optionElems = value.split(",");
+                optionElems = value.split(",", -1);
                 optionElems = Arrays.copyOfRange(optionElems, 2, optionElems.length);
             } else if (value.startsWith("ffffffff,LAST")) {
-                lastElems = value.split(",");
+                lastElems = value.split(",", -1);
                 lastElems = Arrays.copyOfRange(lastElems, 2, lastElems.length);
             } else if (value.startsWith("ffffffff,RIVAL")) {
-                rivalElems = value.split(",");
+                rivalElems = value.split(",", -1);
                 rivalElems = Arrays.copyOfRange(rivalElems, 2, rivalElems.length);
             }
         }
@@ -432,7 +432,7 @@ public class PlayerDataRequestHandler extends BaseRequestHandler {
      * @return The CSV string.
      */
     private String buildCommonCsv(final UserProfile profile) {
-        final String[] elems = "1,0,fffffff,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,0000-0000,,,,,,".split(",");
+        final String[] elems = "1,0,fffffff,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,0000-0000,,,,,,".split(",", -1);
 
         // modify the contents to send back
         String dancerCodeStr = String.format("%08d", profile.getDancerCode());
@@ -443,12 +443,18 @@ public class PlayerDataRequestHandler extends BaseRequestHandler {
         elems[GAME_COMMON_WEIGHT_DISPLAY_OFFSET] = profile.isDisplayWeight() ? "1" : "0";
         elems[GAME_COMMON_CHARACTER_OFFSET] = String.valueOf(profile.getCharacter().ordinal());
         elems[GAME_COMMON_EXTRA_CHARGE_OFFSET] = String.valueOf(profile.getExtraCharge());
-        elems[GAME_COMMON_TOTAL_PLAYS_OFFSET] = (profile.getTotalPlays() == 0) ? "" : String.valueOf(profile.getTotalPlays());
+        elems[GAME_COMMON_TOTAL_PLAYS_OFFSET] = (profile.getTotalPlays() == -1) ? "ffffffffffffffff" : String.valueOf(profile.getTotalPlays());
         elems[GAME_COMMON_SINGLE_PLAYS_OFFSET] = String.valueOf(profile.getSinglesPlays());
         elems[GAME_COMMON_DOUBLE_PLAYS_OFFSET] = String.valueOf(profile.getDoublesPlays());
         elems[GAME_COMMON_WEIGHT_OFFSET] = String.valueOf(profile.getWeight());
-        elems[GAME_COMMON_NAME_OFFSET] = (profile.getName() == null) ? "ffffffffffffffff" : profile.getName();
+        elems[GAME_COMMON_NAME_OFFSET] = (profile.getName() == null) ? "" : profile.getName();
         elems[GAME_COMMON_SEQ_OFFSET] = dancerCodeStr;
+
+        // if the total plays was -1, update it to 0 so the user doesn't see the EULA again
+        if (profile.getTotalPlays() == -1) {
+            profile.setTotalPlays(0);
+            this.profileDao.update(profile);
+        }
 
         return String.join(",", elems);
     }
@@ -459,7 +465,7 @@ public class PlayerDataRequestHandler extends BaseRequestHandler {
      * @return The CSV string.
      */
     private String buildOptionCsv(final UserProfile profile) {
-        final String[] elems = "1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,10.000000,10.0,10.0,10.0,0.0,0.0,0.0,0.0,,,,,,,,".split(",");
+        final String[] elems = "1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,10.0,10.0,10.0,10.0,0.0,0.0,0.0,0.0,,,,,,,,".split(",", -1);
 
         // modify the contents to send back
         elems[GAME_OPTION_SPEED_OFFSET] = String.valueOf(profile.getSpeedOption().ordinal());
@@ -488,10 +494,11 @@ public class PlayerDataRequestHandler extends BaseRequestHandler {
      * @return The CSV string.
      */
     private String buildLastCsv(final UserProfile profile) {
-        final String[] elems = "1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,,,,".split(",");
+        final String[] elems = "1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,,,,".split(",", -1);
 
         // modify the contents to send back
-        elems[GAME_LAST_CALORIES_OFFSET] = String.format("%05x", profile.getLastCalories());
+        elems[GAME_LAST_CALORIES_OFFSET] = Integer.toHexString(profile.getLastCalories());
+        elems[15] = StringUtils.getRandomHexString(8).toLowerCase();
 
         return String.join(",", elems);
     }
@@ -502,7 +509,7 @@ public class PlayerDataRequestHandler extends BaseRequestHandler {
      * @return The CSV string.
      */
     private String buildRivalCsv(final UserProfile profile) {
-        final String[] elems = "1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,,,,".split(",");
+        final String[] elems = "1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,,,,".split(",", -1);
 
         // modify the contents to send back
         elems[GAME_RIVAL_SLOT_1_ACTIVE_OFFSET] = profile.getRival1() == null ? "0" : "1";
@@ -562,7 +569,7 @@ public class PlayerDataRequestHandler extends BaseRequestHandler {
             final int doublePlays = Integer.parseInt(common[GAME_COMMON_DOUBLE_PLAYS_OFFSET]);
             final double weight = Double.parseDouble(common[GAME_COMMON_WEIGHT_OFFSET]);
             final String name = common[GAME_COMMON_NAME_OFFSET];
-            final int dancerCode = Integer.parseInt(String.join("", common[GAME_COMMON_SEQ_OFFSET].split("-")));
+            final int dancerCode = Integer.parseInt(String.join("", common[GAME_COMMON_SEQ_OFFSET].split("-", -1)));
 
             profile.setArea(area);
             profile.setDisplayWeight(displayWeight);

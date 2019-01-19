@@ -44,8 +44,8 @@ fun Document.prettyString(): String {
 
 var Element.text: String
     get() {
-        if (this.childCount == 1) {
-            val e = this.getChild(0)
+        for (i in 0 until childCount) {
+            val e = getChild(i)
             if (e is Text) {
                 return e.value
             }
@@ -53,7 +53,6 @@ var Element.text: String
         return ""
     }
     set(value: String) {
-        this.removeChildren()
         this.appendChild(value)
     }
 

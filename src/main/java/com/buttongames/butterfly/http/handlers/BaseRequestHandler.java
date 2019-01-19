@@ -21,9 +21,6 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 
 import static com.buttongames.butterfly.util.Constants.COMPRESSION_HEADER;
 import static com.buttongames.butterfly.util.Constants.CRYPT_KEY_HEADER;
@@ -81,7 +78,7 @@ public abstract class BaseRequestHandler {
      * @param response The response object we can use to send the data.
      * @return A response object for Spark
      */
-    private Object sendBytesToClient(byte[] respBytes, final Request request, final Response response) {
+    protected Object sendBytesToClient(byte[] respBytes, final Request request, final Response response) {
         response.header("Connection", "keep-alive");
 
         // convert them to binary XML
@@ -89,7 +86,6 @@ public abstract class BaseRequestHandler {
             respBytes = PublicKt.kbinEncode(new String(respBytes));
         }
 
-        // TODO: FIX THIS SHIT
         // compress if needed
         /*final String compressionScheme = request.headers(COMPRESSION_HEADER);
 
