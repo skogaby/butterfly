@@ -91,7 +91,7 @@ public class CardManageRequestHandler extends BaseRequestHandler {
             builder = builder.e("cardmng")
                                     .a("binded", "1")
                                     .a("dataid", card.getRefId())
-                                    .a("ecflag", "1") // TODO: See if this is related to heat level or something
+                                    .a("ecflag", "1")
                                     .a("expired", "0")
                                     .a("newflag", "0")
                                     .a("refid", card.getRefId());

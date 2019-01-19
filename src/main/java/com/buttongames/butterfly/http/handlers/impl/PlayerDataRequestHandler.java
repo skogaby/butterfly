@@ -30,15 +30,19 @@ import com.buttongames.butterfly.xml.XmlUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Component;
+import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import spark.Request;
 import spark.Response;
 
+import java.net.URISyntaxException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Base64;
-import java.util.Random;
 
 /**
  * Handler for any requests that come to the <code>playerdata</code> module.
@@ -102,6 +106,23 @@ public class PlayerDataRequestHandler extends BaseRequestHandler {
      */
     private final ProfileDao profileDao;
 
+    /**
+     * Static list of events for the server.
+     */
+    private static NodeList EVENTS_2018042300;
+
+    static {
+        try {
+            final Path path = Paths.get(ClassLoader.getSystemResource("static_responses/mdx_2018042300/events.xml").toURI());
+            byte[] respBody = Files.readAllBytes(path);
+            final Element doc = XmlUtils.byteArrayToXmlFile(respBody);
+            EVENTS_2018042300 = XmlUtils.nodesAtPath(doc, "/events/eventdata");
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.exit(1);
+        }
+    }
+
     public PlayerDataRequestHandler(final ButterflyUserDao userDao, final CardDao cardDao, final ProfileDao profileDao) {
         this.userDao = userDao;
         this.cardDao = cardDao;
@@ -125,21 +146,16 @@ public class PlayerDataRequestHandler extends BaseRequestHandler {
             final String refid = XmlUtils.strValueAtPath(requestBody, "/playerdata/data/refid");
 
             if (mode.equals("userload")) {
-                // TODO: Figure out how this differs when there's a real refid,
-                // and figure out how event progress is really saved
-                //if (refid.equals("X0000000000000000000000000000000") &&
-                //        dataid.equals("X0000000000000000000000000000000")) {
-                    return handleEventsRequest(request, response);
-                //}
+                return this.handleUserLoadRequest(refid, request, response);
             } else if (mode.equals("rivalload")) {
                 int loadFlag = XmlUtils.intValueAtPath(requestBody, "/playerdata/data/loadflag");
 
                 if (loadFlag == 1) {
-                    return handleRivalLoad1Request(request, response);
+                    return this.handleRivalLoad1Request(request, response);
                 } else if (loadFlag == 2) {
-                    return handleRivalLoad2Request(request, response);
+                    return this.handleRivalLoad2Request(request, response);
                 } else if (loadFlag == 4) {
-                    return handleGlobalScoresRequest(request, response);
+                    return this.handleGlobalScoresRequest(request, response);
                 }
             } else if (mode.equals("usernew")) {
                 return this.handleNewUserRequest(refid, request, response);
@@ -153,20 +169,6 @@ public class PlayerDataRequestHandler extends BaseRequestHandler {
         }
 
         throw new UnsupportedRequestException();
-    }
-    /**
-     * Handles an incoming request for the events.
-     * @param request The Spark request
-     * @param response The Spark response
-     * @return A response object for Spark
-     */
-    private Object handleEventsRequest(final Request request, final Response response) {
-        if (StringUtils.getSanitizedModel(request.attribute("model")).equals("mdx_2018042300")) {
-            // TODO: This is almost *definitely* not supposed to be a static response
-            return this.sendStaticResponse(request, response, "static_responses/mdx_2018042300/events.xml");
-        } else {
-            throw new UnsupportedRequestException();
-        }
     }
 
     /**
@@ -221,6 +223,38 @@ public class PlayerDataRequestHandler extends BaseRequestHandler {
     }
 
     /**
+     * Handles a request for the user scores.
+     * @param refId The refId for the calling card
+     * @param request The Spark request
+     * @param response The Spark response
+     * @return A response object for Spark
+     */
+    private Object handleUserLoadRequest(final String refId, final Request request, final Response response) {
+        if (!StringUtils.getSanitizedModel(request.attribute("model")).equals("mdx_2018042300")) {
+            throw new UnsupportedRequestException();
+        }
+
+        // TODO: Implement this properly and load/save scores... also, events probably isn't a static response
+        KXmlBuilder respBuilder = KXmlBuilder.create("response")
+                .e("playerdata")
+                    .s32("result", 0).up()
+                    .bool("is_new", false).up();
+
+        // TODO: insert the user scores once we have them
+
+        // insert the events
+        final Document document = respBuilder.getDocument();
+        final Element elem = respBuilder.getElement();
+
+        for (int i = 0; i < EVENTS_2018042300.getLength(); i++) {
+            Node tmp = document.importNode(EVENTS_2018042300.item(i), true);
+            elem.appendChild(tmp);
+        }
+
+        return this.sendResponse(request, response, respBuilder);
+    }
+
+    /**
      * Handles a request to create a new profile.
      * @param refId The refid for the card creating the profile
      * @param request The Spark request
@@ -244,7 +278,7 @@ public class PlayerDataRequestHandler extends BaseRequestHandler {
         }
 
         // create a new profile
-        final int dancerCode = new Random().nextInt(99999999);
+        final int dancerCode = 44244860; //new Random().nextInt(99999999);
         String dancerCodeStr = String.format("%08d", dancerCode);
         dancerCodeStr = dancerCodeStr.substring(0, 4) + "-" + dancerCodeStr.substring(4, 8);
 
@@ -398,7 +432,7 @@ public class PlayerDataRequestHandler extends BaseRequestHandler {
      * @return The CSV string.
      */
     private String buildCommonCsv(final UserProfile profile) {
-        final String[] elems = "1,0,fffffff,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0.000000,0.000000,0.000000,0.000000,0.000000,0.000000,0.000000,0.000000,,0000-0000,,,,,,".split(",");
+        final String[] elems = "1,0,fffffff,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,0000-0000,,,,,,".split(",");
 
         // modify the contents to send back
         String dancerCodeStr = String.format("%08d", profile.getDancerCode());
@@ -409,11 +443,11 @@ public class PlayerDataRequestHandler extends BaseRequestHandler {
         elems[GAME_COMMON_WEIGHT_DISPLAY_OFFSET] = profile.isDisplayWeight() ? "1" : "0";
         elems[GAME_COMMON_CHARACTER_OFFSET] = String.valueOf(profile.getCharacter().ordinal());
         elems[GAME_COMMON_EXTRA_CHARGE_OFFSET] = String.valueOf(profile.getExtraCharge());
-        elems[GAME_COMMON_TOTAL_PLAYS_OFFSET] = String.valueOf(profile.getTotalPlays());
+        elems[GAME_COMMON_TOTAL_PLAYS_OFFSET] = (profile.getTotalPlays() == 0) ? "" : String.valueOf(profile.getTotalPlays());
         elems[GAME_COMMON_SINGLE_PLAYS_OFFSET] = String.valueOf(profile.getSinglesPlays());
         elems[GAME_COMMON_DOUBLE_PLAYS_OFFSET] = String.valueOf(profile.getDoublesPlays());
         elems[GAME_COMMON_WEIGHT_OFFSET] = String.valueOf(profile.getWeight());
-        elems[GAME_COMMON_NAME_OFFSET] = (profile.getName() == null) ? "" : profile.getName();
+        elems[GAME_COMMON_NAME_OFFSET] = (profile.getName() == null) ? "ffffffffffffffff" : profile.getName();
         elems[GAME_COMMON_SEQ_OFFSET] = dancerCodeStr;
 
         return String.join(",", elems);
@@ -425,7 +459,7 @@ public class PlayerDataRequestHandler extends BaseRequestHandler {
      * @return The CSV string.
      */
     private String buildOptionCsv(final UserProfile profile) {
-        final String[] elems = "1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,10.000000,10.000000,10.000000,10.000000,0.000000,0.000000,0.000000,0.000000,,,,,,,,".split(",");
+        final String[] elems = "1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,10.000000,10.0,10.0,10.0,0.0,0.0,0.0,0.0,,,,,,,,".split(",");
 
         // modify the contents to send back
         elems[GAME_OPTION_SPEED_OFFSET] = String.valueOf(profile.getSpeedOption().ordinal());
@@ -454,7 +488,7 @@ public class PlayerDataRequestHandler extends BaseRequestHandler {
      * @return The CSV string.
      */
     private String buildLastCsv(final UserProfile profile) {
-        final String[] elems = "1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.000000,0.000000,0.000000,0.000000,0.000000,0.000000,0.000000,0.000000,,,,,,,,".split(",");
+        final String[] elems = "1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,,,,".split(",");
 
         // modify the contents to send back
         elems[GAME_LAST_CALORIES_OFFSET] = String.format("%05x", profile.getLastCalories());
@@ -468,7 +502,7 @@ public class PlayerDataRequestHandler extends BaseRequestHandler {
      * @return The CSV string.
      */
     private String buildRivalCsv(final UserProfile profile) {
-        final String[] elems = "1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.000000,0.000000,0.000000,0.000000,0.000000,0.000000,0.000000,0.000000,,,,,,,,".split(",");
+        final String[] elems = "1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,,,,".split(",");
 
         // modify the contents to send back
         elems[GAME_RIVAL_SLOT_1_ACTIVE_OFFSET] = profile.getRival1() == null ? "0" : "1";

@@ -74,26 +74,6 @@ public abstract class BaseRequestHandler {
     }
 
     /**
-     * Sends the response to the client.
-     * @param request The original request.
-     * @param response The response object we can use to send the data.
-     * @param responsePath The path of the resource file with the XML response to send.
-     * @return A response object for Spark
-     */
-    protected Object sendStaticResponse(final Request request, final Response response, final String responsePath) {
-        try {
-            // read in the static response file, encrypt it, compress it, and send it
-            final Path path = Paths.get(ClassLoader.getSystemResource(responsePath).toURI());
-            byte[] respBody = Files.readAllBytes(path);
-
-            return this.sendBytesToClient(respBody, request, response);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return 500;
-        }
-    }
-
-    /**
      * Takes the raw, unencrypted and decompressed bytes, transforms them as necessary, and sends
      * them to the client.
      * @param respBytes The bytes to send.
