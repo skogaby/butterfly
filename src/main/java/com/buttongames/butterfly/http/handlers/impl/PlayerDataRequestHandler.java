@@ -439,14 +439,14 @@ public class PlayerDataRequestHandler extends BaseRequestHandler {
         String dancerCodeStr = String.format("%08d", profile.getDancerCode());
         dancerCodeStr = dancerCodeStr.substring(0, 4) + "-" + dancerCodeStr.substring(4, 8);
 
-        elems[GAME_COMMON_SEQ_HEX_OFFSET] = Integer.toHexString(profile.getDancerCode()).toLowerCase();
-        elems[GAME_COMMON_AREA_OFFSET] = String.valueOf(profile.getArea());
+        elems[GAME_COMMON_SEQ_HEX_OFFSET] = Integer.toHexString(profile.getDancerCode());
+        elems[GAME_COMMON_AREA_OFFSET] = Integer.toHexString(profile.getArea());
         elems[GAME_COMMON_WEIGHT_DISPLAY_OFFSET] = profile.isDisplayWeight() ? "1" : "0";
-        elems[GAME_COMMON_CHARACTER_OFFSET] = String.valueOf(profile.getCharacter().ordinal());
-        elems[GAME_COMMON_EXTRA_CHARGE_OFFSET] = String.valueOf(profile.getExtraCharge());
-        elems[GAME_COMMON_TOTAL_PLAYS_OFFSET] = (profile.getTotalPlays() == -1) ? "ffffffffffffffff" : String.valueOf(profile.getTotalPlays());
-        elems[GAME_COMMON_SINGLE_PLAYS_OFFSET] = String.valueOf(profile.getSinglesPlays());
-        elems[GAME_COMMON_DOUBLE_PLAYS_OFFSET] = String.valueOf(profile.getDoublesPlays());
+        elems[GAME_COMMON_CHARACTER_OFFSET] = Integer.toHexString(profile.getCharacter().ordinal());
+        elems[GAME_COMMON_EXTRA_CHARGE_OFFSET] = Integer.toHexString(profile.getExtraCharge());
+        elems[GAME_COMMON_TOTAL_PLAYS_OFFSET] = (profile.getTotalPlays() == -1) ? "ffffffffffffffff" : Integer.toHexString(profile.getTotalPlays());
+        elems[GAME_COMMON_SINGLE_PLAYS_OFFSET] = Integer.toHexString(profile.getSinglesPlays());
+        elems[GAME_COMMON_DOUBLE_PLAYS_OFFSET] = Integer.toHexString(profile.getDoublesPlays());
         elems[GAME_COMMON_WEIGHT_OFFSET] = String.valueOf(profile.getWeight());
         elems[GAME_COMMON_NAME_OFFSET] = (profile.getName() == null) ? "" : profile.getName();
         elems[GAME_COMMON_SEQ_OFFSET] = dancerCodeStr;
@@ -470,20 +470,20 @@ public class PlayerDataRequestHandler extends BaseRequestHandler {
 
         // modify the contents to send back
         elems[GAME_OPTION_SPEED_OFFSET] = Integer.toHexString(profile.getSpeedOption().getVal());
-        elems[GAME_OPTION_BOOST_OFFSET] = String.valueOf(profile.getBoostOption().ordinal());
-        elems[GAME_OPTION_APPEARANCE_OFFSET] = String.valueOf(profile.getAppearanceOption().getVal());
-        elems[GAME_OPTION_TURN_OFFSET] = String.valueOf(profile.getTurnOption().ordinal());
-        elems[GAME_OPTION_STEP_ZONE_OFFSET] = String.valueOf(profile.getStepZoneOption().ordinal());
-        elems[GAME_OPTION_SCROLL_OFFSET] = String.valueOf(profile.getScrollOption().ordinal());
-        elems[GAME_OPTION_ARROW_COLOR_OFFSET] = String.valueOf(profile.getArrowColorOption().ordinal());
-        elems[GAME_OPTION_CUT_OFFSET] = String.valueOf(profile.getCutOption().ordinal());
-        elems[GAME_OPTION_FREEZE_OFFSET] = String.valueOf(profile.getFreezeArrowOption().ordinal());
-        elems[GAME_OPTION_JUMPS_OFFSET] = String.valueOf(profile.getJumpsOption().ordinal());
-        elems[GAME_OPTION_ARROW_SKIN_OFFSET] = String.valueOf(profile.getArrowSkinOption().ordinal());
-        elems[GAME_OPTION_FILTER_OFFSET] = String.valueOf(profile.getScreenFilterOption().ordinal());
-        elems[GAME_OPTION_GUIDELINE_OFFSET] = String.valueOf(profile.getGuideLinesOption().ordinal());
-        elems[GAME_OPTION_GAUGE_OFFSET] = String.valueOf(profile.getLifeGaugeOption().ordinal());
-        elems[GAME_OPTION_COMBO_POSITION_OFFSET] = String.valueOf(profile.getJudgementLayerOption().ordinal());
+        elems[GAME_OPTION_BOOST_OFFSET] = Integer.toHexString(profile.getBoostOption().ordinal());
+        elems[GAME_OPTION_APPEARANCE_OFFSET] = Integer.toHexString(profile.getAppearanceOption().getVal());
+        elems[GAME_OPTION_TURN_OFFSET] = Integer.toHexString(profile.getTurnOption().ordinal());
+        elems[GAME_OPTION_STEP_ZONE_OFFSET] = Integer.toHexString(profile.getStepZoneOption().ordinal());
+        elems[GAME_OPTION_SCROLL_OFFSET] = Integer.toHexString(profile.getScrollOption().ordinal());
+        elems[GAME_OPTION_ARROW_COLOR_OFFSET] = Integer.toHexString(profile.getArrowColorOption().ordinal());
+        elems[GAME_OPTION_CUT_OFFSET] = Integer.toHexString(profile.getCutOption().ordinal());
+        elems[GAME_OPTION_FREEZE_OFFSET] = Integer.toHexString(profile.getFreezeArrowOption().ordinal());
+        elems[GAME_OPTION_JUMPS_OFFSET] = Integer.toHexString(profile.getJumpsOption().ordinal());
+        elems[GAME_OPTION_ARROW_SKIN_OFFSET] = Integer.toHexString(profile.getArrowSkinOption().ordinal());
+        elems[GAME_OPTION_FILTER_OFFSET] = Integer.toHexString(profile.getScreenFilterOption().ordinal());
+        elems[GAME_OPTION_GUIDELINE_OFFSET] = Integer.toHexString(profile.getGuideLinesOption().ordinal());
+        elems[GAME_OPTION_GAUGE_OFFSET] = Integer.toHexString(profile.getLifeGaugeOption().ordinal());
+        elems[GAME_OPTION_COMBO_POSITION_OFFSET] = Integer.toHexString(profile.getJudgementLayerOption().ordinal());
         elems[GAME_OPTION_FAST_SLOW_OFFSET] = profile.isShowFastSlow() ? "1" : "0";
 
         return String.join(",", elems);
@@ -516,24 +516,16 @@ public class PlayerDataRequestHandler extends BaseRequestHandler {
         elems[GAME_RIVAL_SLOT_2_ACTIVE_OFFSET] = profile.getRival2() == null ? "0" : "1";
         elems[GAME_RIVAL_SLOT_3_ACTIVE_OFFSET] = profile.getRival3() == null ? "0" : "1";
 
-        String dancerCodeStr;
-
         if (profile.getRival1() != null) {
-            dancerCodeStr = String.format("%08d", profile.getRival1().getDancerCode());
-            dancerCodeStr = dancerCodeStr.substring(0, 4) + "-" + dancerCodeStr.substring(4, 8);
-            elems[GAME_RIVAL_SLOT_1_DDRCODE_OFFSET] = dancerCodeStr;
+            elems[GAME_RIVAL_SLOT_1_DDRCODE_OFFSET] = Integer.toHexString(profile.getRival1().getDancerCode());
         }
 
         if (profile.getRival2() != null) {
-            dancerCodeStr = String.format("%08d", profile.getRival2().getDancerCode());
-            dancerCodeStr = dancerCodeStr.substring(0, 4) + "-" + dancerCodeStr.substring(4, 8);
-            elems[GAME_RIVAL_SLOT_2_DDRCODE_OFFSET] = dancerCodeStr;
+            elems[GAME_RIVAL_SLOT_2_DDRCODE_OFFSET] = Integer.toHexString(profile.getRival2().getDancerCode());
         }
 
         if (profile.getRival3() != null) {
-            dancerCodeStr = String.format("%08d", profile.getRival3().getDancerCode());
-            dancerCodeStr = dancerCodeStr.substring(0, 4) + "-" + dancerCodeStr.substring(4, 8);
-            elems[GAME_RIVAL_SLOT_3_DDRCODE_OFFSET] = dancerCodeStr;
+            elems[GAME_RIVAL_SLOT_3_DDRCODE_OFFSET] = Integer.toHexString(profile.getRival3().getDancerCode());
         }
 
         return String.join(",", elems);
@@ -552,24 +544,24 @@ public class PlayerDataRequestHandler extends BaseRequestHandler {
         // parse out the COMMON values
         if (common != null &&
                 common.length != 0) {
-            final int area = Integer.parseInt(common[GAME_COMMON_AREA_OFFSET]);
+            final int area = Integer.parseInt(common[GAME_COMMON_AREA_OFFSET], 16);
             final boolean displayWeight = common[GAME_COMMON_WEIGHT_DISPLAY_OFFSET].equals("1") ? true : false;
-            final DancerOption character = DancerOption.values()[Integer.parseInt(common[GAME_COMMON_CHARACTER_OFFSET])];
-            final int extraCharge = Integer.parseInt(common[GAME_COMMON_EXTRA_CHARGE_OFFSET]);
-
-            int totalPlays;
-
-            try {
-                totalPlays = Integer.parseInt(common[GAME_COMMON_TOTAL_PLAYS_OFFSET]);
-            } catch(NumberFormatException e) {
-                totalPlays = -1;
-            }
-
-            final int singlePlays = Integer.parseInt(common[GAME_COMMON_SINGLE_PLAYS_OFFSET]);
-            final int doublePlays = Integer.parseInt(common[GAME_COMMON_DOUBLE_PLAYS_OFFSET]);
+            final DancerOption character = DancerOption.values()[Integer.parseInt(common[GAME_COMMON_CHARACTER_OFFSET], 16)];
+            final int extraCharge = Integer.parseInt(common[GAME_COMMON_EXTRA_CHARGE_OFFSET], 16);
+            final int singlePlays = Integer.parseInt(common[GAME_COMMON_SINGLE_PLAYS_OFFSET], 16);
+            final int doublePlays = Integer.parseInt(common[GAME_COMMON_DOUBLE_PLAYS_OFFSET], 16);
             final double weight = Double.parseDouble(common[GAME_COMMON_WEIGHT_OFFSET]);
             final String name = common[GAME_COMMON_NAME_OFFSET];
             final int dancerCode = Integer.parseInt(String.join("", common[GAME_COMMON_SEQ_OFFSET].split("-", -1)));
+
+            int totalPlays;
+
+            // this is needed for new profile creation
+            try {
+                totalPlays = Integer.parseInt(common[GAME_COMMON_TOTAL_PLAYS_OFFSET], 16);
+            } catch (NumberFormatException e) {
+                totalPlays = -1;
+            }
 
             profile.setArea(area);
             profile.setDisplayWeight(displayWeight);
@@ -587,20 +579,20 @@ public class PlayerDataRequestHandler extends BaseRequestHandler {
         if (option != null &&
                 option.length != 0) {
             final SpeedOption speedOption = SpeedOption.optionForValue(Integer.parseInt(option[GAME_OPTION_SPEED_OFFSET], 16));
-            final BoostOption boostOption = BoostOption.values()[Integer.parseInt(option[GAME_OPTION_BOOST_OFFSET])];
-            final AppearanceOption appearanceOption = AppearanceOption.optionForValue(Integer.parseInt(option[GAME_OPTION_APPEARANCE_OFFSET]));
-            final TurnOption turnOption = TurnOption.values()[Integer.parseInt(option[GAME_OPTION_TURN_OFFSET])];
-            final StepZoneOption stepZoneOption = StepZoneOption.values()[Integer.parseInt(option[GAME_OPTION_STEP_ZONE_OFFSET])];
-            final ScrollOption scrollOption = ScrollOption.values()[Integer.parseInt(option[GAME_OPTION_SCROLL_OFFSET])];
-            final ArrowColorOption arrowColorOption = ArrowColorOption.values()[Integer.parseInt(option[GAME_OPTION_ARROW_COLOR_OFFSET])];
-            final CutOption cutOption = CutOption.values()[Integer.parseInt(option[GAME_OPTION_CUT_OFFSET])];
-            final FreezeArrowOption freezeArrowOption = FreezeArrowOption.values()[Integer.parseInt(option[GAME_OPTION_FREEZE_OFFSET])];
-            final JumpsOption jumpsOption = JumpsOption.values()[Integer.parseInt(option[GAME_OPTION_JUMPS_OFFSET])];
-            final ArrowSkinOption arrowSkinOption = ArrowSkinOption.values()[Integer.parseInt(option[GAME_OPTION_ARROW_SKIN_OFFSET])];
-            final ScreenFilterOption screenFilterOption = ScreenFilterOption.values()[Integer.parseInt(option[GAME_OPTION_FILTER_OFFSET])];
-            final GuideLinesOption guideLinesOption = GuideLinesOption.values()[Integer.parseInt(option[GAME_OPTION_GUIDELINE_OFFSET])];
-            final LifeGaugeOption lifeGaugeOption = LifeGaugeOption.values()[Integer.parseInt(option[GAME_OPTION_GAUGE_OFFSET])];
-            final JudgementLayerOption judgementLayerOption = JudgementLayerOption.values()[Integer.parseInt(option[GAME_OPTION_COMBO_POSITION_OFFSET])];
+            final BoostOption boostOption = BoostOption.values()[Integer.parseInt(option[GAME_OPTION_BOOST_OFFSET], 16)];
+            final AppearanceOption appearanceOption = AppearanceOption.optionForValue(Integer.parseInt(option[GAME_OPTION_APPEARANCE_OFFSET], 16));
+            final TurnOption turnOption = TurnOption.values()[Integer.parseInt(option[GAME_OPTION_TURN_OFFSET], 16)];
+            final StepZoneOption stepZoneOption = StepZoneOption.values()[Integer.parseInt(option[GAME_OPTION_STEP_ZONE_OFFSET], 16)];
+            final ScrollOption scrollOption = ScrollOption.values()[Integer.parseInt(option[GAME_OPTION_SCROLL_OFFSET], 16)];
+            final ArrowColorOption arrowColorOption = ArrowColorOption.values()[Integer.parseInt(option[GAME_OPTION_ARROW_COLOR_OFFSET], 16)];
+            final CutOption cutOption = CutOption.values()[Integer.parseInt(option[GAME_OPTION_CUT_OFFSET], 16)];
+            final FreezeArrowOption freezeArrowOption = FreezeArrowOption.values()[Integer.parseInt(option[GAME_OPTION_FREEZE_OFFSET], 16)];
+            final JumpsOption jumpsOption = JumpsOption.values()[Integer.parseInt(option[GAME_OPTION_JUMPS_OFFSET], 16)];
+            final ArrowSkinOption arrowSkinOption = ArrowSkinOption.values()[Integer.parseInt(option[GAME_OPTION_ARROW_SKIN_OFFSET], 16)];
+            final ScreenFilterOption screenFilterOption = ScreenFilterOption.values()[Integer.parseInt(option[GAME_OPTION_FILTER_OFFSET], 16)];
+            final GuideLinesOption guideLinesOption = GuideLinesOption.values()[Integer.parseInt(option[GAME_OPTION_GUIDELINE_OFFSET], 16)];
+            final LifeGaugeOption lifeGaugeOption = LifeGaugeOption.values()[Integer.parseInt(option[GAME_OPTION_GAUGE_OFFSET], 16)];
+            final JudgementLayerOption judgementLayerOption = JudgementLayerOption.values()[Integer.parseInt(option[GAME_OPTION_COMBO_POSITION_OFFSET], 16)];
             final boolean showFastSlow = option[GAME_OPTION_FAST_SLOW_OFFSET].equals("1") ? true : false;
 
             profile.setSpeedOption(speedOption);
@@ -624,7 +616,7 @@ public class PlayerDataRequestHandler extends BaseRequestHandler {
         // parse out LAST values
         if (last != null &&
                 last.length != 0) {
-            final int lastCalories = Integer.parseInt(last[GAME_LAST_CALORIES_OFFSET]);
+            final int lastCalories = Integer.parseInt(last[GAME_LAST_CALORIES_OFFSET], 16);
 
             profile.setLastCalories(lastCalories);
         }
@@ -640,15 +632,15 @@ public class PlayerDataRequestHandler extends BaseRequestHandler {
             UserProfile rival3 = null;
 
             if (rival1Active) {
-                rival1 = profileDao.findByDancerCode(Integer.parseInt(rival[GAME_RIVAL_SLOT_1_DDRCODE_OFFSET]));
+                rival1 = profileDao.findByDancerCode(Integer.parseInt(rival[GAME_RIVAL_SLOT_1_DDRCODE_OFFSET], 16));
             }
 
             if (rival2Active) {
-                rival2 = profileDao.findByDancerCode(Integer.parseInt(rival[GAME_RIVAL_SLOT_2_DDRCODE_OFFSET]));
+                rival2 = profileDao.findByDancerCode(Integer.parseInt(rival[GAME_RIVAL_SLOT_2_DDRCODE_OFFSET], 16));
             }
 
             if (rival3Active) {
-                rival3 = profileDao.findByDancerCode(Integer.parseInt(rival[GAME_RIVAL_SLOT_3_DDRCODE_OFFSET]));
+                rival3 = profileDao.findByDancerCode(Integer.parseInt(rival[GAME_RIVAL_SLOT_3_DDRCODE_OFFSET], 16));
             }
 
             profile.setRival1(rival1);
