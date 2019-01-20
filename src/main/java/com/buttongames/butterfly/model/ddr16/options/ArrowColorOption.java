@@ -5,8 +5,8 @@ package com.buttongames.butterfly.model.ddr16.options;
  * @author skogaby (skogabyskogaby@gmail.com)
  */
 public enum ArrowColorOption {
-    RAINBOW,
-    NOTE,
     VIVID,
-    FLAT
+    NOTE,
+    FLAT,
+    RAINBOW
 }

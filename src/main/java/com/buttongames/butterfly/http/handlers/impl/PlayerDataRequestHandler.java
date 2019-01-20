@@ -469,9 +469,9 @@ public class PlayerDataRequestHandler extends BaseRequestHandler {
         final String[] elems = "1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,10.0,10.0,10.0,10.0,0.0,0.0,0.0,0.0,,,,,,,,".split(",", -1);
 
         // modify the contents to send back
-        elems[GAME_OPTION_SPEED_OFFSET] = String.valueOf(profile.getSpeedOption().ordinal());
+        elems[GAME_OPTION_SPEED_OFFSET] = Integer.toHexString(profile.getSpeedOption().getVal());
         elems[GAME_OPTION_BOOST_OFFSET] = String.valueOf(profile.getBoostOption().ordinal());
-        elems[GAME_OPTION_APPEARANCE_OFFSET] = String.valueOf(profile.getAppearanceOption().ordinal());
+        elems[GAME_OPTION_APPEARANCE_OFFSET] = String.valueOf(profile.getAppearanceOption().getVal());
         elems[GAME_OPTION_TURN_OFFSET] = String.valueOf(profile.getTurnOption().ordinal());
         elems[GAME_OPTION_STEP_ZONE_OFFSET] = String.valueOf(profile.getStepZoneOption().ordinal());
         elems[GAME_OPTION_SCROLL_OFFSET] = String.valueOf(profile.getScrollOption().ordinal());

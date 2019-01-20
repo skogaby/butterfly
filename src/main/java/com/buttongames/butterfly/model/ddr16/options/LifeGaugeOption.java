@@ -6,6 +6,6 @@ package com.buttongames.butterfly.model.ddr16.options;
  */
 public enum LifeGaugeOption {
     NORMAL,
-    LIFE_4,
-    RISKY
+    RISKY,
+    LIFE_4
 }
