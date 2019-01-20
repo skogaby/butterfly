@@ -9,7 +9,9 @@ import com.buttongames.butterfly.http.exception.InvalidRequestException;
 import com.buttongames.butterfly.http.exception.UnsupportedRequestException;
 import com.buttongames.butterfly.http.handlers.BaseRequestHandler;
 import com.buttongames.butterfly.model.Card;
+import com.buttongames.butterfly.model.ddr16.GhostData;
 import com.buttongames.butterfly.model.ddr16.UserProfile;
+import com.buttongames.butterfly.model.ddr16.UserSongRecord;
 import com.buttongames.butterfly.model.ddr16.options.AppearanceOption;
 import com.buttongames.butterfly.model.ddr16.options.ArrowColorOption;
 import com.buttongames.butterfly.model.ddr16.options.ArrowSkinOption;
@@ -27,6 +29,7 @@ import com.buttongames.butterfly.model.ddr16.options.SpeedOption;
 import com.buttongames.butterfly.model.ddr16.options.StepZoneOption;
 import com.buttongames.butterfly.model.ddr16.options.TurnOption;
 import com.buttongames.butterfly.util.StringUtils;
+import com.buttongames.butterfly.util.TimeUtils;
 import com.buttongames.butterfly.xml.kbinxml.KXmlBuilder;
 import com.buttongames.butterfly.xml.XmlUtils;
 import org.apache.logging.log4j.LogManager;
@@ -42,6 +45,7 @@ import spark.Response;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.Random;
@@ -741,9 +745,98 @@ public class PlayerDataRequestHandler extends BaseRequestHandler {
         final String locationId = XmlUtils.strValueAtPath(dataNode, "/data/locid");
         final String shopArea = XmlUtils.strValueAtPath(dataNode, "/data/shoparea");
 
-        // parse out the nodes for each
+        // parse out the nodes for each record and save them individually
+        final NodeList recordNodes = XmlUtils.nodesAtPath(dataNode, "/data/note");
 
-        // TODO: actually save the input
+        for (int i = 0; i < recordNodes.getLength(); i++) {
+            Element recordNode = (Element) recordNodes.item(i);
+
+            int songId = XmlUtils.intValueAtPath(recordNode, "/note/mcode");
+
+            // if the song ID is 0, this record is empty
+            if (songId == 0) {
+                continue;
+            }
+
+            LocalDateTime endtime = TimeUtils.timeFromEpoch(XmlUtils.longValueAtPath(recordNode, "/note/endtime"));
+
+            // make sure we haven't already written this record, since Ace re-sends records at the end
+            // of a play session for all played songs. username + endtime should be a unique combination.
+            if (songRecordDao.findByEndtimeAndUser(endtime, user) != null) {
+                continue;
+            }
+
+            // passed the sanity checks, let's parse and save the new record
+            int stageNum = XmlUtils.intValueAtPath(recordNode, "/note/stagenum");
+            int noteType = XmlUtils.intValueAtPath(recordNode, "/note/notetype");
+            int rank = XmlUtils.intValueAtPath(recordNode, "/note/rank");
+            int clearKind = XmlUtils.intValueAtPath(recordNode, "/note/clearkind");
+            int score = XmlUtils.intValueAtPath(recordNode, "/note/score");
+            int exScore = XmlUtils.intValueAtPath(recordNode, "/note/exscore");
+            int maxCombo = XmlUtils.intValueAtPath(recordNode, "/note/maxcombo");
+            int life = XmlUtils.intValueAtPath(recordNode, "/note/life");
+            int fastCount = XmlUtils.intValueAtPath(recordNode, "/note/fastcount");
+            int slowCount = XmlUtils.intValueAtPath(recordNode, "/note/slowcount");
+            int marvelousCount = XmlUtils.intValueAtPath(recordNode, "/note/judge_marvelous");
+            int perfectCount = XmlUtils.intValueAtPath(recordNode, "/note/judge_perfect");
+            int greatCount = XmlUtils.intValueAtPath(recordNode, "/note/judge_great");
+            int goodCount = XmlUtils.intValueAtPath(recordNode, "/note/judge_good");
+            int booCount = XmlUtils.intValueAtPath(recordNode, "/note/judge_boo");
+            int missCount = XmlUtils.intValueAtPath(recordNode, "/note/judge_miss");
+            int okCount = XmlUtils.intValueAtPath(recordNode, "/note/judge_ok");
+            int ngCount = XmlUtils.intValueAtPath(recordNode, "/note/judge_ng");
+            int calories = XmlUtils.intValueAtPath(recordNode, "/note/calorie");
+            String ghostStr = XmlUtils.strValueAtPath(recordNode, "/note/ghost");
+            SpeedOption speedOption = SpeedOption.optionForValue(XmlUtils.intValueAtPath(recordNode, "/note/opt_speed"));
+            BoostOption boostOption = BoostOption.values()[XmlUtils.intValueAtPath(recordNode, "/note/opt_boost")];
+            AppearanceOption appearanceOption = AppearanceOption.optionForValue(XmlUtils.intValueAtPath(recordNode, "/note/opt_appearance"));
+            TurnOption turnOption = TurnOption.values()[XmlUtils.intValueAtPath(recordNode, "/note/opt_turn")];
+            StepZoneOption stepZoneOption = StepZoneOption.values()[XmlUtils.intValueAtPath(recordNode, "/note/opt_dark")];
+            ScrollOption scrollOption = ScrollOption.values()[XmlUtils.intValueAtPath(recordNode, "/note/opt_scroll")];
+            ArrowColorOption arrowColorOption = ArrowColorOption.values()[XmlUtils.intValueAtPath(recordNode, "/note/opt_arrowcolor")];
+            CutOption cutOption = CutOption.values()[XmlUtils.intValueAtPath(recordNode, "/note/opt_cut")];
+            FreezeArrowOption freezeArrowOption = FreezeArrowOption.values()[XmlUtils.intValueAtPath(recordNode, "/note/opt_freeze")];
+            JumpsOption jumpsOption = JumpsOption.values()[XmlUtils.intValueAtPath(recordNode, "/note/opt_jump")];
+            ArrowSkinOption arrowSkinOption = ArrowSkinOption.values()[XmlUtils.intValueAtPath(recordNode, "/note/opt_arrowshape")];
+            ScreenFilterOption screenFilterOption = ScreenFilterOption.values()[XmlUtils.intValueAtPath(recordNode, "/note/opt_filter")];
+            GuideLinesOption guideLinesOption = GuideLinesOption.values()[XmlUtils.intValueAtPath(recordNode, "/note/opt_guideline")];
+            LifeGaugeOption lifeGaugeOption = LifeGaugeOption.values()[XmlUtils.intValueAtPath(recordNode, "/note/opt_gauge")];
+            JudgementLayerOption judgementLayerOption = JudgementLayerOption.values()[XmlUtils.intValueAtPath(recordNode, "/note/opt_judgepriority")];
+            boolean showFastSlow = XmlUtils.boolValueAtPath(recordNode, "/note/opt_timing");
+            String songBaseName = XmlUtils.strValueAtPath(recordNode, "/note/basename");
+            String songTitle = new String(Base64.getDecoder().decode(XmlUtils.strValueAtPath(recordNode, "/note/title_b64")));
+            String songArtist = new String(Base64.getDecoder().decode(XmlUtils.strValueAtPath(recordNode, "/note/artist_b64")));
+            int bpmMax = XmlUtils.intValueAtPath(recordNode, "/note/bpmMax");
+            int bpmMin = XmlUtils.intValueAtPath(recordNode, "/note/bpmMin");
+            int level = XmlUtils.intValueAtPath(recordNode, "/note/level");
+            int series = XmlUtils.intValueAtPath(recordNode, "/note/series");
+            int bemaniFlag = XmlUtils.intValueAtPath(recordNode, "/note/bemaniflag");
+            int genreFlag = XmlUtils.intValueAtPath(recordNode, "/note/genreflag");
+            int limited = XmlUtils.intValueAtPath(recordNode, "/note/limited");
+            int region = XmlUtils.intValueAtPath(recordNode, "/note/region");
+            int grVoltage = XmlUtils.intValueAtPath(recordNode, "/note/gr_voltage");
+            int grStream = XmlUtils.intValueAtPath(recordNode, "/note/gr_stream");
+            int grChaos = XmlUtils.intValueAtPath(recordNode, "/note/gr_chaos");
+            int grFreeze = XmlUtils.intValueAtPath(recordNode, "/note/gr_freeze");
+            int grAir = XmlUtils.intValueAtPath(recordNode, "/note/gr_air");
+            boolean share = XmlUtils.boolValueAtPath(recordNode, "/note/share");
+            int folder = XmlUtils.intValueAtPath(recordNode, "/note/folder");
+
+            // construct and save
+            GhostData newGhostData = new GhostData(user, ghostStr);
+            this.ghostDataDao.create(newGhostData);
+
+            UserSongRecord newRecord = new UserSongRecord(user, playSide, playStyle, area, weight100, shopName, isPremium,
+                    isEaPass, isTakeover, isRepeater, isGameover, locationId, shopArea, stageNum, songId, noteType, rank,
+                    clearKind, score, exScore, maxCombo, life, fastCount, slowCount, marvelousCount, perfectCount, greatCount,
+                    goodCount, booCount, missCount, okCount, ngCount, calories, newGhostData, speedOption, boostOption,
+                    appearanceOption, turnOption, stepZoneOption, scrollOption, arrowColorOption, cutOption, freezeArrowOption,
+                    jumpsOption, arrowSkinOption, screenFilterOption, guideLinesOption, lifeGaugeOption, judgementLayerOption,
+                    showFastSlow, songBaseName, songTitle, songArtist, bpmMin, bpmMax, level, series, bemaniFlag, genreFlag,
+                    limited, region, grVoltage, grStream, grChaos, grFreeze, grAir, share, endtime, folder);
+            this.songRecordDao.create(newRecord);
+        }
+
         final KXmlBuilder builder = KXmlBuilder.create("response")
                 .e("playerdata")
                     .s32("result", 0).up();

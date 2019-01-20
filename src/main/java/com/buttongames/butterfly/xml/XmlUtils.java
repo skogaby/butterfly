@@ -141,7 +141,9 @@ public class XmlUtils {
      */
     public static Boolean boolValueAtPath(final Element doc, final String path) {
         try {
-            return (Boolean) XPATH.compile("/" + path).evaluate(doc, XPathConstants.BOOLEAN);
+            final String val = (String) XPATH.compile("/" + path).evaluate(doc, XPathConstants.STRING);
+
+            return val.equals("1");
         } catch (Exception e) {
             e.printStackTrace();
             return null;
