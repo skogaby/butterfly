@@ -47,7 +47,7 @@ public class SystemRequestHandler extends BaseRequestHandler {
      * @return A response object for Spark
      */
     private Object handleConvCardNumberRequest(final Element requestBody, final Request request, final Response response) {
-        final String cardId = XmlUtils.strValueAtPath(requestBody, "/system/data/card_id");
+        final String cardId = XmlUtils.strAtPath(requestBody, "/system/data/card_id");
         final String convertedId = CardIdUtils.encodeCardId(cardId);
 
         // send a response

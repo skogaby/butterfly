@@ -66,17 +66,17 @@ public class EventLogRequestHandler extends BaseRequestHandler {
         // save the event to the database
         final String reqModel = request.attribute("model");
         final String reqPcbId = request.attribute("pcbid");
-        final int retryCount = XmlUtils.intValueAtPath(requestBody, "/eventlog/retrycnt");
-        final String eventId = XmlUtils.strValueAtPath(requestBody, "/eventlog/data/eventid");
-        final int eventOrder = XmlUtils.intValueAtPath(requestBody, "/eventlog/data/eventorder");
-        final LocalDateTime pcbTime = TimeUtils.timeFromEpoch(XmlUtils.longValueAtPath(requestBody, "/eventlog/data/pcbtime"));
-        final long gameSession = XmlUtils.longValueAtPath(requestBody, "/eventlog/data/gamesession");
-        final long numData1 = XmlUtils.longValueAtPath(requestBody, "/eventlog/data/numdata1");
-        final long numData2 = XmlUtils.longValueAtPath(requestBody, "/eventlog/data/numdata2");
-        final String locationId = XmlUtils.strValueAtPath(requestBody, "/eventlog/data/locationid");
+        final int retryCount = XmlUtils.intAtPath(requestBody, "/eventlog/retrycnt");
+        final String eventId = XmlUtils.strAtPath(requestBody, "/eventlog/data/eventid");
+        final int eventOrder = XmlUtils.intAtPath(requestBody, "/eventlog/data/eventorder");
+        final LocalDateTime pcbTime = TimeUtils.timeFromEpoch(XmlUtils.longAtPath(requestBody, "/eventlog/data/pcbtime"));
+        final long gameSession = XmlUtils.longAtPath(requestBody, "/eventlog/data/gamesession");
+        final long numData1 = XmlUtils.longAtPath(requestBody, "/eventlog/data/numdata1");
+        final long numData2 = XmlUtils.longAtPath(requestBody, "/eventlog/data/numdata2");
+        final String locationId = XmlUtils.strAtPath(requestBody, "/eventlog/data/locationid");
 
-        String stringData1 = XmlUtils.strValueAtPath(requestBody, "/eventlog/data/strdata1");
-        String stringData2 = XmlUtils.strValueAtPath(requestBody, "/eventlog/data/strdata2");
+        String stringData1 = XmlUtils.strAtPath(requestBody, "/eventlog/data/strdata1");
+        String stringData2 = XmlUtils.strAtPath(requestBody, "/eventlog/data/strdata2");
 
         try {
             stringData1 = new String(Base64.getDecoder().decode(stringData1));

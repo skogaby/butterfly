@@ -162,15 +162,15 @@ public class PlayerDataRequestHandler extends BaseRequestHandler {
 
         // handle usergamedata_advanced requests
         if (requestMethod.equals("usergamedata_advanced")) {
-            final String mode = XmlUtils.strValueAtPath(requestBody, "/playerdata/data/mode");
-            final String refid = XmlUtils.strValueAtPath(requestBody, "/playerdata/data/refid");
+            final String mode = XmlUtils.strAtPath(requestBody, "/playerdata/data/mode");
+            final String refid = XmlUtils.strAtPath(requestBody, "/playerdata/data/refid");
 
             // handle usergamedata_advanced.userload requests
             if (mode.equals("userload")) {
                 return this.handleUserLoadRequest(refid, request, response);
             // handle usergamedata_advanced.rivalload requests
             } else if (mode.equals("rivalload")) {
-                int loadFlag = XmlUtils.intValueAtPath(requestBody, "/playerdata/data/loadflag");
+                int loadFlag = XmlUtils.intAtPath(requestBody, "/playerdata/data/loadflag");
 
                 if (loadFlag == 1) {
                     return this.handleRivalLoad1Request(request, response);
@@ -187,7 +187,7 @@ public class PlayerDataRequestHandler extends BaseRequestHandler {
                 return this.handleInheritanceRequest(request, response);
             // handle usergamedata_advanced.ghostload requests
             } else if (mode.equals("ghostload")) {
-                return this.handleGhostLoadRequest(XmlUtils.intValueAtPath(requestBody, "/playerdata/data/ghostid"), request, response);
+                return this.handleGhostLoadRequest(XmlUtils.intAtPath(requestBody, "/playerdata/data/ghostid"), request, response);
             // handle usergamedata_advanced.usersave requests, for saving scores, ghost data, etc.
             } else if (mode.equals("usersave")) {
                 return this.handleUserSaveRequest(requestBody, request, response);
@@ -338,7 +338,7 @@ public class PlayerDataRequestHandler extends BaseRequestHandler {
      */
     private Object handleUserGameDataRecvRequest(final Element requestBody, final Request request, final Response response) {
         // make sure a profile exists for the given refid
-        final String refId = XmlUtils.strValueAtPath(requestBody, "/playerdata/data/refid");
+        final String refId = XmlUtils.strAtPath(requestBody, "/playerdata/data/refid");
         final Card card = this.cardDao.findByRefId(refId);
 
         // if there's no card for this refid, throw an error
@@ -354,8 +354,8 @@ public class PlayerDataRequestHandler extends BaseRequestHandler {
         }
 
         // figure out which fields are requested
-        final int recvNum = XmlUtils.intValueAtPath(requestBody, "/playerdata/data/recv_num");
-        final String recvCsv = XmlUtils.strValueAtPath(requestBody, "/playerdata/data/recv_csv");
+        final int recvNum = XmlUtils.intAtPath(requestBody, "/playerdata/data/recv_num");
+        final String recvCsv = XmlUtils.strAtPath(requestBody, "/playerdata/data/recv_csv");
         String[] tmp = recvCsv.split(",", -1);
         String[] colsToSend = new String[recvNum];
 
@@ -402,7 +402,7 @@ public class PlayerDataRequestHandler extends BaseRequestHandler {
      */
     private Object handleUserGameDataSendRequest(final Element requestBody, final Request request, final Response response) {
         // make sure a profile exists for the given refid
-        final String refId = XmlUtils.strValueAtPath(requestBody, "/playerdata/data/refid");
+        final String refId = XmlUtils.strAtPath(requestBody, "/playerdata/data/refid");
         final Card card = this.cardDao.findByRefId(refId);
 
         // if there's no card for this refid, throw an error
@@ -720,9 +720,9 @@ public class PlayerDataRequestHandler extends BaseRequestHandler {
     private Object handleUserSaveRequest(final Element requestBody, final Request request, final Response response) {
         // make sure the user actually exists for this score and the name matches
         final Element dataNode = (Element) XmlUtils.nodeAtPath(requestBody, "/playerdata/data");
-        final int dancerCode = XmlUtils.intValueAtPath(dataNode, "/data/ddrcode");
-        final String username = XmlUtils.strValueAtPath(dataNode, "/data/name");
 
+        final int dancerCode = XmlUtils.intAtChild(dataNode, "ddrcode");
+        final String username = XmlUtils.strAtChild(dataNode, "name");
         final UserProfile user = this.profileDao.findByDancerCode(dancerCode);
 
         if (user == null ||
@@ -732,33 +732,32 @@ public class PlayerDataRequestHandler extends BaseRequestHandler {
         }
 
         // get the top-level info first
-        final int playSide = XmlUtils.intValueAtPath(dataNode, "/data/playside");
-        final int playStyle = XmlUtils.intValueAtPath(dataNode, "/data/playstyle");
-        final int area = XmlUtils.intValueAtPath(dataNode, "/data/area");
-        final int weight100 = XmlUtils.intValueAtPath(dataNode, "/data/weight100");
-        final String shopName = XmlUtils.strValueAtPath(dataNode, "/data/shopname");
-        final boolean isPremium = XmlUtils.boolValueAtPath(dataNode, "/data/ispremium");
-        final boolean isEaPass = XmlUtils.boolValueAtPath(dataNode, "/data/iseapass");
-        final boolean isTakeover = XmlUtils.boolValueAtPath(dataNode, "/data/istakeover");
-        final boolean isRepeater = XmlUtils.boolValueAtPath(dataNode, "/data/isrepeater");
-        final boolean isGameover = XmlUtils.boolValueAtPath(dataNode, "/data/isgameover");
-        final String locationId = XmlUtils.strValueAtPath(dataNode, "/data/locid");
-        final String shopArea = XmlUtils.strValueAtPath(dataNode, "/data/shoparea");
+        final int playSide = XmlUtils.intAtChild(dataNode, "playside");
+        final int playStyle = XmlUtils.intAtChild(dataNode, "playstyle");
+        final int area = XmlUtils.intAtChild(dataNode, "area");
+        final int weight100 = XmlUtils.intAtChild(dataNode, "weight100");
+        final String shopName = XmlUtils.strAtChild(dataNode, "shopname");
+        final boolean isPremium = XmlUtils.boolAtChild(dataNode, "ispremium");
+        final boolean isEaPass = XmlUtils.boolAtChild(dataNode, "iseapass");
+        final boolean isTakeover = XmlUtils.boolAtChild(dataNode, "istakeover");
+        final boolean isRepeater = XmlUtils.boolAtChild(dataNode, "isrepeater");
+        final boolean isGameover = XmlUtils.boolAtChild(dataNode, "isgameover");
+        final String locationId = XmlUtils.strAtChild(dataNode, "locid");
+        final String shopArea = XmlUtils.strAtChild(dataNode, "shoparea");
 
         // parse out the nodes for each record and save them individually
         final NodeList recordNodes = XmlUtils.nodesAtPath(dataNode, "/data/note");
 
         for (int i = 0; i < recordNodes.getLength(); i++) {
             Element recordNode = (Element) recordNodes.item(i);
-
-            int songId = XmlUtils.intValueAtPath(recordNode, "/note/mcode");
+            int songId = XmlUtils.intAtChild(recordNode, "mcode");
 
             // if the song ID is 0, this record is empty
             if (songId == 0) {
                 continue;
             }
 
-            LocalDateTime endtime = TimeUtils.timeFromEpoch(XmlUtils.longValueAtPath(recordNode, "/note/endtime"));
+            LocalDateTime endtime = TimeUtils.timeFromEpoch(XmlUtils.longAtChild(recordNode, "endtime"));
 
             // make sure we haven't already written this record, since Ace re-sends records at the end
             // of a play session for all played songs. username + endtime should be a unique combination.
@@ -767,60 +766,60 @@ public class PlayerDataRequestHandler extends BaseRequestHandler {
             }
 
             // passed the sanity checks, let's parse and save the new record
-            int stageNum = XmlUtils.intValueAtPath(recordNode, "/note/stagenum");
-            int noteType = XmlUtils.intValueAtPath(recordNode, "/note/notetype");
-            int rank = XmlUtils.intValueAtPath(recordNode, "/note/rank");
-            int clearKind = XmlUtils.intValueAtPath(recordNode, "/note/clearkind");
-            int score = XmlUtils.intValueAtPath(recordNode, "/note/score");
-            int exScore = XmlUtils.intValueAtPath(recordNode, "/note/exscore");
-            int maxCombo = XmlUtils.intValueAtPath(recordNode, "/note/maxcombo");
-            int life = XmlUtils.intValueAtPath(recordNode, "/note/life");
-            int fastCount = XmlUtils.intValueAtPath(recordNode, "/note/fastcount");
-            int slowCount = XmlUtils.intValueAtPath(recordNode, "/note/slowcount");
-            int marvelousCount = XmlUtils.intValueAtPath(recordNode, "/note/judge_marvelous");
-            int perfectCount = XmlUtils.intValueAtPath(recordNode, "/note/judge_perfect");
-            int greatCount = XmlUtils.intValueAtPath(recordNode, "/note/judge_great");
-            int goodCount = XmlUtils.intValueAtPath(recordNode, "/note/judge_good");
-            int booCount = XmlUtils.intValueAtPath(recordNode, "/note/judge_boo");
-            int missCount = XmlUtils.intValueAtPath(recordNode, "/note/judge_miss");
-            int okCount = XmlUtils.intValueAtPath(recordNode, "/note/judge_ok");
-            int ngCount = XmlUtils.intValueAtPath(recordNode, "/note/judge_ng");
-            int calories = XmlUtils.intValueAtPath(recordNode, "/note/calorie");
-            String ghostStr = XmlUtils.strValueAtPath(recordNode, "/note/ghost");
-            SpeedOption speedOption = SpeedOption.optionForValue(XmlUtils.intValueAtPath(recordNode, "/note/opt_speed"));
-            BoostOption boostOption = BoostOption.values()[XmlUtils.intValueAtPath(recordNode, "/note/opt_boost")];
-            AppearanceOption appearanceOption = AppearanceOption.optionForValue(XmlUtils.intValueAtPath(recordNode, "/note/opt_appearance"));
-            TurnOption turnOption = TurnOption.values()[XmlUtils.intValueAtPath(recordNode, "/note/opt_turn")];
-            StepZoneOption stepZoneOption = StepZoneOption.values()[XmlUtils.intValueAtPath(recordNode, "/note/opt_dark")];
-            ScrollOption scrollOption = ScrollOption.values()[XmlUtils.intValueAtPath(recordNode, "/note/opt_scroll")];
-            ArrowColorOption arrowColorOption = ArrowColorOption.values()[XmlUtils.intValueAtPath(recordNode, "/note/opt_arrowcolor")];
-            CutOption cutOption = CutOption.values()[XmlUtils.intValueAtPath(recordNode, "/note/opt_cut")];
-            FreezeArrowOption freezeArrowOption = FreezeArrowOption.values()[XmlUtils.intValueAtPath(recordNode, "/note/opt_freeze")];
-            JumpsOption jumpsOption = JumpsOption.values()[XmlUtils.intValueAtPath(recordNode, "/note/opt_jump")];
-            ArrowSkinOption arrowSkinOption = ArrowSkinOption.values()[XmlUtils.intValueAtPath(recordNode, "/note/opt_arrowshape")];
-            ScreenFilterOption screenFilterOption = ScreenFilterOption.values()[XmlUtils.intValueAtPath(recordNode, "/note/opt_filter")];
-            GuideLinesOption guideLinesOption = GuideLinesOption.values()[XmlUtils.intValueAtPath(recordNode, "/note/opt_guideline")];
-            LifeGaugeOption lifeGaugeOption = LifeGaugeOption.values()[XmlUtils.intValueAtPath(recordNode, "/note/opt_gauge")];
-            JudgementLayerOption judgementLayerOption = JudgementLayerOption.values()[XmlUtils.intValueAtPath(recordNode, "/note/opt_judgepriority")];
-            boolean showFastSlow = XmlUtils.boolValueAtPath(recordNode, "/note/opt_timing");
-            String songBaseName = XmlUtils.strValueAtPath(recordNode, "/note/basename");
-            String songTitle = new String(Base64.getDecoder().decode(XmlUtils.strValueAtPath(recordNode, "/note/title_b64")));
-            String songArtist = new String(Base64.getDecoder().decode(XmlUtils.strValueAtPath(recordNode, "/note/artist_b64")));
-            int bpmMax = XmlUtils.intValueAtPath(recordNode, "/note/bpmMax");
-            int bpmMin = XmlUtils.intValueAtPath(recordNode, "/note/bpmMin");
-            int level = XmlUtils.intValueAtPath(recordNode, "/note/level");
-            int series = XmlUtils.intValueAtPath(recordNode, "/note/series");
-            int bemaniFlag = XmlUtils.intValueAtPath(recordNode, "/note/bemaniflag");
-            int genreFlag = XmlUtils.intValueAtPath(recordNode, "/note/genreflag");
-            int limited = XmlUtils.intValueAtPath(recordNode, "/note/limited");
-            int region = XmlUtils.intValueAtPath(recordNode, "/note/region");
-            int grVoltage = XmlUtils.intValueAtPath(recordNode, "/note/gr_voltage");
-            int grStream = XmlUtils.intValueAtPath(recordNode, "/note/gr_stream");
-            int grChaos = XmlUtils.intValueAtPath(recordNode, "/note/gr_chaos");
-            int grFreeze = XmlUtils.intValueAtPath(recordNode, "/note/gr_freeze");
-            int grAir = XmlUtils.intValueAtPath(recordNode, "/note/gr_air");
-            boolean share = XmlUtils.boolValueAtPath(recordNode, "/note/share");
-            int folder = XmlUtils.intValueAtPath(recordNode, "/note/folder");
+            int stageNum = XmlUtils.intAtChild(recordNode, "stagenum");
+            int noteType = XmlUtils.intAtChild(recordNode, "notetype");
+            int rank = XmlUtils.intAtChild(recordNode, "rank");
+            int clearKind = XmlUtils.intAtChild(recordNode, "clearkind");
+            int score = XmlUtils.intAtChild(recordNode, "score");
+            int exScore = XmlUtils.intAtChild(recordNode, "exscore");
+            int maxCombo = XmlUtils.intAtChild(recordNode, "maxcombo");
+            int life = XmlUtils.intAtChild(recordNode, "life");
+            int fastCount = XmlUtils.intAtChild(recordNode, "fastcount");
+            int slowCount = XmlUtils.intAtChild(recordNode, "slowcount");
+            int marvelousCount = XmlUtils.intAtChild(recordNode, "judge_marvelous");
+            int perfectCount = XmlUtils.intAtChild(recordNode, "judge_perfect");
+            int greatCount = XmlUtils.intAtChild(recordNode, "judge_great");
+            int goodCount = XmlUtils.intAtChild(recordNode, "judge_good");
+            int booCount = XmlUtils.intAtChild(recordNode, "judge_boo");
+            int missCount = XmlUtils.intAtChild(recordNode, "judge_miss");
+            int okCount = XmlUtils.intAtChild(recordNode, "judge_ok");
+            int ngCount = XmlUtils.intAtChild(recordNode, "judge_ng");
+            int calories = XmlUtils.intAtChild(recordNode, "calorie");
+            String ghostStr = XmlUtils.strAtChild(recordNode, "ghost");
+            SpeedOption speedOption = SpeedOption.optionForValue(XmlUtils.intAtChild(recordNode, "opt_speed"));
+            BoostOption boostOption = BoostOption.values()[XmlUtils.intAtChild(recordNode, "opt_boost")];
+            AppearanceOption appearanceOption = AppearanceOption.optionForValue(XmlUtils.intAtChild(recordNode, "opt_appearance"));
+            TurnOption turnOption = TurnOption.values()[XmlUtils.intAtChild(recordNode, "opt_turn")];
+            StepZoneOption stepZoneOption = StepZoneOption.values()[XmlUtils.intAtChild(recordNode, "opt_dark")];
+            ScrollOption scrollOption = ScrollOption.values()[XmlUtils.intAtChild(recordNode, "opt_scroll")];
+            ArrowColorOption arrowColorOption = ArrowColorOption.values()[XmlUtils.intAtChild(recordNode, "opt_arrowcolor")];
+            CutOption cutOption = CutOption.values()[XmlUtils.intAtChild(recordNode, "opt_cut")];
+            FreezeArrowOption freezeArrowOption = FreezeArrowOption.values()[XmlUtils.intAtChild(recordNode, "opt_freeze")];
+            JumpsOption jumpsOption = JumpsOption.values()[XmlUtils.intAtChild(recordNode, "opt_jump")];
+            ArrowSkinOption arrowSkinOption = ArrowSkinOption.values()[XmlUtils.intAtChild(recordNode, "opt_arrowshape")];
+            ScreenFilterOption screenFilterOption = ScreenFilterOption.values()[XmlUtils.intAtChild(recordNode, "opt_filter")];
+            GuideLinesOption guideLinesOption = GuideLinesOption.values()[XmlUtils.intAtChild(recordNode, "opt_guideline")];
+            LifeGaugeOption lifeGaugeOption = LifeGaugeOption.values()[XmlUtils.intAtChild(recordNode, "opt_gauge")];
+            JudgementLayerOption judgementLayerOption = JudgementLayerOption.values()[XmlUtils.intAtChild(recordNode, "opt_judgepriority")];
+            boolean showFastSlow = XmlUtils.boolAtChild(recordNode, "opt_timing");
+            String songBaseName = XmlUtils.strAtChild(recordNode, "basename");
+            String songTitle = new String(Base64.getDecoder().decode(XmlUtils.strAtChild(recordNode, "title_b64")));
+            String songArtist = new String(Base64.getDecoder().decode(XmlUtils.strAtChild(recordNode, "artist_b64")));
+            int bpmMax = XmlUtils.intAtChild(recordNode, "bpmMax");
+            int bpmMin = XmlUtils.intAtChild(recordNode, "bpmMin");
+            int level = XmlUtils.intAtChild(recordNode, "level");
+            int series = XmlUtils.intAtChild(recordNode, "series");
+            int bemaniFlag = XmlUtils.intAtChild(recordNode, "bemaniFlag");
+            int genreFlag = XmlUtils.intAtChild(recordNode, "genreFlag");
+            int limited = XmlUtils.intAtChild(recordNode, "limited");
+            int region = XmlUtils.intAtChild(recordNode, "region");
+            int grVoltage = XmlUtils.intAtChild(recordNode, "gr_voltage");
+            int grStream = XmlUtils.intAtChild(recordNode, "gr_stream");
+            int grChaos = XmlUtils.intAtChild(recordNode, "gr_chaos");
+            int grFreeze = XmlUtils.intAtChild(recordNode, "gr_freeze");
+            int grAir = XmlUtils.intAtChild(recordNode, "gr_air");
+            boolean share = XmlUtils.boolAtChild(recordNode, "share");
+            int folder = XmlUtils.intAtChild(recordNode, "folder");
 
             // construct and save
             GhostData newGhostData = new GhostData(user, ghostStr);

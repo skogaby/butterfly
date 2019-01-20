@@ -67,8 +67,8 @@ public class EacoinRequestHandler extends BaseRequestHandler {
      * @return A response object for Spark
      */
     private Object handleCheckinRequest(final Element requestBody, final Request request, final Response response) {
-        final String cardId = XmlUtils.strValueAtPath(requestBody, "/eacoin/cardid");
-        final String pin = XmlUtils.strValueAtPath(requestBody, "/eacoin/passwd");
+        final String cardId = XmlUtils.strAtPath(requestBody, "/eacoin/cardid");
+        final String pin = XmlUtils.strAtPath(requestBody, "/eacoin/passwd");
 
         // verify the pin for sanity
         // check the pin against the pin of the owner of the ref ID

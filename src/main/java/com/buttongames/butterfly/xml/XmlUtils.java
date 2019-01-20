@@ -124,7 +124,7 @@ public class XmlUtils {
      * @param path
      * @return
      */
-    public static String strValueAtPath(final Element doc, final String path) {
+    public static String strAtPath(final Element doc, final String path) {
         try {
             return (String) XPATH.compile("/" + path).evaluate(doc, XPathConstants.STRING);
         } catch (Exception e) {
@@ -139,7 +139,7 @@ public class XmlUtils {
      * @param path
      * @return
      */
-    public static Boolean boolValueAtPath(final Element doc, final String path) {
+    public static Boolean boolAtPath(final Element doc, final String path) {
         try {
             final String val = (String) XPATH.compile("/" + path).evaluate(doc, XPathConstants.STRING);
 
@@ -156,7 +156,7 @@ public class XmlUtils {
      * @param path
      * @return
      */
-    public static Double doubleValueAtPath(final Element doc, final String path) {
+    public static Double doubleAtPath(final Element doc, final String path) {
         try {
             return (Double) XPATH.compile("/" + path).evaluate(doc, XPathConstants.NUMBER);
         } catch (Exception e) {
@@ -171,7 +171,7 @@ public class XmlUtils {
      * @param path
      * @return
      */
-    public static Long longValueAtPath(final Element doc, final String path) {
+    public static Long longAtPath(final Element doc, final String path) {
         try {
             return Long.parseLong((String) XPATH.compile("/" + path).evaluate(doc, XPathConstants.STRING));
         } catch (Exception e) {
@@ -186,7 +186,7 @@ public class XmlUtils {
      * @param path
      * @return
      */
-    public static Integer intValueAtPath(final Element doc, final String path) {
+    public static Integer intAtPath(final Element doc, final String path) {
         try {
             return ((Double) XPATH.compile("/" + path).evaluate(doc, XPathConstants.NUMBER)).intValue();
         } catch (Exception e) {
@@ -223,5 +223,55 @@ public class XmlUtils {
             e.printStackTrace();
             return null;
         }
+    }
+
+    /**
+     * Returns the string value of a child element of the given document whose name is the given name
+     * @param doc The document to search its children
+     * @param name The name of the element to return
+     * @return The value at the given element
+     */
+    public static String strAtChild(final Element doc, final String name) {
+        return doc.getElementsByTagName(name).item(0).getTextContent();
+    }
+
+    /**
+     * Returns the int value of a child element of the given document whose name is the given name
+     * @param doc The document to search its children
+     * @param name The name of the element to return
+     * @return The value at the given element
+     */
+    public static int intAtChild(final Element doc, final String name) {
+        return Integer.parseInt(doc.getElementsByTagName(name).item(0).getTextContent());
+    }
+
+    /**
+     * Returns the long value of a child element of the given document whose name is the given name
+     * @param doc The document to search its children
+     * @param name The name of the element to return
+     * @return The value at the given element
+     */
+    public static long longAtChild(final Element doc, final String name) {
+        return Long.parseLong(doc.getElementsByTagName(name).item(0).getTextContent());
+    }
+
+    /**
+     * Returns the double value of a child element of the given document whose name is the given name
+     * @param doc The document to search its children
+     * @param name The name of the element to return
+     * @return The value at the given element
+     */
+    public static double doubleAtChild(final Element doc, final String name) {
+        return Double.parseDouble(doc.getElementsByTagName(name).item(0).getTextContent());
+    }
+
+    /**
+     * Returns the bool value of a child element of the given document whose name is the given name
+     * @param doc The document to search its children
+     * @param name The name of the element to return
+     * @return The value at the given element
+     */
+    public static boolean boolAtChild(final Element doc, final String name) {
+        return doc.getElementsByTagName(name).item(0).getTextContent().equals("1");
     }
 }

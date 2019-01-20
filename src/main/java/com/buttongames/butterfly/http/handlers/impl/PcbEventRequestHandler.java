@@ -65,11 +65,11 @@ public class PcbEventRequestHandler extends BaseRequestHandler {
         // log the event to the database
         final String reqModel = request.attribute("model");
         final String reqPcbId = request.attribute("pcbid");
-        final LocalDateTime time1 = TimeUtils.timeFromEpoch(XmlUtils.longValueAtPath(requestBody, "/pcbevent/time"));
-        final long sequence = XmlUtils.longValueAtPath(requestBody, "/pcbevent/seq");
-        final String name = XmlUtils.strValueAtPath(requestBody, "/pcbevent/item/name");
-        final int value = XmlUtils.intValueAtPath(requestBody, "/pcbevent/item/value");
-        final LocalDateTime time2 = TimeUtils.timeFromEpoch(XmlUtils.longValueAtPath(requestBody, "/pcbevent/item/time"));
+        final LocalDateTime time1 = TimeUtils.timeFromEpoch(XmlUtils.longAtPath(requestBody, "/pcbevent/time"));
+        final long sequence = XmlUtils.longAtPath(requestBody, "/pcbevent/seq");
+        final String name = XmlUtils.strAtPath(requestBody, "/pcbevent/item/name");
+        final int value = XmlUtils.intAtPath(requestBody, "/pcbevent/item/value");
+        final LocalDateTime time2 = TimeUtils.timeFromEpoch(XmlUtils.longAtPath(requestBody, "/pcbevent/item/time"));
 
         final PcbEventLog event = new PcbEventLog(reqPcbId, reqModel, time1, time2, sequence, name, value);
         this.pcbEventLogDao.create(event);
