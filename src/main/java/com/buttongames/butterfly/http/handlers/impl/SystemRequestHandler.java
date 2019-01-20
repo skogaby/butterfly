@@ -1,6 +1,6 @@
 package com.buttongames.butterfly.http.handlers.impl;
 
-import com.buttongames.butterfly.http.exception.InvalidRequestMethodException;
+import com.buttongames.butterfly.http.exception.UnsupportedRequestException;
 import com.buttongames.butterfly.http.handlers.BaseRequestHandler;
 import com.buttongames.butterfly.util.CardIdUtils;
 import com.buttongames.butterfly.xml.XmlUtils;
@@ -34,9 +34,9 @@ public class SystemRequestHandler extends BaseRequestHandler {
 
         if (requestMethod.equals("convcardnumber")) {
             return this.handleConvCardNumberRequest(requestBody, request, response);
-        } else {
-            throw new InvalidRequestMethodException();
         }
+
+        throw new UnsupportedRequestException();
     }
 
     /**

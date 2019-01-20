@@ -1,9 +1,8 @@
 package com.buttongames.butterfly.http.handlers.impl;
 
-import com.buttongames.butterfly.hibernate.dao.impl.ButterflyUserDao;
 import com.buttongames.butterfly.hibernate.dao.impl.CardDao;
 import com.buttongames.butterfly.http.exception.InvalidRequestException;
-import com.buttongames.butterfly.http.exception.InvalidRequestMethodException;
+import com.buttongames.butterfly.http.exception.UnsupportedRequestException;
 import com.buttongames.butterfly.http.handlers.BaseRequestHandler;
 import com.buttongames.butterfly.model.Card;
 import com.buttongames.butterfly.xml.XmlUtils;
@@ -53,9 +52,11 @@ public class EacoinRequestHandler extends BaseRequestHandler {
             return this.handleCheckinRequest(requestBody, request, response);
         } else if (requestMethod.equals("consume")) {
             return this.handleConsumeRequest(request, response);
-        } else {
-            throw new InvalidRequestMethodException();
+        } else if (requestMethod.equals("checkout")) {
+            return this.handleCheckoutRequest(request, response);
         }
+
+        throw new UnsupportedRequestException();
     }
 
     /**
@@ -89,6 +90,19 @@ public class EacoinRequestHandler extends BaseRequestHandler {
                     .str("acname", "X").up()
                     .s32("balance", INFINITE_PASELI_AMOUNT).up()
                     .str("sessid", "X");
+
+        return this.sendResponse(request, response, builder);
+    }
+
+    /**
+     * Handles an incoming request for the <code>eacoin.checkout</code> method.
+     * @param request The Spark request
+     * @param response The Spark response
+     * @return A response object for Spark
+     */
+    private Object handleCheckoutRequest(final Request request, final Response response) {
+        final KXmlBuilder builder = KXmlBuilder.create("response")
+                .e("eacoin");
 
         return this.sendResponse(request, response, builder);
     }

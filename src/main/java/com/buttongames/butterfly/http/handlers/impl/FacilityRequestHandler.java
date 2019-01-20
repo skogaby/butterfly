@@ -3,6 +3,7 @@ package com.buttongames.butterfly.http.handlers.impl;
 import com.buttongames.butterfly.hibernate.dao.impl.ddr16.ShopDao;
 import com.buttongames.butterfly.hibernate.dao.impl.MachineDao;
 import com.buttongames.butterfly.http.exception.InvalidRequestMethodException;
+import com.buttongames.butterfly.http.exception.UnsupportedRequestException;
 import com.buttongames.butterfly.http.handlers.BaseRequestHandler;
 import com.buttongames.butterfly.model.ddr16.Shop;
 import com.buttongames.butterfly.util.StringUtils;
@@ -54,9 +55,9 @@ public class FacilityRequestHandler extends BaseRequestHandler {
 
         if (requestMethod.equals("get")) {
             return handleGetRequest(request, response);
-        } else {
-            throw new InvalidRequestMethodException();
         }
+
+        throw new UnsupportedRequestException();
     }
 
     /**

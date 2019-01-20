@@ -1,7 +1,7 @@
 package com.buttongames.butterfly.http.handlers.impl;
 
 import com.buttongames.butterfly.hibernate.dao.impl.ddr16.PcbEventLogDao;
-import com.buttongames.butterfly.http.exception.InvalidRequestMethodException;
+import com.buttongames.butterfly.http.exception.UnsupportedRequestException;
 import com.buttongames.butterfly.http.handlers.BaseRequestHandler;
 import com.buttongames.butterfly.model.ddr16.PcbEventLog;
 import com.buttongames.butterfly.util.TimeUtils;
@@ -49,9 +49,9 @@ public class PcbEventRequestHandler extends BaseRequestHandler {
 
         if (requestMethod.equals("put")) {
             return handlePutRequest(requestBody, request, response);
-        } else {
-            throw new InvalidRequestMethodException();
         }
+
+        throw new UnsupportedRequestException();
     }
 
     /**

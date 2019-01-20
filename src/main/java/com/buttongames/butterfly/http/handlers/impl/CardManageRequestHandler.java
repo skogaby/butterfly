@@ -3,7 +3,7 @@ package com.buttongames.butterfly.http.handlers.impl;
 import com.buttongames.butterfly.hibernate.dao.impl.ButterflyUserDao;
 import com.buttongames.butterfly.hibernate.dao.impl.CardDao;
 import com.buttongames.butterfly.http.exception.InvalidRequestException;
-import com.buttongames.butterfly.http.exception.InvalidRequestMethodException;
+import com.buttongames.butterfly.http.exception.UnsupportedRequestException;
 import com.buttongames.butterfly.http.handlers.BaseRequestHandler;
 import com.buttongames.butterfly.model.ButterflyUser;
 import com.buttongames.butterfly.model.Card;
@@ -63,9 +63,9 @@ public class CardManageRequestHandler extends BaseRequestHandler {
             return this.handleGetRefIdRequest(requestBody, request, response);
         } else if (requestMethod.equals("authpass")) {
             return this.handleAuthPassRequest(requestBody, request, response);
-        } else {
-            throw new InvalidRequestMethodException();
         }
+
+        throw new UnsupportedRequestException();
     }
 
     /**

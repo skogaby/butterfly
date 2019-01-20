@@ -2,7 +2,7 @@ package com.buttongames.butterfly.http.handlers.impl;
 
 import com.buttongames.butterfly.hibernate.dao.impl.MachineDao;
 import com.buttongames.butterfly.hibernate.dao.impl.UserPhasesDao;
-import com.buttongames.butterfly.http.exception.InvalidRequestMethodException;
+import com.buttongames.butterfly.http.exception.UnsupportedRequestException;
 import com.buttongames.butterfly.http.handlers.BaseRequestHandler;
 import com.buttongames.butterfly.model.Machine;
 import com.buttongames.butterfly.model.UserPhases;
@@ -53,9 +53,9 @@ public class TaxRequestHandler extends BaseRequestHandler {
 
         if (requestMethod.equals("get_phase")) {
             return handleGetPhaseRequest(request, response);
-        } else {
-            throw new InvalidRequestMethodException();
         }
+
+        throw new UnsupportedRequestException();
     }
 
     /**

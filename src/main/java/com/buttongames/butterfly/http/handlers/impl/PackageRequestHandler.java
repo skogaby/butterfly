@@ -1,6 +1,6 @@
 package com.buttongames.butterfly.http.handlers.impl;
 
-import com.buttongames.butterfly.http.exception.InvalidRequestMethodException;
+import com.buttongames.butterfly.http.exception.UnsupportedRequestException;
 import com.buttongames.butterfly.http.handlers.BaseRequestHandler;
 import com.buttongames.butterfly.xml.kbinxml.KXmlBuilder;
 import org.apache.logging.log4j.LogManager;
@@ -32,9 +32,9 @@ public class PackageRequestHandler extends BaseRequestHandler {
 
         if (requestMethod.equals("list")) {
             return handleListRequest(request, response);
-        } else {
-            throw new InvalidRequestMethodException();
         }
+
+        throw new UnsupportedRequestException();
     }
 
     /**

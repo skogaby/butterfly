@@ -247,6 +247,9 @@ public class ButterflyHttpServer {
         exception(UnsupportedRequestException.class, (((exception, request, response) -> {
                     response.status(400);
                     response.body("This request is probably valid, but currently unsupported.");
+
+                    LOG.info(String.format("RECEIVED AN UNSUPPORTED REQUEST: %s.%s",
+                            request.attribute("module"), request.attribute("method")));
                 })));
         exception(CardCipherException.class, (((exception, request, response) -> {
                     response.status(403);
@@ -268,7 +271,7 @@ public class ButterflyHttpServer {
         final String requestUriModule = request.queryParams("module");
         final String requestUriMethod = request.queryParams("method");
 
-        LOG.info("Request received: '" + requestUriModel + "::" + requestUriModule + "." + requestUriMethod + "'");
+        LOG.info("Request received: " + requestUriModel + " (" + requestUriModule + "." + requestUriMethod + ")");
 
         // 1) validate the model is supported
         if (!SUPPORTED_MODELS.contains(com.buttongames.butterfly.util.StringUtils.getSanitizedModel(requestUriModel))) {

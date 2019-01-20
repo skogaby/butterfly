@@ -1,6 +1,6 @@
 package com.buttongames.butterfly.http.handlers.impl;
 
-import com.buttongames.butterfly.http.exception.InvalidRequestMethodException;
+import com.buttongames.butterfly.http.exception.UnsupportedRequestException;
 import com.buttongames.butterfly.http.handlers.BaseRequestHandler;
 import com.buttongames.butterfly.util.PropertyNames;
 import com.buttongames.butterfly.xml.kbinxml.KXmlBuilder;
@@ -40,9 +40,9 @@ public class PcbTrackerRequestHandler extends BaseRequestHandler {
 
         if (requestMethod.equals("alive")) {
             return handleAliveRequest(request, response);
-        } else {
-            throw new InvalidRequestMethodException();
         }
+
+        throw new UnsupportedRequestException();
     }
 
     /**

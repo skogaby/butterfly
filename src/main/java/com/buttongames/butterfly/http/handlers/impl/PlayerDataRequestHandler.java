@@ -141,13 +141,15 @@ public class PlayerDataRequestHandler extends BaseRequestHandler {
     public Object handleRequest(final Element requestBody, final Request request, final Response response) {
         final String requestMethod = request.attribute("method");
 
-        // figure out which kind of usergamedata_advanced request this is
+        // handle usergamedata_advanced requests
         if (requestMethod.equals("usergamedata_advanced")) {
             final String mode = XmlUtils.strValueAtPath(requestBody, "/playerdata/data/mode");
             final String refid = XmlUtils.strValueAtPath(requestBody, "/playerdata/data/refid");
 
+            // handle usergamedata_advanced.userload requests
             if (mode.equals("userload")) {
                 return this.handleUserLoadRequest(refid, request, response);
+            // handle usergamedata_advanced.rivalload requests
             } else if (mode.equals("rivalload")) {
                 int loadFlag = XmlUtils.intValueAtPath(requestBody, "/playerdata/data/loadflag");
 
@@ -158,13 +160,23 @@ public class PlayerDataRequestHandler extends BaseRequestHandler {
                 } else if (loadFlag == 4) {
                     return this.handleGlobalScoresRequest(request, response);
                 }
+            // handle usergamedata_advanced.usernew requests
             } else if (mode.equals("usernew")) {
                 return this.handleNewUserRequest(refid, request, response);
+            // handle usergamedata_advanced.inheritance requests
             } else if (mode.equals("inheritance")) {
                 return this.handleInheritanceRequest(request, response);
+            // handle usergamedata_advanced.ghostload requests
+            } else if (mode.equals("ghostload")) {
+                return this.handleGhostLoadRequest(XmlUtils.intValueAtPath(requestBody, "/playerdata/data/ghostid"), request, response);
+            // handle usergamedata_advanced.usersave requests, for saving scores, ghost data, etc.
+            } else if (mode.equals("usersave")) {
+                return this.handleUserSaveRequest(request, response);
             }
+        // handle usergamedata_send requests
         } else if (requestMethod.equals("usergamedata_send")) {
             return this.handleUserGameDataSendRequest(requestBody, request, response);
+        // handle usergamedata_recv requests
         } else if (requestMethod.equals("usergamedata_recv")) {
             return this.handleUserGameDataRecvRequest(requestBody, request, response);
         }
@@ -656,11 +668,42 @@ public class PlayerDataRequestHandler extends BaseRequestHandler {
      * @return A response object for Spark
      */
     private Object handleInheritanceRequest(final Request request, final Response response) {
-        // TODO: Confirm if this value actually matters...
         final KXmlBuilder builder = KXmlBuilder.create("response")
                 .e("playerdata")
                     .s32("result", 0).up()
                     .s32("InheritanceStatus", 1);
+
+        return this.sendResponse(request, response, builder);
+    }
+
+    /**
+     * Handles a request to load a particular ghost data set.
+     * @param ghostId The ghost ID to load.
+     * @param request The Spark request
+     * @param response The Spark response
+     * @return A response object for Spark
+     */
+    private Object handleGhostLoadRequest(final int ghostId, final Request request, final Response response) {
+        // TODO: Store and load ghost data correctly
+        final KXmlBuilder builder = KXmlBuilder.create("response")
+                .e("playerdata")
+                    .s32("result", 0).up();
+
+        return this.sendResponse(request, response, builder);
+    }
+
+
+    /**
+     * Handles a request to save scores, options, etc.
+     * @param request The Spark request
+     * @param response The Spark response
+     * @return A response object for Spark
+     */
+    private Object handleUserSaveRequest(final Request request, final Response response) {
+        // TODO: actually save the input
+        final KXmlBuilder builder = KXmlBuilder.create("response")
+                .e("playerdata")
+                    .s32("result", 0).up();
 
         return this.sendResponse(request, response, builder);
     }

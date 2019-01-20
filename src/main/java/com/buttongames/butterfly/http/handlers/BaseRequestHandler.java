@@ -117,8 +117,8 @@ public abstract class BaseRequestHandler {
             rawResponse.getOutputStream().flush();
             rawResponse.getOutputStream().close();
 
-            LOG.info("Response sent: '" + request.queryParams("model") + "::" +
-                    request.queryParams("module") + "." + request.queryParams("method") + "'");
+            LOG.info("Response sent: " + request.queryParams("model") + " (" +
+                    request.queryParams("module") + "." + request.queryParams("method") + ")");
 
             return 200;
         } catch (IOException e) {
