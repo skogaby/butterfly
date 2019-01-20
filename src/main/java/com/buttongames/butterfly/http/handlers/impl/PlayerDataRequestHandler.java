@@ -562,7 +562,7 @@ public class PlayerDataRequestHandler extends BaseRequestHandler {
             try {
                 totalPlays = Integer.parseInt(common[GAME_COMMON_TOTAL_PLAYS_OFFSET]);
             } catch(NumberFormatException e) {
-                totalPlays = 0;
+                totalPlays = -1;
             }
 
             final int singlePlays = Integer.parseInt(common[GAME_COMMON_SINGLE_PLAYS_OFFSET]);
@@ -586,9 +586,9 @@ public class PlayerDataRequestHandler extends BaseRequestHandler {
         // parse out OPTION values
         if (option != null &&
                 option.length != 0) {
-            final SpeedOption speedOption = SpeedOption.values()[Integer.parseInt(option[GAME_OPTION_SPEED_OFFSET])];
+            final SpeedOption speedOption = SpeedOption.optionForValue(Integer.parseInt(option[GAME_OPTION_SPEED_OFFSET], 16));
             final BoostOption boostOption = BoostOption.values()[Integer.parseInt(option[GAME_OPTION_BOOST_OFFSET])];
-            final AppearanceOption appearanceOption = AppearanceOption.values()[Integer.parseInt(option[GAME_OPTION_APPEARANCE_OFFSET])];
+            final AppearanceOption appearanceOption = AppearanceOption.optionForValue(Integer.parseInt(option[GAME_OPTION_APPEARANCE_OFFSET]));
             final TurnOption turnOption = TurnOption.values()[Integer.parseInt(option[GAME_OPTION_TURN_OFFSET])];
             final StepZoneOption stepZoneOption = StepZoneOption.values()[Integer.parseInt(option[GAME_OPTION_STEP_ZONE_OFFSET])];
             final ScrollOption scrollOption = ScrollOption.values()[Integer.parseInt(option[GAME_OPTION_SCROLL_OFFSET])];

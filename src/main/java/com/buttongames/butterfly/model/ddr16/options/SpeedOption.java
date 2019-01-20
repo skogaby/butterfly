@@ -1,5 +1,7 @@
 package com.buttongames.butterfly.model.ddr16.options;
 
+import java.util.HashMap;
+
 /**
  * Enum for the various speed options in-game for DDR A.
  * @author skogaby (skogabyskogaby@gmail.com)
@@ -30,10 +32,15 @@ public enum SpeedOption {
     X_7_50(0x1D),
     X_8_00(0x1F);
 
-    /**
-     * The value to put in the profile response for this option.
-     */
+    private static final HashMap<Integer, SpeedOption> valueToOptionMap = new HashMap<>();
+
     private final int val;
+
+    static {
+        for (SpeedOption opt : SpeedOption.values()) {
+            valueToOptionMap.put(opt.getVal(), opt);
+        }
+    }
 
     private SpeedOption(int val) {
         this.val = val;
@@ -41,5 +48,13 @@ public enum SpeedOption {
 
     public int getVal() {
         return this.val;
+    }
+
+    public static SpeedOption optionForValue(int value) {
+        if (!valueToOptionMap.containsKey(value)) {
+            throw new IllegalArgumentException();
+        }
+
+        return valueToOptionMap.get(value);
     }
 }
