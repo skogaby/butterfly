@@ -3,11 +3,13 @@ package com.buttongames.butterfly.spring.configuration;
 import com.buttongames.butterfly.hibernate.dao.impl.ButterflyUserDao;
 import com.buttongames.butterfly.hibernate.dao.impl.CardDao;
 import com.buttongames.butterfly.hibernate.dao.impl.ddr16.GameplayEventLogDao;
+import com.buttongames.butterfly.hibernate.dao.impl.ddr16.GhostDataDao;
 import com.buttongames.butterfly.hibernate.dao.impl.ddr16.PcbEventLogDao;
 import com.buttongames.butterfly.hibernate.dao.impl.ddr16.ProfileDao;
 import com.buttongames.butterfly.hibernate.dao.impl.ddr16.ShopDao;
 import com.buttongames.butterfly.hibernate.dao.impl.MachineDao;
 import com.buttongames.butterfly.hibernate.dao.impl.UserPhasesDao;
+import com.buttongames.butterfly.hibernate.dao.impl.ddr16.UserSongRecordDao;
 import com.buttongames.butterfly.http.ButterflyHttpServer;
 import com.buttongames.butterfly.http.handlers.impl.CardManageRequestHandler;
 import com.buttongames.butterfly.http.handlers.impl.EacoinRequestHandler;
@@ -93,8 +95,9 @@ public class HttpConfiguration {
 
     @Bean
     public PlayerDataRequestHandler playerDataRequestHandler(final ButterflyUserDao userDao, final CardDao cardDao,
-                                                             final ProfileDao profileDao) {
-        return new PlayerDataRequestHandler(userDao, cardDao, profileDao);
+                                                             final ProfileDao profileDao, final GhostDataDao ghostDataDao,
+                                                             final UserSongRecordDao songRecordDao) {
+        return new PlayerDataRequestHandler(userDao, cardDao, profileDao, ghostDataDao, songRecordDao);
     }
 
     @Bean

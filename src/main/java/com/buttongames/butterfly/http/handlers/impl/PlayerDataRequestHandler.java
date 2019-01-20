@@ -2,7 +2,9 @@ package com.buttongames.butterfly.http.handlers.impl;
 
 import com.buttongames.butterfly.hibernate.dao.impl.ButterflyUserDao;
 import com.buttongames.butterfly.hibernate.dao.impl.CardDao;
+import com.buttongames.butterfly.hibernate.dao.impl.ddr16.GhostDataDao;
 import com.buttongames.butterfly.hibernate.dao.impl.ddr16.ProfileDao;
+import com.buttongames.butterfly.hibernate.dao.impl.ddr16.UserSongRecordDao;
 import com.buttongames.butterfly.http.exception.InvalidRequestException;
 import com.buttongames.butterfly.http.exception.UnsupportedRequestException;
 import com.buttongames.butterfly.http.handlers.BaseRequestHandler;
@@ -108,6 +110,16 @@ public class PlayerDataRequestHandler extends BaseRequestHandler {
     private final ProfileDao profileDao;
 
     /**
+     * The DAO for managing ghost step data in the database.
+     */
+    private final GhostDataDao ghostDataDao;
+
+    /**
+     * The DAO for managing song scores.
+     */
+    private final UserSongRecordDao songRecordDao;
+
+    /**
      * Static list of events for the server.
      */
     private static NodeList EVENTS_2018042300;
@@ -124,10 +136,13 @@ public class PlayerDataRequestHandler extends BaseRequestHandler {
         }
     }
 
-    public PlayerDataRequestHandler(final ButterflyUserDao userDao, final CardDao cardDao, final ProfileDao profileDao) {
+    public PlayerDataRequestHandler(final ButterflyUserDao userDao, final CardDao cardDao, final ProfileDao profileDao,
+                                    final GhostDataDao ghostDataDao, final UserSongRecordDao songRecordDao) {
         this.userDao = userDao;
         this.cardDao = cardDao;
         this.profileDao = profileDao;
+        this.ghostDataDao = ghostDataDao;
+        this.songRecordDao = songRecordDao;
     }
 
     /**
@@ -171,7 +186,7 @@ public class PlayerDataRequestHandler extends BaseRequestHandler {
                 return this.handleGhostLoadRequest(XmlUtils.intValueAtPath(requestBody, "/playerdata/data/ghostid"), request, response);
             // handle usergamedata_advanced.usersave requests, for saving scores, ghost data, etc.
             } else if (mode.equals("usersave")) {
-                return this.handleUserSaveRequest(request, response);
+                return this.handleUserSaveRequest(requestBody, request, response);
             }
         // handle usergamedata_send requests
         } else if (requestMethod.equals("usergamedata_send")) {
@@ -252,8 +267,6 @@ public class PlayerDataRequestHandler extends BaseRequestHandler {
                 .e("playerdata")
                     .s32("result", 0).up()
                     .bool("is_new", false).up();
-
-        // TODO: insert the user scores once we have them
 
         // insert the events
         final Document document = respBuilder.getDocument();
@@ -695,11 +708,41 @@ public class PlayerDataRequestHandler extends BaseRequestHandler {
 
     /**
      * Handles a request to save scores, options, etc.
+     * @param requestBody The XML document of the incoming request.
      * @param request The Spark request
      * @param response The Spark response
      * @return A response object for Spark
      */
-    private Object handleUserSaveRequest(final Request request, final Response response) {
+    private Object handleUserSaveRequest(final Element requestBody, final Request request, final Response response) {
+        // make sure the user actually exists for this score and the name matches
+        final Element dataNode = (Element) XmlUtils.nodeAtPath(requestBody, "/playerdata/data");
+        final int dancerCode = XmlUtils.intValueAtPath(dataNode, "/data/ddrcode");
+        final String username = XmlUtils.strValueAtPath(dataNode, "/data/name");
+
+        final UserProfile user = this.profileDao.findByDancerCode(dancerCode);
+
+        if (user == null ||
+                user.getName() == null ||
+                !user.getName().equals(username)) {
+            throw new InvalidRequestException();
+        }
+
+        // get the top-level info first
+        final int playSide = XmlUtils.intValueAtPath(dataNode, "/data/playside");
+        final int playStyle = XmlUtils.intValueAtPath(dataNode, "/data/playstyle");
+        final int area = XmlUtils.intValueAtPath(dataNode, "/data/area");
+        final int weight100 = XmlUtils.intValueAtPath(dataNode, "/data/weight100");
+        final String shopName = XmlUtils.strValueAtPath(dataNode, "/data/shopname");
+        final boolean isPremium = XmlUtils.boolValueAtPath(dataNode, "/data/ispremium");
+        final boolean isEaPass = XmlUtils.boolValueAtPath(dataNode, "/data/iseapass");
+        final boolean isTakeover = XmlUtils.boolValueAtPath(dataNode, "/data/istakeover");
+        final boolean isRepeater = XmlUtils.boolValueAtPath(dataNode, "/data/isrepeater");
+        final boolean isGameover = XmlUtils.boolValueAtPath(dataNode, "/data/isgameover");
+        final String locationId = XmlUtils.strValueAtPath(dataNode, "/data/locid");
+        final String shopArea = XmlUtils.strValueAtPath(dataNode, "/data/shoparea");
+
+        // parse out the nodes for each
+
         // TODO: actually save the input
         final KXmlBuilder builder = KXmlBuilder.create("response")
                 .e("playerdata")

@@ -3,11 +3,13 @@ package com.buttongames.butterfly.spring.configuration;
 import com.buttongames.butterfly.hibernate.dao.impl.CardDao;
 import com.buttongames.butterfly.hibernate.dao.impl.MachineDao;
 import com.buttongames.butterfly.hibernate.dao.impl.ButterflyUserDao;
+import com.buttongames.butterfly.hibernate.dao.impl.ddr16.GhostDataDao;
 import com.buttongames.butterfly.hibernate.dao.impl.ddr16.ProfileDao;
 import com.buttongames.butterfly.hibernate.dao.impl.ddr16.ShopDao;
 import com.buttongames.butterfly.hibernate.dao.impl.ddr16.GameplayEventLogDao;
 import com.buttongames.butterfly.hibernate.dao.impl.ddr16.PcbEventLogDao;
 import com.buttongames.butterfly.hibernate.dao.impl.UserPhasesDao;
+import com.buttongames.butterfly.hibernate.dao.impl.ddr16.UserSongRecordDao;
 import com.buttongames.butterfly.util.PathUtils;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -121,5 +123,15 @@ public class HibernateConfiguration {
     @Bean
     public ProfileDao userProfileDao(final SessionFactory sessionFactory) {
         return new ProfileDao(sessionFactory);
+    }
+
+    @Bean
+    public UserSongRecordDao userSongRecordDao(final SessionFactory sessionFactory) {
+        return new UserSongRecordDao(sessionFactory);
+    }
+
+    @Bean
+    public GhostDataDao ghostDataDao(final SessionFactory sessionFactory) {
+        return new GhostDataDao(sessionFactory);
     }
 }

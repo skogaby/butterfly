@@ -114,7 +114,6 @@ public class EacoinRequestHandler extends BaseRequestHandler {
      * @return A response object for Spark
      */
     private Object handleConsumeRequest(final Request request, final Response response) {
-        // TODO: actually consume the Paseli and not make it unlimited
         final KXmlBuilder builder = KXmlBuilder.create("response")
                 .e("eacoin")
                     .u8("acstatus", 0).up()
