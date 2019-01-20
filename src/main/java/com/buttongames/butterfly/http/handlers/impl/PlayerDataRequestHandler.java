@@ -37,12 +37,12 @@ import org.w3c.dom.NodeList;
 import spark.Request;
 import spark.Response;
 
-import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Base64;
+import java.util.Random;
 
 /**
  * Handler for any requests that come to the <code>playerdata</code> module.
@@ -55,6 +55,7 @@ public class PlayerDataRequestHandler extends BaseRequestHandler {
 
     // These are all constants for indexing into CSVs for profile data
     private static final int GAME_COMMON_AREA_OFFSET = 1;
+    private static final int GAME_COMMON_SEQ_HEX_OFFSET = 2;
     private static final int GAME_COMMON_WEIGHT_DISPLAY_OFFSET = 3;
     private static final int GAME_COMMON_CHARACTER_OFFSET = 4;
     private static final int GAME_COMMON_EXTRA_CHARGE_OFFSET = 5;
@@ -216,8 +217,8 @@ public class PlayerDataRequestHandler extends BaseRequestHandler {
         final KXmlBuilder respBuilder = KXmlBuilder.create("response")
                 .e("playerdata")
                     .s32("result", 0).up()
-                .e("data")
-                    .s32("recordtype", 0);
+                    .e("data")
+                        .s32("recordtype", 0);
 
         return this.sendResponse(request, response, respBuilder);
     }
@@ -278,11 +279,11 @@ public class PlayerDataRequestHandler extends BaseRequestHandler {
         }
 
         // create a new profile
-        final int dancerCode = 44244860; //new Random().nextInt(99999999);
+        final int dancerCode = new Random().nextInt(99999999);
         String dancerCodeStr = String.format("%08d", dancerCode);
         dancerCodeStr = dancerCodeStr.substring(0, 4) + "-" + dancerCodeStr.substring(4, 8);
 
-        profile = new UserProfile(card.getUser(), null, dancerCode, 1, true, 0, 0, 0, -1, 0.0, DancerOption.RANDOM,
+        profile = new UserProfile(card.getUser(), null, dancerCode, 33, true, 0, 0, 0, -1, 0.0, DancerOption.RANDOM,
                 SpeedOption.X_1_00, BoostOption.NORMAL, AppearanceOption.VISIBLE, TurnOption.OFF, StepZoneOption.ON,
                 ScrollOption.NORMAL, ArrowColorOption.RAINBOW, CutOption.OFF, FreezeArrowOption.ON, JumpsOption.ON,
                 ArrowSkinOption.NORMAL, ScreenFilterOption.OFF, GuideLinesOption.ARROW_CENTER, LifeGaugeOption.NORMAL,
@@ -438,7 +439,7 @@ public class PlayerDataRequestHandler extends BaseRequestHandler {
         String dancerCodeStr = String.format("%08d", profile.getDancerCode());
         dancerCodeStr = dancerCodeStr.substring(0, 4) + "-" + dancerCodeStr.substring(4, 8);
 
-        elems[2] = StringUtils.getRandomHexString(7).toLowerCase();
+        elems[GAME_COMMON_SEQ_HEX_OFFSET] = Integer.toHexString(profile.getDancerCode()).toLowerCase();
         elems[GAME_COMMON_AREA_OFFSET] = String.valueOf(profile.getArea());
         elems[GAME_COMMON_WEIGHT_DISPLAY_OFFSET] = profile.isDisplayWeight() ? "1" : "0";
         elems[GAME_COMMON_CHARACTER_OFFSET] = String.valueOf(profile.getCharacter().ordinal());
@@ -494,11 +495,10 @@ public class PlayerDataRequestHandler extends BaseRequestHandler {
      * @return The CSV string.
      */
     private String buildLastCsv(final UserProfile profile) {
-        final String[] elems = "1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,,,,".split(",", -1);
+        final String[] elems = "1,6c76656c,3431766c,9440,3,1,3,4,1,7753ba,b65b5,8000000000000001,8000000000000001,0,0,5c2d1455,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,,,,".split(",", -1);
 
         // modify the contents to send back
         elems[GAME_LAST_CALORIES_OFFSET] = Integer.toHexString(profile.getLastCalories());
-        elems[15] = StringUtils.getRandomHexString(8).toLowerCase();
 
         return String.join(",", elems);
     }
