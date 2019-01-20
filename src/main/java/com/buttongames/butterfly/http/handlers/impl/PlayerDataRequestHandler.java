@@ -334,13 +334,17 @@ public class PlayerDataRequestHandler extends BaseRequestHandler {
             colsToSend[i] = tmp[i * 2];
         }
 
-        // this response needs to be constructed jankily and manually, because XML libraries don't like the idea
-        // of embedding a sub-element inside the text content of a node
-        String csvStrings = "";
+        // construct the response
+        KXmlBuilder builder = KXmlBuilder.create("response")
+                .e("playerdata")
+                    .s32("result", 0).up()
+                    .e("player")
+                        .u32("record_num", recvNum).up()
+                        .e("record");
+
+        String val;
 
         for (String col : colsToSend) {
-            String val = null;
-
             if (col.equals("COMMON")) {
                 val = this.buildCommonCsv(profile);
             } else if (col.equals("OPTION")) {
@@ -349,22 +353,15 @@ public class PlayerDataRequestHandler extends BaseRequestHandler {
                 val = this.buildLastCsv(profile);
             } else if (col.equals("RIVAL")) {
                 val = this.buildRivalCsv(profile);
-            }
-
-            if (val == null) {
+            } else {
                 throw new InvalidRequestException();
             }
 
-            val = "<d __type=\"str\">" + Base64.getEncoder().encodeToString(val.getBytes()) + "<bin1 __type=\"str\"></bin1></d>";
-            csvStrings += val;
+            builder = builder.str("d", Base64.getEncoder().encodeToString(val.getBytes())).up();
         }
 
-        final String responseStr = String.format("<?xml version='1.0' encoding='UTF-8'?><response><playerdata>" +
-                "<result __type=\"s32\">0</result><player><record_num __type=\"u32\">%d</record_num><record>%s</record>" +
-                "</player></playerdata></response>", recvNum, csvStrings);
-
         // send the response
-        return this.sendBytesToClient(responseStr.getBytes(), request, response);
+        return this.sendResponse(request, response, builder);
     }
 
     /**
