@@ -114,7 +114,7 @@ public class UserSongRecord implements Externalizable {
     @Column(name = "note_type")
     private int noteType;
 
-    /** The rank for the record (?) */
+    /** The grade for the record */
     @Column(name = "rank")
     private int rank;
 

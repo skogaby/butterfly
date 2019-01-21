@@ -10,6 +10,7 @@ import com.buttongames.butterfly.http.exception.UnsupportedRequestException;
 import com.buttongames.butterfly.http.handlers.BaseRequestHandler;
 import com.buttongames.butterfly.model.Card;
 import com.buttongames.butterfly.model.ddr16.GhostData;
+import com.buttongames.butterfly.model.ddr16.Song;
 import com.buttongames.butterfly.model.ddr16.UserProfile;
 import com.buttongames.butterfly.model.ddr16.UserSongRecord;
 import com.buttongames.butterfly.model.ddr16.options.AppearanceOption;
@@ -46,8 +47,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
+import java.util.List;
 import java.util.Random;
 
 /**
@@ -128,16 +131,14 @@ public class PlayerDataRequestHandler extends BaseRequestHandler {
      */
     private static NodeList EVENTS_2018042300;
 
+    /**
+     * Static list of songs for the server.
+     */
+    private static List<Song> SONGS_2018042300;
+
     static {
-        try {
-            final Path path = Paths.get(ClassLoader.getSystemResource("static_responses/mdx_2018042300/events.xml").toURI());
-            byte[] respBody = Files.readAllBytes(path);
-            final Element doc = XmlUtils.byteArrayToXmlFile(respBody);
-            EVENTS_2018042300 = XmlUtils.nodesAtPath(doc, "/events/eventdata");
-        } catch (Exception e) {
-            e.printStackTrace();
-            System.exit(1);
-        }
+        loadEvents();
+        loadMusicDb();
     }
 
     public PlayerDataRequestHandler(final ButterflyUserDao userDao, final CardDao cardDao, final ProfileDao profileDao,
@@ -147,6 +148,47 @@ public class PlayerDataRequestHandler extends BaseRequestHandler {
         this.profileDao = profileDao;
         this.ghostDataDao = ghostDataDao;
         this.songRecordDao = songRecordDao;
+    }
+
+    /**
+     * Load the events data into memory.
+     */
+    private static void loadEvents() {
+        try {
+            final Path path = Paths.get(ClassLoader.getSystemResource("static_responses/mdx_2018042300/events.xml").toURI());
+            final byte[] respBody = Files.readAllBytes(path);
+            final Element doc = XmlUtils.byteArrayToXmlFile(respBody);
+            EVENTS_2018042300 = XmlUtils.nodesAtPath(doc, "/events/eventdata");
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.exit(1);
+        }
+    }
+
+    /**
+     * Load the music database into memory.
+     */
+    private static void loadMusicDb() {
+        try {
+            final Path path = Paths.get(ClassLoader.getSystemResource("static_responses/mdx_2018042300/musicdb.xml").toURI());
+            final byte[] body = Files.readAllBytes(path);
+            final Element doc = XmlUtils.byteArrayToXmlFile(body);
+            final NodeList nodes = XmlUtils.nodesAtPath(doc, "/mdb/music");
+
+            SONGS_2018042300 = new ArrayList<>();
+
+            for (int i = 0; i < nodes.getLength(); i++) {
+                Element node = (Element) nodes.item(i);
+
+                SONGS_2018042300.add(new Song(XmlUtils.intAtChild(node, "mcode"),
+                        XmlUtils.strAtChild(node, "basename"),
+                        XmlUtils.strAtChild(node, "title"),
+                        XmlUtils.strAtChild(node, "artist")));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.exit(1);
+        }
     }
 
     /**
@@ -244,12 +286,33 @@ public class PlayerDataRequestHandler extends BaseRequestHandler {
      * @return A response object for Spark
      */
     private Object handleGlobalScoresRequest(final Request request, final Response response) {
-        // TODO: Implement this properly and load/save scores...
-        final KXmlBuilder respBuilder = KXmlBuilder.create("response")
+        KXmlBuilder respBuilder = KXmlBuilder.create("response")
                 .e("playerdata")
                     .s32("result", 0).up()
                     .e("data")
-                        .s32("recordtype", 0);
+                        .s32("recordtype", 0).up();
+
+        UserSongRecord record;
+
+        // we need to return the top score for every song/difficulty
+        for (Song song : SONGS_2018042300) {
+            for (int i = 0; i < 8; i++) {
+                record = this.songRecordDao.findTopScoreForSongDifficulty(song.getMcode(), i);
+
+                if (record != null) {
+                    respBuilder = respBuilder.e("record")
+                            .u32("mcode", song.getMcode()).up()
+                            .u8("notetype", i).up()
+                            .u8("rank", record.getRank()).up()
+                            .u8("clearkind", record.getClearKind()).up()
+                            .u8("flagdata", 0).up()
+                            .str("name", record.getUser().getName()).up()
+                            .s32("code", record.getUser().getDancerCode()).up()
+                            .s32("score", record.getScore()).up()
+                            .s32("ghostid", ((Long) record.getGhostData().getId()).intValue()).up(2);
+                }
+            }
+        }
 
         return this.sendResponse(request, response, respBuilder);
     }

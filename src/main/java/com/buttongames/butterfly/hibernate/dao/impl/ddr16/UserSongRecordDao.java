@@ -28,9 +28,9 @@ public class UserSongRecordDao extends AbstractHibernateDao<UserSongRecord> {
 
     /**
      * Finds a song record by its endtime and the user.
-     * @param endtime
-     * @param user
-     * @return
+     * @param endtime The endtime of the record
+     * @param user The user of the record
+     * @return A matching record, or null
      */
     public UserSongRecord findByEndtimeAndUser(final LocalDateTime endtime, final UserProfile user) {
         this.openCurrentSession();
@@ -38,6 +38,26 @@ public class UserSongRecordDao extends AbstractHibernateDao<UserSongRecord> {
         final Query<UserSongRecord> query = this.currentSession.createQuery("from UserSongRecord where user = :user and endtime = :endtime");
         query.setParameter("user", user);
         query.setParameter("endtime", endtime);
+        final UserSongRecord result = query.uniqueResult();
+
+        this.closeCurrentSession();
+        return result;
+    }
+
+    /**
+     * Finds the top score for a given song and difficulty
+     * @param mcode The mcode of the song to search for
+     * @param difficulty The difficulty to search for
+     * @return A matching record, or null
+     */
+    public UserSongRecord findTopScoreForSongDifficulty(int mcode, int difficulty) {
+        this.openCurrentSession();
+
+        final Query<UserSongRecord> query = this.currentSession.createQuery(
+                "from UserSongRecord r where r.songId = :songId and r.noteType = :noteType order by r.score desc")
+                .setMaxResults(1);
+        query.setParameter("songId", mcode);
+        query.setParameter("noteType", difficulty);
         final UserSongRecord result = query.uniqueResult();
 
         this.closeCurrentSession();
