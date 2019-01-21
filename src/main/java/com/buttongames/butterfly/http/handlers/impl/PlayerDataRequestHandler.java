@@ -52,6 +52,7 @@ import java.util.Arrays;
 import java.util.Base64;
 import java.util.List;
 import java.util.Random;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Handler for any requests that come to the <code>playerdata</code> module.
@@ -136,6 +137,11 @@ public class PlayerDataRequestHandler extends BaseRequestHandler {
      */
     private static List<Song> SONGS_2018042300;
 
+    /**
+     * In-memory cache of the global high scores.
+     */
+    private static ConcurrentHashMap<Integer, ConcurrentHashMap<Integer, UserSongRecord>> GLOBAL_HIGH_SCORES_CACHE;
+
     static {
         loadEvents();
         loadMusicDb();
@@ -148,6 +154,9 @@ public class PlayerDataRequestHandler extends BaseRequestHandler {
         this.profileDao = profileDao;
         this.ghostDataDao = ghostDataDao;
         this.songRecordDao = songRecordDao;
+
+        // cache the global high scores
+        this.loadGlobalHighScores();
     }
 
     /**
@@ -188,6 +197,30 @@ public class PlayerDataRequestHandler extends BaseRequestHandler {
         } catch (Exception e) {
             e.printStackTrace();
             System.exit(1);
+        }
+    }
+
+    /**
+     * Loads the global high scores into memory so we can use this cache for the
+     * high scores requests and not hit the DB every time.
+     */
+    private void loadGlobalHighScores() {
+        GLOBAL_HIGH_SCORES_CACHE = new ConcurrentHashMap<>();
+
+        UserSongRecord record;
+
+        // we need to return the top score for every song/difficulty
+        for (Song song : SONGS_2018042300) {
+            // create the internal maps now
+            GLOBAL_HIGH_SCORES_CACHE.put(song.getMcode(), new ConcurrentHashMap<>());
+
+            for (int i = 0; i < 8; i++) {
+                record = this.songRecordDao.findTopScoreForSongDifficulty(song.getMcode(), i);
+
+                if (record != null) {
+                    GLOBAL_HIGH_SCORES_CACHE.get(song.getMcode()).put(i, record);
+                }
+            }
         }
     }
 
@@ -297,9 +330,9 @@ public class PlayerDataRequestHandler extends BaseRequestHandler {
         // we need to return the top score for every song/difficulty
         for (Song song : SONGS_2018042300) {
             for (int i = 0; i < 8; i++) {
-                record = this.songRecordDao.findTopScoreForSongDifficulty(song.getMcode(), i);
+                if (GLOBAL_HIGH_SCORES_CACHE.get(song.getMcode()).containsKey(i)) {
+                    record = GLOBAL_HIGH_SCORES_CACHE.get(song.getMcode()).get(i);
 
-                if (record != null) {
                     respBuilder = respBuilder.e("record")
                             .u32("mcode", song.getMcode()).up()
                             .u8("notetype", i).up()
@@ -897,6 +930,14 @@ public class PlayerDataRequestHandler extends BaseRequestHandler {
                     showFastSlow, songBaseName, songTitle, songArtist, bpmMin, bpmMax, level, series, bemaniFlag, genreFlag,
                     limited, region, grVoltage, grStream, grChaos, grFreeze, grAir, share, endtime, folder);
             this.songRecordDao.create(newRecord);
+
+            // make sure we don't also need to update the global high score cache
+            ConcurrentHashMap<Integer, UserSongRecord> songRecords = GLOBAL_HIGH_SCORES_CACHE.get(songId);
+
+            if (!songRecords.containsKey(noteType) ||
+                    songRecords.get(noteType).getScore() < score) {
+                GLOBAL_HIGH_SCORES_CACHE.get(songId).put(noteType, newRecord);
+            }
         }
 
         final KXmlBuilder builder = KXmlBuilder.create("response")
