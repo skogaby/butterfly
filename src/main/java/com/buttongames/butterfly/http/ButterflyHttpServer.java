@@ -74,7 +74,6 @@ public class ButterflyHttpServer {
     private static final ImmutableSet<String> SUPPORTED_MODULES;
 
     // Do a static setup of our supported models, modules, etc.
-    // TODO: Make this not hardcoded
     static {
         SUPPORTED_MODELS = ImmutableSet.of("mdx_2018042300");
         SUPPORTED_MODULES = ImmutableSet.of("services", "pcbtracker", "message", "facility", "pcbevent",
@@ -185,7 +184,6 @@ public class ButterflyHttpServer {
 
     /**
      * Configures the routes on the server, and the exception handlers.
-     * TODO: Remove all the hardcoded stuff.
      */
     private void configureRoutesAndExceptions() {
         // configure our root route; its handler will parse the request and go from there

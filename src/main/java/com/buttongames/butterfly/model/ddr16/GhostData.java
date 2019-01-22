@@ -37,11 +37,21 @@ public class GhostData implements Externalizable {
     @Column(name = "ghost_data", columnDefinition = "TEXT")
     private String ghostData;
 
+    /** The mcode of the song for this data */
+    @Column(name = "mcode")
+    private int mcode;
+
+    /** The difficulty the ghost data was for */
+    @Column(name = "note_type")
+    private int noteType;
+
     public GhostData() { }
 
-    public GhostData(UserProfile user, String ghostData) {
+    public GhostData(UserProfile user, String ghostData, int mcode, int noteType) {
         this.user = user;
         this.ghostData = ghostData;
+        this.mcode = mcode;
+        this.noteType = noteType;
     }
 
     @Override
@@ -49,6 +59,8 @@ public class GhostData implements Externalizable {
         out.writeLong(this.id);
         out.writeObject(this.user);
         out.writeUTF(this.ghostData);
+        out.writeInt(this.mcode);
+        out.writeInt(this.noteType);
     }
 
     @Override
@@ -56,6 +68,8 @@ public class GhostData implements Externalizable {
         this.setId(in.readLong());
         this.setUser((UserProfile) in.readObject());
         this.setGhostData(in.readUTF());
+        this.setMcode(in.readInt());
+        this.setNoteType(in.readInt());
     }
 
     public long getId() {
@@ -80,5 +94,21 @@ public class GhostData implements Externalizable {
 
     public void setGhostData(String ghostData) {
         this.ghostData = ghostData;
+    }
+
+    public int getMcode() {
+        return mcode;
+    }
+
+    public void setMcode(int mcode) {
+        this.mcode = mcode;
+    }
+
+    public int getNoteType() {
+        return noteType;
+    }
+
+    public void setNoteType(int noteType) {
+        this.noteType = noteType;
     }
 }

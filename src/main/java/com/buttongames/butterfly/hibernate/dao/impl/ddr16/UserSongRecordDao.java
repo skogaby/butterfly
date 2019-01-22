@@ -11,6 +11,7 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 /**
  * DAO for interacting with <code>UserSongRecord</code> objects in the database.
@@ -59,6 +60,22 @@ public class UserSongRecordDao extends AbstractHibernateDao<UserSongRecord> {
         query.setParameter("songId", mcode);
         query.setParameter("noteType", difficulty);
         final UserSongRecord result = query.uniqueResult();
+
+        this.closeCurrentSession();
+        return result;
+    }
+
+    /**
+     * Finds all song records for a user.
+     * @param user The user of the records
+     * @return A list of matching records
+     */
+    public List<UserSongRecord> findByUser(final UserProfile user) {
+        this.openCurrentSession();
+
+        final Query<UserSongRecord> query = this.currentSession.createQuery("from UserSongRecord where user = :user");
+        query.setParameter("user", user);
+        final List<UserSongRecord> result = query.getResultList();
 
         this.closeCurrentSession();
         return result;

@@ -50,7 +50,9 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -329,7 +331,7 @@ public class PlayerDataRequestHandler extends BaseRequestHandler {
 
         // we need to return the top score for every song/difficulty
         for (Song song : SONGS_2018042300) {
-            for (int i = 0; i < 8; i++) {
+            for (int i = 0; i < 9; i++) {
                 if (GLOBAL_HIGH_SCORES_CACHE.get(song.getMcode()).containsKey(i)) {
                     record = GLOBAL_HIGH_SCORES_CACHE.get(song.getMcode()).get(i);
 
@@ -362,13 +364,89 @@ public class PlayerDataRequestHandler extends BaseRequestHandler {
             throw new UnsupportedRequestException();
         }
 
-        // TODO: Implement this properly and load/save scores... also, events probably isn't a static response
         KXmlBuilder respBuilder = KXmlBuilder.create("response")
                 .e("playerdata")
                     .s32("result", 0).up()
                     .bool("is_new", false).up();
 
-        // insert the events
+        // load user scores if this was for a particular user
+        if (!refId.equals("X0000000000000000000000000000000")) {
+            // get the user's scores and sort them out so we can get the top scores
+            // for each song/difficulty
+            final List<UserSongRecord> userRecords =
+                    this.songRecordDao.findByUser(
+                            this.profileDao.findByUser(
+                                    this.cardDao.findByRefId(refId).getUser()));
+
+            // sort them by song and difficulty, then insert them into the response
+            // key for top map is the song ID
+            // key for the 2nd map is the difficulty
+            // the array: a[0] = count, a[1] = top UserSongRecord
+            final HashMap<Integer, HashMap<Integer, Object[]>> userTopScores = new HashMap<>();
+
+            for (UserSongRecord record : userRecords) {
+                if (!userTopScores.containsKey(record.getSongId())) {
+                    userTopScores.put(record.getSongId(), new HashMap<>());
+                    userTopScores.get(record.getSongId()).put(record.getNoteType(), new Object[] { 1, record });
+                } else {
+                    if (!userTopScores.get(record.getSongId()).containsKey(record.getNoteType())) {
+                        userTopScores.get(record.getSongId()).put(record.getNoteType(), new Object[] { 1, record });
+                    } else {
+                        Object[] currRecord = userTopScores.get(record.getSongId()).get(record.getNoteType());
+                        currRecord[0] = ((Integer) currRecord[0]) + 1;
+
+                        if (((UserSongRecord) currRecord[1]).getScore() < record.getScore()) {
+                            currRecord[1] = record;
+                        }
+
+                        userTopScores.get(record.getSongId()).put(record.getNoteType(), currRecord);
+                    }
+                }
+            }
+
+            int count = 0;
+            int rank = 0;
+            int clearkind = 0;
+            int score = 0;
+            int ghostid = 0;
+
+            // insert them into the response
+            for (Map.Entry<Integer, HashMap<Integer, Object[]>> entry : userTopScores.entrySet()) {
+                respBuilder = respBuilder.e("music")
+                        .u32("mcode", entry.getKey()).up();
+
+                // iterate through each difficulty
+                for (int i = 0; i < 9; i++) {
+                    if (entry.getValue().containsKey(i)) {
+                        Object[] record = entry.getValue().get(i);
+                        UserSongRecord topRecord = (UserSongRecord) record[1];
+
+                        count = (Integer) record[0];
+                        rank = topRecord.getRank();
+                        clearkind = topRecord.getClearKind();
+                        score = topRecord.getScore();
+                        ghostid = ((Long) topRecord.getGhostData().getId()).intValue();
+                    } else {
+                        count = 0;
+                        rank = 0;
+                        clearkind = 0;
+                        score = 0;
+                        ghostid = 0;
+                    }
+
+                    respBuilder = respBuilder.e("note")
+                            .u16("count", count).up()
+                            .u8("rank", rank).up()
+                            .u8("clearkind", clearkind).up()
+                            .s32("score", score).up()
+                            .s32("ghostid", ghostid).up().up();
+                }
+
+                respBuilder = respBuilder.up();
+            }
+        }
+
+        // TODO: Events probably isn't a static response
         final Document document = respBuilder.getDocument();
         final Element elem = respBuilder.getElement();
 
@@ -797,10 +875,20 @@ public class PlayerDataRequestHandler extends BaseRequestHandler {
      * @return A response object for Spark
      */
     private Object handleGhostLoadRequest(final int ghostId, final Request request, final Response response) {
-        // TODO: Store and load ghost data correctly
-        final KXmlBuilder builder = KXmlBuilder.create("response")
+        KXmlBuilder builder = KXmlBuilder.create("response")
                 .e("playerdata")
                     .s32("result", 0).up();
+
+        final GhostData ghostData = this.ghostDataDao.findById((long) ghostId);
+
+        if (ghostData != null) {
+            builder = builder.e("ghostdata")
+                        .s32("code", 0).up()
+                        .u32("mcode", ghostData.getMcode()).up()
+                        .u8("notetype", ghostData.getNoteType()).up()
+                        .s32("ghostsize", ghostData.getGhostData().length()).up()
+                        .str("ghost", ghostData.getGhostData());
+        }
 
         return this.sendResponse(request, response, builder);
     }
@@ -918,7 +1006,7 @@ public class PlayerDataRequestHandler extends BaseRequestHandler {
             int folder = XmlUtils.intAtChild(recordNode, "folder");
 
             // construct and save
-            GhostData newGhostData = new GhostData(user, ghostStr);
+            GhostData newGhostData = new GhostData(user, ghostStr, songId, noteType);
             this.ghostDataDao.create(newGhostData);
 
             UserSongRecord newRecord = new UserSongRecord(user, playSide, playStyle, area, weight100, shopName, isPremium,
