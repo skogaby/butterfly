@@ -193,6 +193,10 @@ public class UserProfile implements Externalizable {
     @JoinColumn(name = "rival_3_id")
     private UserProfile rival3;
 
+    /** The rest of the CSV values for the LAST column in the profile response that we don't know, but they're probably important to save */
+    @Column(name = "unk_last", columnDefinition = "TEXT")
+    private String unkLast;
+
     public UserProfile() { }
 
     public UserProfile(ButterflyUser user, String name, int dancerCode, int area, boolean displayWeight, int extraCharge,
@@ -202,7 +206,8 @@ public class UserProfile implements Externalizable {
                        ArrowColorOption arrowColorOption, CutOption cutOption, FreezeArrowOption freezeArrowOption,
                        JumpsOption jumpsOption, ArrowSkinOption arrowSkinOption, ScreenFilterOption screenFilterOption,
                        GuideLinesOption guideLinesOption, LifeGaugeOption lifeGaugeOption, JudgementLayerOption judgementLayerOption,
-                       boolean showFastSlow, int lastCalories, UserProfile rival1, UserProfile rival2, UserProfile rival3) {
+                       boolean showFastSlow, int lastCalories, UserProfile rival1, UserProfile rival2, UserProfile rival3,
+                       String unkLast) {
         this.user = user;
         this.name = name;
         this.dancerCode = dancerCode;
@@ -234,6 +239,7 @@ public class UserProfile implements Externalizable {
         this.rival1 = rival1;
         this.rival2 = rival2;
         this.rival3 = rival3;
+        this.unkLast = unkLast;
     }
 
     @Override
@@ -270,6 +276,7 @@ public class UserProfile implements Externalizable {
         out.writeObject(this.rival1);
         out.writeObject(this.rival2);
         out.writeObject(this.rival3);
+        out.writeUTF(this.unkLast);
     }
 
     @Override
@@ -306,6 +313,7 @@ public class UserProfile implements Externalizable {
         this.setRival1((UserProfile) in.readObject());
         this.setRival2((UserProfile) in.readObject());
         this.setRival3((UserProfile) in.readObject());
+        this.setUnkLast(in.readUTF());
     }
 
     public long getId() {
@@ -562,5 +570,13 @@ public class UserProfile implements Externalizable {
 
     public void setRival3(UserProfile rival3) {
         this.rival3 = rival3;
+    }
+
+    public String getUnkLast() {
+        return unkLast;
+    }
+
+    public void setUnkLast(String unkLast) {
+        this.unkLast = unkLast;
     }
 }

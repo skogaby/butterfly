@@ -80,4 +80,22 @@ public class UserSongRecordDao extends AbstractHibernateDao<UserSongRecord> {
         this.closeCurrentSession();
         return result;
     }
+
+    /**
+     * Finds the latest score for a given user, so we can make sure they start on the last song they played
+     * @param user The user of the records
+     * @return The latest record
+     */
+    public UserSongRecord findLatestScoreForUser(final UserProfile user) {
+        this.openCurrentSession();
+
+        final Query<UserSongRecord> query = this.currentSession.createQuery(
+                "from UserSongRecord r where r.user = :user order by r.endtime desc")
+                .setMaxResults(1);
+        query.setParameter("user", user);
+        final UserSongRecord result = query.uniqueResult();
+
+        this.closeCurrentSession();
+        return result;
+    }
 }

@@ -95,6 +95,7 @@ public class PlayerDataRequestHandler extends BaseRequestHandler {
     private static final int GAME_OPTION_COMBO_POSITION_OFFSET = 15;
     private static final int GAME_OPTION_FAST_SLOW_OFFSET = 16;
 
+    private static final int GAME_LAST_SONG_OFFSET = 3;
     private static final int GAME_LAST_CALORIES_OFFSET = 10;
 
     private static final int GAME_RIVAL_SLOT_1_ACTIVE_OFFSET = 1;
@@ -485,12 +486,15 @@ public class PlayerDataRequestHandler extends BaseRequestHandler {
         final int dancerCode = new Random().nextInt(99999999);
         String dancerCodeStr = String.format("%08d", dancerCode);
         dancerCodeStr = dancerCodeStr.substring(0, 4) + "-" + dancerCodeStr.substring(4, 8);
+        // TODO: Figure out what all these are. Right now we're just saving it as-is and sending it back as-is for the
+        // next session and that seems to be working...
+        final String defaultLastCsv = "1,6c76656c,3431766c,1ad,3,1,3,4,1,7753ba,b65b5,8000000000000001,8000000000000001,0,0,5c2d1455,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,,,,";
 
         profile = new UserProfile(card.getUser(), null, dancerCode, 33, true, 0, 0, 0, -1, 0.0, DancerOption.RANDOM,
                 SpeedOption.X_1_00, BoostOption.NORMAL, AppearanceOption.VISIBLE, TurnOption.OFF, StepZoneOption.ON,
                 ScrollOption.NORMAL, ArrowColorOption.RAINBOW, CutOption.OFF, FreezeArrowOption.ON, JumpsOption.ON,
                 ArrowSkinOption.NORMAL, ScreenFilterOption.OFF, GuideLinesOption.ARROW_CENTER, LifeGaugeOption.NORMAL,
-                JudgementLayerOption.BACKGROUND, true, 0, null, null, null);
+                JudgementLayerOption.BACKGROUND, true, 0, null, null, null, defaultLastCsv);
         this.profileDao.create(profile);
 
         // send the response
@@ -695,10 +699,14 @@ public class PlayerDataRequestHandler extends BaseRequestHandler {
      * @return The CSV string.
      */
     private String buildLastCsv(final UserProfile profile) {
-        final String[] elems = "1,6c76656c,3431766c,9440,3,1,3,4,1,7753ba,b65b5,8000000000000001,8000000000000001,0,0,5c2d1455,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,,,,".split(",", -1);
+        final String[] elems = profile.getUnkLast().split(",", -1);
 
-        // modify the contents to send back
-        elems[GAME_LAST_CALORIES_OFFSET] = Integer.toHexString(profile.getLastCalories());
+        // modify the last song to be whatever they last played
+        final UserSongRecord lastScore = this.songRecordDao.findLatestScoreForUser(profile);
+
+        if (lastScore != null) {
+            elems[GAME_LAST_SONG_OFFSET] = Integer.toHexString(lastScore.getSongId());
+        }
 
         return String.join(",", elems);
     }
@@ -819,6 +827,7 @@ public class PlayerDataRequestHandler extends BaseRequestHandler {
             final int lastCalories = Integer.parseInt(last[GAME_LAST_CALORIES_OFFSET], 16);
 
             profile.setLastCalories(lastCalories);
+            profile.setUnkLast(String.join(",", last));
         }
 
         // parse out RIVAL values
