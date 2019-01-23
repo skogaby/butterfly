@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * DAO for interacting with <code>Shop</code> objects in the database.
@@ -15,6 +16,7 @@ import org.springframework.stereotype.Repository;
  */
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 @Repository
+@Transactional
 public class ShopDao extends AbstractHibernateDao<Shop> {
 
     @Autowired
@@ -29,13 +31,9 @@ public class ShopDao extends AbstractHibernateDao<Shop> {
      * @return The matching Shop, or null if none are found.
      */
     public Shop findByPcbId(final String pcbId) {
-        this.openCurrentSession();
-
-        final Query<Shop> query = this.currentSession.createQuery("from Shop where pcb_id = :pcbid");
+        final Query<Shop> query = this.getCurrentSession().createQuery("from Shop where pcb_id = :pcbid");
         query.setParameter("pcbid", pcbId);
-        final Shop result = query.uniqueResult();
 
-        this.closeCurrentSession();
-        return result;
+        return query.uniqueResult();
     }
 }

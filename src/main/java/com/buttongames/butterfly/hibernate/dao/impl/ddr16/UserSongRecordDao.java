@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -19,6 +20,7 @@ import java.util.List;
  */
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 @Repository
+@Transactional
 public class UserSongRecordDao extends AbstractHibernateDao<UserSongRecord> {
 
     @Autowired
@@ -34,15 +36,11 @@ public class UserSongRecordDao extends AbstractHibernateDao<UserSongRecord> {
      * @return A matching record, or null
      */
     public UserSongRecord findByEndtimeAndUser(final LocalDateTime endtime, final UserProfile user) {
-        this.openCurrentSession();
-
-        final Query<UserSongRecord> query = this.currentSession.createQuery("from UserSongRecord where user = :user and endtime = :endtime");
+        final Query<UserSongRecord> query = this.getCurrentSession().createQuery("from UserSongRecord where user = :user and endtime = :endtime");
         query.setParameter("user", user);
         query.setParameter("endtime", endtime);
-        final UserSongRecord result = query.uniqueResult();
 
-        this.closeCurrentSession();
-        return result;
+        return query.uniqueResult();
     }
 
     /**
@@ -52,17 +50,13 @@ public class UserSongRecordDao extends AbstractHibernateDao<UserSongRecord> {
      * @return A matching record, or null
      */
     public UserSongRecord findTopScoreForSongDifficulty(int mcode, int difficulty) {
-        this.openCurrentSession();
-
-        final Query<UserSongRecord> query = this.currentSession.createQuery(
+        final Query<UserSongRecord> query = this.getCurrentSession().createQuery(
                 "from UserSongRecord r where r.songId = :songId and r.noteType = :noteType order by r.score desc")
                 .setMaxResults(1);
         query.setParameter("songId", mcode);
         query.setParameter("noteType", difficulty);
-        final UserSongRecord result = query.uniqueResult();
 
-        this.closeCurrentSession();
-        return result;
+        return query.uniqueResult();
     }
 
     /**
@@ -71,14 +65,10 @@ public class UserSongRecordDao extends AbstractHibernateDao<UserSongRecord> {
      * @return A list of matching records
      */
     public List<UserSongRecord> findByUser(final UserProfile user) {
-        this.openCurrentSession();
-
-        final Query<UserSongRecord> query = this.currentSession.createQuery("from UserSongRecord where user = :user");
+        final Query<UserSongRecord> query = this.getCurrentSession().createQuery("from UserSongRecord where user = :user");
         query.setParameter("user", user);
-        final List<UserSongRecord> result = query.getResultList();
 
-        this.closeCurrentSession();
-        return result;
+        return query.getResultList();
     }
 
     /**
@@ -87,15 +77,11 @@ public class UserSongRecordDao extends AbstractHibernateDao<UserSongRecord> {
      * @return The latest record
      */
     public UserSongRecord findLatestScoreForUser(final UserProfile user) {
-        this.openCurrentSession();
-
-        final Query<UserSongRecord> query = this.currentSession.createQuery(
+        final Query<UserSongRecord> query = this.getCurrentSession().createQuery(
                 "from UserSongRecord r where r.user = :user order by r.endtime desc")
                 .setMaxResults(1);
         query.setParameter("user", user);
-        final UserSongRecord result = query.uniqueResult();
 
-        this.closeCurrentSession();
-        return result;
+        return query.uniqueResult();
     }
 }

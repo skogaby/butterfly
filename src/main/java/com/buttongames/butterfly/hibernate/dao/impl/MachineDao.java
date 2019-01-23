@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * DAO for interacting with <code>Machine</code> objects in the database.
@@ -15,6 +16,7 @@ import org.springframework.stereotype.Repository;
  */
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 @Repository
+@Transactional
 public class MachineDao extends AbstractHibernateDao<Machine> {
 
     @Autowired
@@ -29,13 +31,9 @@ public class MachineDao extends AbstractHibernateDao<Machine> {
      * @return The matching Machine, or null if none are found.
      */
     public Machine findByPcbId(final String pcbId) {
-        this.openCurrentSession();
-
-        final Query<Machine> query = this.currentSession.createQuery("from Machine where pcbid = :pcbid");
+        final Query<Machine> query = this.getCurrentSession().createQuery("from Machine where pcbid = :pcbid");
         query.setParameter("pcbid", pcbId);
-        final Machine result = query.uniqueResult();
 
-        this.closeCurrentSession();
-        return result;
+        return query.uniqueResult();
     }
 }

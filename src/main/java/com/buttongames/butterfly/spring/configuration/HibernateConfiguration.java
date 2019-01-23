@@ -18,6 +18,7 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
+import org.springframework.orm.hibernate5.HibernateTransactionManager;
 import org.springframework.orm.hibernate5.LocalSessionFactoryBean;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
@@ -56,7 +57,7 @@ public class HibernateConfiguration {
     private String showSql;
 
     @Bean
-    public LocalSessionFactoryBean sessionFactory(DriverManagerDataSource dataSource) {
+    public LocalSessionFactoryBean sessionFactory(final DriverManagerDataSource dataSource) {
         final Properties hibernateProperties = new Properties();
         hibernateProperties.setProperty("hibernate.hbm2ddl.auto", this.hbm2ddl);
         hibernateProperties.setProperty("hibernate.dialect", this.dialect);
@@ -71,7 +72,7 @@ public class HibernateConfiguration {
     }
 
     @Bean
-    public DriverManagerDataSource dataSource(PathUtils pathUtils) {
+    public DriverManagerDataSource dataSource(final PathUtils pathUtils) {
         final DriverManagerDataSource source = new DriverManagerDataSource();
         source.setDriverClassName(this.driverClassName);
         source.setUsername(this.username);
@@ -83,6 +84,11 @@ public class HibernateConfiguration {
                 Paths.get(pathUtils.externalDirectory, SQLITE_DATABASE).toString().replace('\\', '/')));
 
         return source;
+    }
+
+    @Bean
+    public HibernateTransactionManager hibernateTransactionManager(final SessionFactory sessionFactory){
+        return new HibernateTransactionManager(sessionFactory);
     }
 
     @Bean

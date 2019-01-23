@@ -1,14 +1,13 @@
 package com.buttongames.butterfly.hibernate.dao;
 
-import com.buttongames.butterfly.hibernate.PersistenceOperation;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-import org.hibernate.Transaction;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.io.Serializable;
 import java.util.List;
@@ -19,90 +18,49 @@ import java.util.List;
  * @author skogaby (skogabyskogaby@gmail.com)
  */
 @Repository
+@Transactional
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 @Component
 public abstract class AbstractHibernateDao<T extends Serializable> {
 
     private Class<T> clazz;
-
     protected final SessionFactory sessionFactory;
-    protected Session currentSession;
-    protected Transaction currentTransaction;
 
     @Autowired
     public AbstractHibernateDao(final SessionFactory sessionFactory) {
         this.sessionFactory = sessionFactory;
     }
 
-    public final void setClazz(final Class<T> clazzToSet) {
-        this.clazz = clazzToSet;
-    }
-
-    public Session openCurrentSession() {
-        this.currentSession = this.sessionFactory.openSession();
-        return this.currentSession;
-    }
-
-    public Session openCurrentSessionWithTransaction() {
-        this.currentSession = this.sessionFactory.openSession();
-        this.currentTransaction = this.currentSession.beginTransaction();
-        return currentSession;
-    }
-
-    public void closeCurrentSession() {
-        this.currentSession.close();
-    }
-
-    public void closeCurrentSessionWithTransaction() {
-        this.currentTransaction.commit();
-        this.currentSession.close();
+    public void setClazz(final Class<T> clazzToSet) {
+        clazz = clazzToSet;
     }
 
     public T findById(final long id) {
-        this.openCurrentSession();
-        final T entity = this.currentSession.get(this.clazz, id);
-        this.closeCurrentSession();
-        return entity;
+        return getCurrentSession().get(clazz, id);
     }
 
-    public List<T> findAll() {
-        this.openCurrentSession();
-        final List<T> entities = this.currentSession.createQuery("from " + this.clazz.getName()).list();
-        this.closeCurrentSession();
-        return entities;
+    public List<T> findAll(){
+        return getCurrentSession().createQuery("from " + clazz.getName()).list();
     }
 
-    public void create(final T... entity) {
-        this.performMutation(x -> this.currentSession.saveOrUpdate(x), entity);
+    public void create(final T entity){
+        getCurrentSession().persist(entity);
     }
 
-    public T[] update(final T... entity) {
-        this.performMutation(x -> this.currentSession.saveOrUpdate(x), entity);
-        return entity;
+    public T update(final T entity){
+        return (T) getCurrentSession().merge(entity);
     }
 
-    public void delete(final T... entity) {
-        this.performMutation(x -> this.currentSession.delete(x), entity);
+    public void delete(final T entity) {
+        getCurrentSession().delete(entity);
     }
 
-    public void deleteById(final long entityId) {
-        final T entity = this.findById(entityId);
-        this.delete(entity);
+    public void deleteById(final long id) {
+        final T entity = findById(id);
+        delete(entity);
     }
 
-    public void performMutation(final PersistenceOperation operation, final T... entities) {
-        if (entities != null) {
-            try {
-                this.openCurrentSessionWithTransaction();
-
-                for (int i = 0; i < entities.length; i++) {
-                    operation.call(entities[i]);
-                }
-
-                this.closeCurrentSessionWithTransaction();
-            } catch (Exception e) {
-                this.currentTransaction.rollback();
-            }
-        }
+    protected final Session getCurrentSession() {
+        return sessionFactory.getCurrentSession();
     }
 }

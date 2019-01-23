@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * DAO for interacting with <code>UserProfile</code> objects in the database.
@@ -16,6 +17,7 @@ import org.springframework.stereotype.Repository;
  */
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 @Repository
+@Transactional
 public class ProfileDao extends AbstractHibernateDao<UserProfile> {
 
     @Autowired
@@ -30,14 +32,10 @@ public class ProfileDao extends AbstractHibernateDao<UserProfile> {
      * @return The profile for the given user
      */
     public UserProfile findByUser(final ButterflyUser user) {
-        this.openCurrentSession();
-
-        final Query<UserProfile> query = this.currentSession.createQuery("from UserProfile where user = :user");
+        final Query<UserProfile> query = this.getCurrentSession().createQuery("from UserProfile where user = :user");
         query.setParameter("user", user);
-        final UserProfile result = query.uniqueResult();
 
-        this.closeCurrentSession();
-        return result;
+        return query.uniqueResult();
     }
 
     /**
@@ -46,13 +44,9 @@ public class ProfileDao extends AbstractHibernateDao<UserProfile> {
      * @return The profile for the given dancer code
      */
     public UserProfile findByDancerCode(final int dancerCode) {
-        this.openCurrentSession();
-
-        final Query<UserProfile> query = this.currentSession.createQuery("from UserProfile where dancer_code = :dancerCode");
+        final Query<UserProfile> query = this.getCurrentSession().createQuery("from UserProfile where dancer_code = :dancerCode");
         query.setParameter("dancerCode", dancerCode);
-        final UserProfile result = query.uniqueResult();
 
-        this.closeCurrentSession();
-        return result;
+        return query.uniqueResult();
     }
 }

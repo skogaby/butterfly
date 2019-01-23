@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * DAO for interacting with <code>UserPhases</code> objects in the database.
@@ -16,6 +17,7 @@ import org.springframework.stereotype.Repository;
  */
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 @Repository
+@Transactional
 public class UserPhasesDao extends AbstractHibernateDao<UserPhases> {
 
     @Autowired
@@ -30,13 +32,9 @@ public class UserPhasesDao extends AbstractHibernateDao<UserPhases> {
      * @return
      */
     public UserPhases getPhasesForUser(final ButterflyUser user) {
-        this.openCurrentSession();
-
-        final Query<UserPhases> query = this.currentSession.createQuery("from UserPhases p where p.user = :user");
+        final Query<UserPhases> query = this.getCurrentSession().createQuery("from UserPhases p where p.user = :user");
         query.setParameter("user", user);
-        final UserPhases result = query.uniqueResult();
 
-        this.closeCurrentSession();
-        return result;
+        return query.uniqueResult();
     }
 }
