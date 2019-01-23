@@ -26,7 +26,7 @@ public class EacoinRequestHandler extends BaseRequestHandler {
     /**
      * How much Paseli to use when it's unlimited (for now, it's always unlimited).
      */
-    private static final int INFINITE_PASELI_AMOUNT = 50000;
+    private static final int INFINITE_PASELI_AMOUNT = 573;
 
     /**
      * DAO for interacting with cards in the database.

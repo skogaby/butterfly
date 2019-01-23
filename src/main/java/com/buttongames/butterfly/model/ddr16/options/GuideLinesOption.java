@@ -6,6 +6,6 @@ package com.buttongames.butterfly.model.ddr16.options;
  */
 public enum GuideLinesOption {
     OFF,
-    ARROW_CENTER,
-    ARROW_TOP
+    ARROW_TOP,
+    ARROW_CENTER
 }
