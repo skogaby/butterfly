@@ -251,9 +251,9 @@ public class PlayerDataRequestHandler extends BaseRequestHandler {
                 int loadFlag = XmlUtils.intAtPath(requestBody, "/playerdata/data/loadflag");
 
                 if (loadFlag == 1) {
-                    return this.handleRivalLoad1Request(request, response);
+                    return this.handleMachineScoresRequest(request, response);
                 } else if (loadFlag == 2) {
-                    return this.handleRivalLoad2Request(request, response);
+                    return this.handleAreaScoresRequest(request, response);
                 } else if (loadFlag == 4) {
                     return this.handleGlobalScoresRequest(request, response);
                 }
@@ -269,6 +269,9 @@ public class PlayerDataRequestHandler extends BaseRequestHandler {
             // handle usergamedata_advanced.usersave requests, for saving scores, ghost data, etc.
             } else if (mode.equals("usersave")) {
                 return this.handleUserSaveRequest(requestBody, request, response);
+            // handle usergamedata_advanced.minidump requests
+            } else if (mode.equals("minidump")) {
+                return this.handleMinidumpRequest(request, response);
             }
         // handle usergamedata_send requests
         } else if (requestMethod.equals("usergamedata_send")) {
@@ -282,12 +285,12 @@ public class PlayerDataRequestHandler extends BaseRequestHandler {
     }
 
     /**
-     * Handles a <code>rivalload</code> request with a loadflag of 1.
+     * Handles a request to get the machine high scores.
      * @param request The Spark request
      * @param response The Spark response
      * @return A response object for Spark
      */
-    private Object handleRivalLoad1Request(final Request request, final Response response) {
+    private Object handleMachineScoresRequest(final Request request, final Response response) {
         // TODO: Implement this properly and load rival data...
         final KXmlBuilder respBuilder = KXmlBuilder.create("response")
                 .e("playerdata")
@@ -304,7 +307,7 @@ public class PlayerDataRequestHandler extends BaseRequestHandler {
      * @param response The Spark response
      * @return A response object for Spark
      */
-    private Object handleRivalLoad2Request(final Request request, final Response response) {
+    private Object handleAreaScoresRequest(final Request request, final Response response) {
         // TODO: Implement this properly and load rival data...
         final KXmlBuilder respBuilder = KXmlBuilder.create("response")
                 .e("playerdata")
@@ -343,6 +346,7 @@ public class PlayerDataRequestHandler extends BaseRequestHandler {
                             .u8("clearkind", record.getClearKind()).up()
                             .u8("flagdata", 0).up()
                             .str("name", record.getUser().getName()).up()
+                            .s32("area", record.getArea()).up()
                             .s32("code", record.getUser().getDancerCode()).up()
                             .s32("score", record.getScore()).up()
                             .s32("ghostid", ((Long) record.getGhostData().getId()).intValue()).up(2);
@@ -1042,5 +1046,20 @@ public class PlayerDataRequestHandler extends BaseRequestHandler {
                     .s32("result", 0).up();
 
         return this.sendResponse(request, response, builder);
+    }
+
+    /**
+     * Handles a request to post a client mini dump.
+     * @param request The Spark request
+     * @param response The Spark response
+     * @return A response object for Spark
+     */
+    private Object handleMinidumpRequest(final Request request, final Response response) {
+        // TODO: Save this eventually
+        final KXmlBuilder respBuilder = KXmlBuilder.create("response")
+                .e("playerdata")
+                    .s32("result", 0);
+
+        return this.sendResponse(request, response, respBuilder);
     }
 }
