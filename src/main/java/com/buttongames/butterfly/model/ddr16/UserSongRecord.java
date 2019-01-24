@@ -54,6 +54,10 @@ public class UserSongRecord implements Externalizable {
     @JoinColumn(name = "user_id")
     private UserProfile user;
 
+    /** The PCBID of the machine this score was made on, for machine high scores */
+    @Column(name = "machine_pcbid")
+    private String machinePcbId;
+
     /** Which side the user played on */
     @Column(name = "play_side")
     private int playSide;
@@ -344,7 +348,7 @@ public class UserSongRecord implements Externalizable {
 
     public UserSongRecord() { }
 
-    public UserSongRecord(UserProfile user, int playSide, int playStyle, int area, int weight100, String shopName,
+    public UserSongRecord(UserProfile user, String machinePcbId, int playSide, int playStyle, int area, int weight100, String shopName,
                           boolean isPremium, boolean isEaPass, boolean isTakeover, boolean isRepeater, boolean isGameover,
                           String locationId, String shopArea, int stageNum, int songId, int noteType, int rank,
                           int clearKind, int score, int exScore, int maxCombo, int life, int fastCount, int slowCount,
@@ -359,6 +363,7 @@ public class UserSongRecord implements Externalizable {
                           int series, int bemaniFlag, int genreFlag, int limited, int region, int grVoltage, int grStream,
                           int grChaos, int grFreeze, int grAir, boolean share, LocalDateTime endtime, int folder) {
         this.user = user;
+        this.machinePcbId = machinePcbId;
         this.playSide = playSide;
         this.playStyle = playStyle;
         this.area = area;
@@ -433,6 +438,7 @@ public class UserSongRecord implements Externalizable {
     public void writeExternal(ObjectOutput out) throws IOException {
         out.writeLong(this.id);
         out.writeObject(this.user);
+        out.writeUTF(this.machinePcbId);
         out.writeInt(this.playSide);
         out.writeInt(this.playStyle);
         out.writeInt(this.area);
@@ -507,6 +513,7 @@ public class UserSongRecord implements Externalizable {
     public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
         this.setId(in.readLong());
         this.setUser((UserProfile) in.readObject());
+        this.setMachinePcbId(in.readUTF());
         this.setPlaySide(in.readInt());
         this.setPlayStyle(in.readInt());
         this.setArea(in.readInt());
@@ -591,6 +598,14 @@ public class UserSongRecord implements Externalizable {
 
     public void setUser(UserProfile user) {
         this.user = user;
+    }
+
+    public String getMachinePcbId() {
+        return machinePcbId;
+    }
+
+    public void setMachinePcbId(String machinePcbId) {
+        this.machinePcbId = machinePcbId;
     }
 
     public int getPlaySide() {

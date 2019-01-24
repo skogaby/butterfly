@@ -84,4 +84,28 @@ public class UserSongRecordDao extends AbstractHibernateDao<UserSongRecord> {
 
         return query.uniqueResult();
     }
+
+    /**
+     * Finds all song records for a machine.
+     * @param pcbid The PCBID of the machine to query for
+     * @return A list of matching records
+     */
+    public List<UserSongRecord> findByMachine(final String pcbid) {
+        final Query<UserSongRecord> query = this.getCurrentSession().createQuery("from UserSongRecord r where r.machinePcbId = :pcbid");
+        query.setParameter("pcbid", pcbid);
+
+        return query.getResultList();
+    }
+
+    /**
+     * Finds all song records for a shop area.
+     * @param shopArea The area to query for
+     * @return A list of matching records
+     */
+    public List<UserSongRecord> findByShopArea(final String shopArea) {
+        final Query<UserSongRecord> query = this.getCurrentSession().createQuery("from UserSongRecord r where r.shopArea = :shopArea");
+        query.setParameter("shopArea", shopArea);
+
+        return query.getResultList();
+    }
 }

@@ -54,7 +54,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Handler for any requests that come to the <code>playerdata</code> module.
@@ -140,11 +139,6 @@ public class PlayerDataRequestHandler extends BaseRequestHandler {
      */
     private static List<Song> SONGS_2018042300;
 
-    /**
-     * In-memory cache of the global high scores.
-     */
-    private static ConcurrentHashMap<Integer, ConcurrentHashMap<Integer, UserSongRecord>> GLOBAL_HIGH_SCORES_CACHE;
-
     static {
         loadEvents();
         loadMusicDb();
@@ -157,9 +151,6 @@ public class PlayerDataRequestHandler extends BaseRequestHandler {
         this.profileDao = profileDao;
         this.ghostDataDao = ghostDataDao;
         this.songRecordDao = songRecordDao;
-
-        // cache the global high scores
-        this.loadGlobalHighScores();
     }
 
     /**
@@ -204,30 +195,6 @@ public class PlayerDataRequestHandler extends BaseRequestHandler {
     }
 
     /**
-     * Loads the global high scores into memory so we can use this cache for the
-     * high scores requests and not hit the DB every time.
-     */
-    private void loadGlobalHighScores() {
-        GLOBAL_HIGH_SCORES_CACHE = new ConcurrentHashMap<>();
-
-        UserSongRecord record;
-
-        // we need to return the top score for every song/difficulty
-        for (Song song : SONGS_2018042300) {
-            // create the internal maps now
-            GLOBAL_HIGH_SCORES_CACHE.put(song.getMcode(), new ConcurrentHashMap<>());
-
-            for (int i = 0; i < 8; i++) {
-                record = this.songRecordDao.findTopScoreForSongDifficulty(song.getMcode(), i);
-
-                if (record != null) {
-                    GLOBAL_HIGH_SCORES_CACHE.get(song.getMcode()).put(i, record);
-                }
-            }
-        }
-    }
-
-    /**
      * Handles an incoming request for the <code>playerdata</code> module.
      * @param requestBody The XML document of the incoming request.
      * @param request The Spark request
@@ -242,6 +209,7 @@ public class PlayerDataRequestHandler extends BaseRequestHandler {
         if (requestMethod.equals("usergamedata_advanced")) {
             final String mode = XmlUtils.strAtPath(requestBody, "/playerdata/data/mode");
             final String refid = XmlUtils.strAtPath(requestBody, "/playerdata/data/refid");
+            final String shopArea = XmlUtils.strAtPath(requestBody, "/playerdata/data/shoparea");
 
             // handle usergamedata_advanced.userload requests
             if (mode.equals("userload")) {
@@ -253,7 +221,7 @@ public class PlayerDataRequestHandler extends BaseRequestHandler {
                 if (loadFlag == 1) {
                     return this.handleMachineScoresRequest(request, response);
                 } else if (loadFlag == 2) {
-                    return this.handleAreaScoresRequest(request, response);
+                    return this.handleAreaScoresRequest(shopArea, request, response);
                 } else if (loadFlag == 4) {
                     return this.handleGlobalScoresRequest(request, response);
                 }
@@ -291,31 +259,24 @@ public class PlayerDataRequestHandler extends BaseRequestHandler {
      * @return A response object for Spark
      */
     private Object handleMachineScoresRequest(final Request request, final Response response) {
-        // TODO: Implement this properly and load rival data...
-        final KXmlBuilder respBuilder = KXmlBuilder.create("response")
-                .e("playerdata")
-                    .s32("result", 0).up()
-                    .e("data")
-                        .s32("recordtype", 0);
+        final List<UserSongRecord> allRecords = this.songRecordDao.findByMachine(request.attribute("pcbid"));
+        final HashMap<Integer, HashMap<Integer, Object[]>> topRecords = this.sortScoresByTopScore(allRecords);
 
-        return this.sendResponse(request, response, respBuilder);
+        return this.sendScoresToClient(request, response, topRecords);
     }
 
     /**
-     * Handles a <code>rivalload</code> request with a loadflag of 2.
+     * Handles a request for area high scores
+     * @param area The area to load scores for
      * @param request The Spark request
      * @param response The Spark response
      * @return A response object for Spark
      */
-    private Object handleAreaScoresRequest(final Request request, final Response response) {
-        // TODO: Implement this properly and load rival data...
-        final KXmlBuilder respBuilder = KXmlBuilder.create("response")
-                .e("playerdata")
-                    .s32("result", 0).up()
-                .e("data")
-                    .s32("recordtype", 0);
+    private Object handleAreaScoresRequest(final String area, final Request request, final Response response) {
+        final List<UserSongRecord> allRecords = this.songRecordDao.findByShopArea(area);
+        final HashMap<Integer, HashMap<Integer, Object[]>> topRecords = this.sortScoresByTopScore(allRecords);
 
-        return this.sendResponse(request, response, respBuilder);
+        return this.sendScoresToClient(request, response, topRecords);
     }
 
     /**
@@ -325,33 +286,49 @@ public class PlayerDataRequestHandler extends BaseRequestHandler {
      * @return A response object for Spark
      */
     private Object handleGlobalScoresRequest(final Request request, final Response response) {
+        final List<UserSongRecord> allRecords = this.songRecordDao.findAll();
+        final HashMap<Integer, HashMap<Integer, Object[]>> topRecords = this.sortScoresByTopScore(allRecords);
+
+        return this.sendScoresToClient(request, response, topRecords);
+    }
+
+    /**
+     * Handles a request for the global server scores.
+     * @param request The Spark request
+     * @param response The Spark response
+     * @param topRecords The sorted list of top records to send to the client
+     * @return A response object for Spark
+     */
+    private Object sendScoresToClient(final Request request, final Response response, final HashMap<Integer, HashMap<Integer, Object[]>> topRecords) {
         KXmlBuilder respBuilder = KXmlBuilder.create("response")
                 .e("playerdata")
                     .s32("result", 0).up()
                     .e("data")
                         .s32("recordtype", 0).up();
 
-        UserSongRecord record;
-
         // we need to return the top score for every song/difficulty
-        for (Song song : SONGS_2018042300) {
+        for (Map.Entry<Integer, HashMap<Integer, Object[]>> entry : topRecords.entrySet()) {
+            // iterate through each difficulty
             for (int i = 0; i < 9; i++) {
-                if (GLOBAL_HIGH_SCORES_CACHE.get(song.getMcode()).containsKey(i)) {
-                    record = GLOBAL_HIGH_SCORES_CACHE.get(song.getMcode()).get(i);
+                if (entry.getValue().containsKey(i)) {
+                    Object[] record = entry.getValue().get(i);
+                    UserSongRecord topRecord = (UserSongRecord) record[1];
 
                     respBuilder = respBuilder.e("record")
-                            .u32("mcode", song.getMcode()).up()
+                            .u32("mcode", topRecord.getSongId()).up()
                             .u8("notetype", i).up()
-                            .u8("rank", record.getRank()).up()
-                            .u8("clearkind", record.getClearKind()).up()
+                            .u8("rank", topRecord.getRank()).up()
+                            .u8("clearkind", topRecord.getClearKind()).up()
                             .u8("flagdata", 0).up()
-                            .str("name", record.getUser().getName()).up()
-                            .s32("area", record.getArea()).up()
-                            .s32("code", record.getUser().getDancerCode()).up()
-                            .s32("score", record.getScore()).up()
-                            .s32("ghostid", ((Long) record.getGhostData().getId()).intValue()).up(2);
+                            .str("name", topRecord.getUser().getName()).up()
+                            .s32("area", topRecord.getArea()).up()
+                            .s32("code", topRecord.getUser().getDancerCode()).up()
+                            .s32("score", topRecord.getScore()).up()
+                            .s32("ghostid", ((Long) topRecord.getGhostData().getId()).intValue()).up(2);
                 }
             }
+
+            respBuilder = respBuilder.up();
         }
 
         return this.sendResponse(request, response, respBuilder);
@@ -387,27 +364,7 @@ public class PlayerDataRequestHandler extends BaseRequestHandler {
             // key for top map is the song ID
             // key for the 2nd map is the difficulty
             // the array: a[0] = count, a[1] = top UserSongRecord
-            final HashMap<Integer, HashMap<Integer, Object[]>> userTopScores = new HashMap<>();
-
-            for (UserSongRecord record : userRecords) {
-                if (!userTopScores.containsKey(record.getSongId())) {
-                    userTopScores.put(record.getSongId(), new HashMap<>());
-                    userTopScores.get(record.getSongId()).put(record.getNoteType(), new Object[] { 1, record });
-                } else {
-                    if (!userTopScores.get(record.getSongId()).containsKey(record.getNoteType())) {
-                        userTopScores.get(record.getSongId()).put(record.getNoteType(), new Object[] { 1, record });
-                    } else {
-                        Object[] currRecord = userTopScores.get(record.getSongId()).get(record.getNoteType());
-                        currRecord[0] = ((Integer) currRecord[0]) + 1;
-
-                        if (((UserSongRecord) currRecord[1]).getScore() < record.getScore()) {
-                            currRecord[1] = record;
-                        }
-
-                        userTopScores.get(record.getSongId()).put(record.getNoteType(), currRecord);
-                    }
-                }
-            }
+            final HashMap<Integer, HashMap<Integer, Object[]>> userTopScores = this.sortScoresByTopScore(userRecords);
 
             int count = 0;
             int rank = 0;
@@ -494,10 +451,10 @@ public class PlayerDataRequestHandler extends BaseRequestHandler {
         // next session and that seems to be working...
         final String defaultLastCsv = "1,6c76656c,3431766c,1ad,3,1,3,4,1,7753ba,b65b5,8000000000000001,8000000000000001,0,0,5c2d1455,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,,,,,,";
 
-        profile = new UserProfile(card.getUser(), null, dancerCode, 33, true, 0, 0, 0, -1, 0.0, DancerOption.RANDOM,
+        profile = new UserProfile(card.getUser(), null, dancerCode, 33, true, 0, 0, 0, -1, 0.0, DancerOption.BABYLON,
                 SpeedOption.X_1_00, BoostOption.NORMAL, AppearanceOption.VISIBLE, TurnOption.OFF, StepZoneOption.ON,
                 ScrollOption.NORMAL, ArrowColorOption.RAINBOW, CutOption.OFF, FreezeArrowOption.ON, JumpsOption.ON,
-                ArrowSkinOption.NORMAL, ScreenFilterOption.OFF, GuideLinesOption.ARROW_CENTER, LifeGaugeOption.NORMAL,
+                ArrowSkinOption.NORMAL, ScreenFilterOption.DARK, GuideLinesOption.OFF, LifeGaugeOption.NORMAL,
                 JudgementLayerOption.BACKGROUND, true, 0, null, null, null, defaultLastCsv);
         this.profileDao.create(profile);
 
@@ -1022,23 +979,15 @@ public class PlayerDataRequestHandler extends BaseRequestHandler {
             GhostData newGhostData = new GhostData(user, ghostStr, songId, noteType);
             this.ghostDataDao.create(newGhostData);
 
-            UserSongRecord newRecord = new UserSongRecord(user, playSide, playStyle, area, weight100, shopName, isPremium,
-                    isEaPass, isTakeover, isRepeater, isGameover, locationId, shopArea, stageNum, songId, noteType, rank,
-                    clearKind, score, exScore, maxCombo, life, fastCount, slowCount, marvelousCount, perfectCount, greatCount,
-                    goodCount, booCount, missCount, okCount, ngCount, calories, newGhostData, speedOption, boostOption,
+            UserSongRecord newRecord = new UserSongRecord(user, request.attribute("pcbid"), playSide, playStyle, area, weight100,
+                    shopName, isPremium, isEaPass, isTakeover, isRepeater, isGameover, locationId, shopArea, stageNum, songId,
+                    noteType, rank, clearKind, score, exScore, maxCombo, life, fastCount, slowCount, marvelousCount, perfectCount,
+                    greatCount, goodCount, booCount, missCount, okCount, ngCount, calories, newGhostData, speedOption, boostOption,
                     appearanceOption, turnOption, stepZoneOption, scrollOption, arrowColorOption, cutOption, freezeArrowOption,
                     jumpsOption, arrowSkinOption, screenFilterOption, guideLinesOption, lifeGaugeOption, judgementLayerOption,
                     showFastSlow, songBaseName, songTitle, songArtist, bpmMin, bpmMax, level, series, bemaniFlag, genreFlag,
                     limited, region, grVoltage, grStream, grChaos, grFreeze, grAir, share, endtime, folder);
             this.songRecordDao.create(newRecord);
-
-            // make sure we don't also need to update the global high score cache
-            ConcurrentHashMap<Integer, UserSongRecord> songRecords = GLOBAL_HIGH_SCORES_CACHE.get(songId);
-
-            if (!songRecords.containsKey(noteType) ||
-                    songRecords.get(noteType).getScore() < score) {
-                GLOBAL_HIGH_SCORES_CACHE.get(songId).put(noteType, newRecord);
-            }
         }
 
         final KXmlBuilder builder = KXmlBuilder.create("response")
@@ -1061,5 +1010,40 @@ public class PlayerDataRequestHandler extends BaseRequestHandler {
                     .s32("result", 0);
 
         return this.sendResponse(request, response, respBuilder);
+    }
+
+    /**
+     * Sorts scores into a hierarchy of top score by song/difficulty. Used for the various score requests.
+     * @param records The records to sort
+     * @return The sorted results
+     */
+    private HashMap<Integer, HashMap<Integer, Object[]>> sortScoresByTopScore(final List<UserSongRecord> records) {
+        // sort them by song and difficulty, then insert them into the response
+        // key for top map is the song ID
+        // key for the 2nd map is the difficulty
+        // the array: a[0] = count, a[1] = top UserSongRecord
+        final HashMap<Integer, HashMap<Integer, Object[]>> topScores = new HashMap<>();
+
+        for (UserSongRecord record : records) {
+            if (!topScores.containsKey(record.getSongId())) {
+                topScores.put(record.getSongId(), new HashMap<>());
+                topScores.get(record.getSongId()).put(record.getNoteType(), new Object[] { 1, record });
+            } else {
+                if (!topScores.get(record.getSongId()).containsKey(record.getNoteType())) {
+                    topScores.get(record.getSongId()).put(record.getNoteType(), new Object[] { 1, record });
+                } else {
+                    Object[] currRecord = topScores.get(record.getSongId()).get(record.getNoteType());
+                    currRecord[0] = ((Integer) currRecord[0]) + 1;
+
+                    if (((UserSongRecord) currRecord[1]).getScore() < record.getScore()) {
+                        currRecord[1] = record;
+                    }
+
+                    topScores.get(record.getSongId()).put(record.getNoteType(), currRecord);
+                }
+            }
+        }
+
+        return topScores;
     }
 }
