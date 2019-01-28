@@ -88,8 +88,7 @@ public class FacilityRequestHandler extends BaseRequestHandler {
                         .str("id", "").up()
                         .u8("class", 0).up(2)
                     .e("portfw")
-                        // TODO: Use our real IP here
-                        .ip("globalip", "1.0.0.127").up()
+                        .ip("globalip", "0.0.0.0").up()
                         .u16("globalport", 5700).up()
                         .u16("privateport", 5700).up(2)
                     .e("public")
