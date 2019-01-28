@@ -327,8 +327,6 @@ public class PlayerDataRequestHandler extends BaseRequestHandler {
                             .s32("ghostid", ((Long) topRecord.getGhostData().getId()).intValue()).up(2);
                 }
             }
-
-            respBuilder = respBuilder.up();
         }
 
         return this.sendResponse(request, response, respBuilder);
