@@ -1,7 +1,5 @@
 package com.buttongames.butterfly.spring.configuration;
 
-import com.buttongames.butterfly.util.PathUtils;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 
@@ -13,8 +11,4 @@ import org.springframework.context.annotation.Configuration;
 @ComponentScan({"com.buttongames.butterfly.spring.configuration"})
 public class ApplicationConfiguration {
 
-    @Bean
-    public PathUtils pathUtils() {
-        return new PathUtils();
-    }
 }

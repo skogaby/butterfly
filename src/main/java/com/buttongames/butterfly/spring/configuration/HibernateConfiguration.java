@@ -10,7 +10,6 @@ import com.buttongames.butterfly.hibernate.dao.impl.ddr16.GameplayEventLogDao;
 import com.buttongames.butterfly.hibernate.dao.impl.ddr16.PcbEventLogDao;
 import com.buttongames.butterfly.hibernate.dao.impl.UserPhasesDao;
 import com.buttongames.butterfly.hibernate.dao.impl.ddr16.UserSongRecordDao;
-import com.buttongames.butterfly.util.PathUtils;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -22,7 +21,6 @@ import org.springframework.orm.hibernate5.HibernateTransactionManager;
 import org.springframework.orm.hibernate5.LocalSessionFactoryBean;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
-import java.nio.file.Paths;
 import java.util.Properties;
 
 /**
@@ -56,6 +54,9 @@ public class HibernateConfiguration {
     @Value("${hibernate.show_sql}")
     private String showSql;
 
+    @Value("${hibernate.db_path}")
+    private String databasePath;
+
     @Bean
     public LocalSessionFactoryBean sessionFactory(final DriverManagerDataSource dataSource) {
         final Properties hibernateProperties = new Properties();
@@ -72,7 +73,7 @@ public class HibernateConfiguration {
     }
 
     @Bean
-    public DriverManagerDataSource dataSource(final PathUtils pathUtils) {
+    public DriverManagerDataSource dataSource() {
         final DriverManagerDataSource source = new DriverManagerDataSource();
         source.setDriverClassName(this.driverClassName);
         source.setUsername(this.username);
@@ -80,8 +81,7 @@ public class HibernateConfiguration {
 
         // locate the database in the user directory, and replace backslashes with forward slashes so it works on
         // Windows correctly, per sqlite-jdbc's spec
-        source.setUrl(String.format("jdbc:sqlite:%s",
-                Paths.get(pathUtils.externalDirectory, SQLITE_DATABASE).toString().replace('\\', '/')));
+        source.setUrl("jdbc:sqlite:" + this.databasePath.replace('\\', '/'));
 
         return source;
     }

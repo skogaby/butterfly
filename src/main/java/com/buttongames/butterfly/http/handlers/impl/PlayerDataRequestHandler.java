@@ -1,5 +1,6 @@
 package com.buttongames.butterfly.http.handlers.impl;
 
+import com.buttongames.butterfly.Main;
 import com.buttongames.butterfly.hibernate.dao.impl.ButterflyUserDao;
 import com.buttongames.butterfly.hibernate.dao.impl.CardDao;
 import com.buttongames.butterfly.hibernate.dao.impl.ddr16.GhostDataDao;
@@ -33,6 +34,7 @@ import com.buttongames.butterfly.util.StringUtils;
 import com.buttongames.butterfly.util.TimeUtils;
 import com.buttongames.butterfly.xml.kbinxml.KXmlBuilder;
 import com.buttongames.butterfly.xml.XmlUtils;
+import com.google.common.io.ByteStreams;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Component;
@@ -158,8 +160,8 @@ public class PlayerDataRequestHandler extends BaseRequestHandler {
      */
     private static void loadEvents() {
         try {
-            final Path path = Paths.get(ClassLoader.getSystemResource("static_responses/mdx_2018042300/events.xml").toURI());
-            final byte[] respBody = Files.readAllBytes(path);
+            final byte[] respBody = ByteStreams.toByteArray(
+                    Main.class.getResourceAsStream("/static_responses/mdx_2018042300/events.xml"));
             final Element doc = XmlUtils.byteArrayToXmlFile(respBody);
             EVENTS_2018042300 = XmlUtils.nodesAtPath(doc, "/events/eventdata");
         } catch (Exception e) {
@@ -173,8 +175,8 @@ public class PlayerDataRequestHandler extends BaseRequestHandler {
      */
     private static void loadMusicDb() {
         try {
-            final Path path = Paths.get(ClassLoader.getSystemResource("static_responses/mdx_2018042300/musicdb.xml").toURI());
-            final byte[] body = Files.readAllBytes(path);
+            final byte[] body = ByteStreams.toByteArray(
+                    Main.class.getResourceAsStream("/static_responses/mdx_2018042300/musicdb.xml"));
             final Element doc = XmlUtils.byteArrayToXmlFile(body);
             final NodeList nodes = XmlUtils.nodesAtPath(doc, "/mdb/music");
 
