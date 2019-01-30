@@ -1,5 +1,6 @@
 package com.buttongames.butterfly.util;
 
+import com.buttongames.butterfly.Main;
 import com.google.common.io.ByteStreams;
 
 import java.io.InputStream;
@@ -23,7 +24,7 @@ public class CardIdUtils {
     public static String encodeCardId(final String id) {
         try {
             // TODO: Port the python script
-            final Path path = Paths.get(ClassLoader.getSystemResource("cardconv.py").toURI());
+            final Path path = Paths.get(Main.class.getResource("/cardconv.py").toURI());
             final ProcessBuilder builder = new ProcessBuilder("python",
                     "-c",
                     "import cardconv; print(cardconv.CardCipher.encode('" + id + "'));");
