@@ -134,16 +134,10 @@ public class PlayerDataRequestHandler extends BaseRequestHandler {
     /**
      * Static list of events for the server.
      */
-    private static NodeList EVENTS_2018042300;
-
-    /**
-     * Static list of songs for the server.
-     */
-    private static List<Song> SONGS_2018042300;
+    private static NodeList EVENTS;
 
     static {
         loadEvents();
-        loadMusicDb();
     }
 
     public PlayerDataRequestHandler(final ButterflyUserDao userDao, final CardDao cardDao, final ProfileDao profileDao,
@@ -161,35 +155,9 @@ public class PlayerDataRequestHandler extends BaseRequestHandler {
     private static void loadEvents() {
         try {
             final byte[] respBody = ByteStreams.toByteArray(
-                    Main.class.getResourceAsStream("/static_responses/mdx_2018042300/events.xml"));
+                    Main.class.getResourceAsStream("/static_responses/mdx/events.xml"));
             final Element doc = XmlUtils.byteArrayToXmlFile(respBody);
-            EVENTS_2018042300 = XmlUtils.nodesAtPath(doc, "/events/eventdata");
-        } catch (Exception e) {
-            e.printStackTrace();
-            System.exit(1);
-        }
-    }
-
-    /**
-     * Load the music database into memory.
-     */
-    private static void loadMusicDb() {
-        try {
-            final byte[] body = ByteStreams.toByteArray(
-                    Main.class.getResourceAsStream("/static_responses/mdx_2018042300/musicdb.xml"));
-            final Element doc = XmlUtils.byteArrayToXmlFile(body);
-            final NodeList nodes = XmlUtils.nodesAtPath(doc, "/mdb/music");
-
-            SONGS_2018042300 = new ArrayList<>();
-
-            for (int i = 0; i < nodes.getLength(); i++) {
-                Element node = (Element) nodes.item(i);
-
-                SONGS_2018042300.add(new Song(XmlUtils.intAtChild(node, "mcode"),
-                        XmlUtils.strAtChild(node, "basename"),
-                        XmlUtils.strAtChild(node, "title"),
-                        XmlUtils.strAtChild(node, "artist")));
-            }
+            EVENTS = XmlUtils.nodesAtPath(doc, "/events/eventdata");
         } catch (Exception e) {
             e.printStackTrace();
             System.exit(1);
@@ -342,10 +310,6 @@ public class PlayerDataRequestHandler extends BaseRequestHandler {
      * @return A response object for Spark
      */
     private Object handleUserLoadRequest(final String refId, final Request request, final Response response) {
-        if (!StringUtils.getSanitizedModel(request.attribute("model")).equals("mdx_2018042300")) {
-            throw new UnsupportedRequestException();
-        }
-
         KXmlBuilder respBuilder = KXmlBuilder.create("response")
                 .e("playerdata")
                     .s32("result", 0).up()
@@ -408,12 +372,12 @@ public class PlayerDataRequestHandler extends BaseRequestHandler {
             }
         }
 
-        // TODO: Events probably isn't a static response
+        // TODO: Events isn't supposed to be a static response
         final Document document = respBuilder.getDocument();
         final Element elem = respBuilder.getElement();
 
-        for (int i = 0; i < EVENTS_2018042300.getLength(); i++) {
-            Node tmp = document.importNode(EVENTS_2018042300.item(i), true);
+        for (int i = 0; i < EVENTS.getLength(); i++) {
+            Node tmp = document.importNode(EVENTS.item(i), true);
             elem.appendChild(tmp);
         }
 

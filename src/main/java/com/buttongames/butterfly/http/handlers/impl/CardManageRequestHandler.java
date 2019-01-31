@@ -41,9 +41,15 @@ public class CardManageRequestHandler extends BaseRequestHandler {
      */
     private final ButterflyUserDao userDao;
 
-    public CardManageRequestHandler(final CardDao cardDao, final ButterflyUserDao userDao) {
+    /**
+     * Helper class for converting card IDs.
+     */
+    private final CardIdUtils cardIdUtils;
+
+    public CardManageRequestHandler(final CardDao cardDao, final ButterflyUserDao userDao, final CardIdUtils cardIdUtils) {
         this.cardDao = cardDao;
         this.userDao = userDao;
+        this.cardIdUtils = cardIdUtils;
     }
 
     /**
@@ -125,7 +131,7 @@ public class CardManageRequestHandler extends BaseRequestHandler {
         userDao.create(newUser);
 
         // create the card and save it
-        final Card card = new Card(newUser, cardType, cardId, CardIdUtils.encodeCardId(cardId),
+        final Card card = new Card(newUser, cardType, cardId, this.cardIdUtils.encodeCardId(cardId),
                 StringUtils.getRandomHexString(16), LocalDateTime.now(), LocalDateTime.now());
         this.cardDao.create(card);
 

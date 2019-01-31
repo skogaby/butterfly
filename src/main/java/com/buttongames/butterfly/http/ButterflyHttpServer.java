@@ -75,7 +75,7 @@ public class ButterflyHttpServer {
 
     // Do a static setup of our supported models, modules, etc.
     static {
-        SUPPORTED_MODELS = ImmutableSet.of("mdx_2018042300");
+        SUPPORTED_MODELS = ImmutableSet.of("mdx");
         SUPPORTED_MODULES = ImmutableSet.of("services", "pcbtracker", "message", "facility", "pcbevent",
                 "package", "eventlog", "tax", "playerdata", "cardmng", "system", "eacoin");
     }
@@ -272,7 +272,7 @@ public class ButterflyHttpServer {
         LOG.info("Request received: " + requestUriModel + " (" + requestUriModule + "." + requestUriMethod + ")");
 
         // 1) validate the model is supported
-        if (!SUPPORTED_MODELS.contains(com.buttongames.butterfly.util.StringUtils.getSanitizedModel(requestUriModel))) {
+        if (!SUPPORTED_MODELS.contains(requestUriModel.split(":")[0].toLowerCase())) {
             LOG.warn("Invalid model requested: " + requestUriModel);
             throw new InvalidRequestModelException();
         }

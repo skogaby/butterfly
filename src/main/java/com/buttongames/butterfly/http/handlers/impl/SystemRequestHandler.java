@@ -7,6 +7,7 @@ import com.buttongames.butterfly.xml.XmlUtils;
 import com.buttongames.butterfly.xml.kbinxml.KXmlBuilder;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.w3c.dom.Element;
 import spark.Request;
@@ -20,6 +21,16 @@ import spark.Response;
 public class SystemRequestHandler extends BaseRequestHandler {
 
     private final Logger LOG = LogManager.getLogger(SystemRequestHandler.class);
+
+    /**
+     * Helper class for converting card IDs.
+     */
+    private final CardIdUtils cardIdUtils;
+
+    @Autowired
+    public SystemRequestHandler(final CardIdUtils cardIdUtils) {
+        this.cardIdUtils = cardIdUtils;
+    }
 
     /**
      * Handles an incoming request for the <code>system</code> module.
@@ -48,7 +59,7 @@ public class SystemRequestHandler extends BaseRequestHandler {
      */
     private Object handleConvCardNumberRequest(final Element requestBody, final Request request, final Response response) {
         final String cardId = XmlUtils.strAtPath(requestBody, "/system/data/card_id");
-        final String convertedId = CardIdUtils.encodeCardId(cardId);
+        final String convertedId = this.cardIdUtils.encodeCardId(cardId);
 
         // send a response
         final KXmlBuilder builder = KXmlBuilder.create("response")

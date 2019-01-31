@@ -23,6 +23,7 @@ import com.buttongames.butterfly.http.handlers.impl.PlayerDataRequestHandler;
 import com.buttongames.butterfly.http.handlers.impl.ServicesRequestHandler;
 import com.buttongames.butterfly.http.handlers.impl.SystemRequestHandler;
 import com.buttongames.butterfly.http.handlers.impl.TaxRequestHandler;
+import com.buttongames.butterfly.util.CardIdUtils;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -56,6 +57,11 @@ public class HttpConfiguration {
                 messageRequestHandler, facilityRequestHandler, packageRequestHandler, eventLogRequestHandler,
                 taxRequestHandler, playerDataRequestHandler, cardManageRequestHandler, systemRequestHandler,
                 eacoinRequestHandler, machineDao, userDao);
+    }
+
+    @Bean
+    public CardIdUtils cardIdUtils() {
+        return new CardIdUtils();
     }
 
     @Bean
@@ -106,13 +112,14 @@ public class HttpConfiguration {
     }
 
     @Bean
-    public CardManageRequestHandler cardManageRequestHandler(final CardDao cardDao, final ButterflyUserDao userDao) {
-        return new CardManageRequestHandler(cardDao, userDao);
+    public CardManageRequestHandler cardManageRequestHandler(final CardDao cardDao, final ButterflyUserDao userDao,
+                                                             final CardIdUtils cardIdUtils) {
+        return new CardManageRequestHandler(cardDao, userDao, cardIdUtils);
     }
 
     @Bean
-    public SystemRequestHandler systemRequestHandler() {
-        return new SystemRequestHandler();
+    public SystemRequestHandler systemRequestHandler(final CardIdUtils cardIdUtils) {
+        return new SystemRequestHandler(cardIdUtils);
     }
 
     @Bean
