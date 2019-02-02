@@ -41,7 +41,9 @@ public class CardIdUtils {
                 path = Paths.get(Main.class.getResource("/cardconv.py").toURI());
             }
 
-            final ProcessBuilder builder = new ProcessBuilder("python",
+            // when running this under Windows, Python 3 still is called python.exe; Linux has python3 as an executable
+            final String command = System.getProperty("os.name").toLowerCase().startsWith("windows") ? "python" : "python3";
+            final ProcessBuilder builder = new ProcessBuilder(command,
                     "-c",
                     "import cardconv; print(cardconv.CardCipher.encode('" + id + "'));");
             builder.directory(path.getParent().toFile());
