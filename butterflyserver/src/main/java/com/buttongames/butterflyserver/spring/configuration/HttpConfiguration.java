@@ -36,7 +36,7 @@ import org.springframework.context.annotation.PropertySource;
 @Configuration
 @ComponentScan({"com.buttongames.butterflyserver.spring.configuration",
                 "com.buttongames.butterflydao.spring.configuration"})
-@PropertySource("classpath:butterfly.properties")
+@PropertySource("classpath:butterflyserver.properties")
 public class HttpConfiguration {
 
     @Bean

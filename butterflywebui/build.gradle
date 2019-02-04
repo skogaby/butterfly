@@ -7,7 +7,7 @@ apply plugin: 'com.github.johnrengelman.shadow'
 
 sourceCompatibility = 1.8
 
-mainClassName = "com.buttongames.butterflyserver.Main"
+mainClassName = "com.buttongames.butterflywebui.Main"
 
 repositories {
     mavenCentral()
@@ -36,7 +36,7 @@ dependencies {
 jar {
     manifest {
         attributes(
-                'Main-Class': 'com.buttongames.butterflyserver.Main'
+                'Main-Class': 'com.buttongames.butterflywebui.Main'
         )
     }
 
