@@ -1,0 +1,10 @@
+rootProject.name = 'butterflyserver'
+
+include ':butterflymodel'
+include ':butterflydao'
+include ':butterflycore'
+
+project(":butterflymodel").projectDir = file("../butterflymodel")
+project(":butterflydao").projectDir = file("../butterflydao")
+project(":butterflycore").projectDir = file("../butterflycore")
+

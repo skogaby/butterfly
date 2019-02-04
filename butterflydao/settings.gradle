@@ -1,0 +1,2 @@
+include ":butterflymodel"
+project(":butterflymodel").projectDir = file("../butterflymodel")
