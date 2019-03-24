@@ -151,7 +151,7 @@ public class PlayerDataRequestHandler extends BaseRequestHandler {
             final byte[] respBody = ByteStreams.toByteArray(
                     Main.class.getResourceAsStream("/static_responses/mdx/events.xml"));
             final Element doc = XmlUtils.byteArrayToXmlFile(respBody);
-            EVENTS = XmlUtils.nodesAtPath(doc, "/events/eventdata");
+            EVENTS = XmlUtils.nodesAtPath(doc, "/response/playerdata/eventdata");
         } catch (Exception e) {
             e.printStackTrace();
             System.exit(1);
