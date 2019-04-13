@@ -1,0 +1,198 @@
+diff --git a/src/nu/xom/Element.java b/src/nu/xom/Element.java
+index a810cbc..50cee6a 100644
+--- a/src/nu/xom/Element.java
++++ b/src/nu/xom/Element.java
+@@ -21,13 +21,7 @@
+ 
+ package nu.xom;
+ 
+-import java.util.HashMap;
+-import java.util.HashSet;
+-import java.util.Iterator;
+-import java.util.Map;
+-import java.util.NoSuchElementException;
+-import java.util.Set;
+-import java.util.LinkedHashSet;
++import java.util.*;
+ 
+ /**
+  * <p>
+@@ -49,7 +43,7 @@ import java.util.LinkedHashSet;
+  * @version 1.3.0
+  *
+  */
+-public class Element extends ParentNode {
++public class Element extends ParentNode implements Iterable<Attribute> {
+ 
+     private String localName;
+     private String prefix;
+@@ -1839,6 +1833,23 @@ public class Element extends ParentNode {
+         
+     }
+ 
++    @Override
++    public Iterator<Attribute> iterator() {
++        return new Iterator<Attribute>() {
++            int i = 0;
++
++            @Override
++            public boolean hasNext() {
++                return (i < numAttributes && attributes[i] != null);
++            }
++
++            @Override
++            public Attribute next() {
++                return attributes[i++];
++            }
++        };
++    }
++
+ 
+     private class AttributeIterator implements Iterator {
+       
+@@ -1863,6 +1874,25 @@ public class Element extends ParentNode {
+           throw new UnsupportedOperationException();
+       }
+     }
++
++    public void sortAttributes() {
++    	if (attributes == null) return;
++        Arrays.sort(attributes, new Comparator<Attribute>(){
++            @Override
++            public int compare(Attribute t1, Attribute t2) {
++                if (t1 == null && t2 == null) {
++                    return 0;
++                }
++                if (t1 == null) {
++                    return 1;
++                }
++                if (t2 == null) {
++                    return -1;
++                }
++                return t1.getLocalName().compareTo(t2.getLocalName());
++            }
++        });
++    }
+     
+     Iterator attributeIterator() {
+ 
+diff --git a/src/nu/xom/Elements.java b/src/nu/xom/Elements.java
+index 1fd26ea..524cbb0 100644
+--- a/src/nu/xom/Elements.java
++++ b/src/nu/xom/Elements.java
+@@ -22,6 +22,7 @@
+ package nu.xom;
+ 
+ import java.util.ArrayList;
++import java.util.Iterator;
+ import java.util.List;
+ 
+ /**
+@@ -38,7 +39,7 @@ import java.util.List;
+  * 
+  *
+  */
+-public final class Elements {
++public final class Elements implements Iterable<Element> {
+ 
+     
+     private List elements = new ArrayList(1);
+@@ -82,4 +83,25 @@ public final class Elements {
+         elements.add(element);
+     }
+ 
++    @Override
++    public Iterator<Element> iterator() {
++        return new Iterator<Element>(){
++
++            int i = 0;
++            @Override
++            public boolean hasNext() {
++                return i < elements.size();
++            }
++
++            @Override
++            public Element next() {
++                return (Element)elements.get(i++);
++            }
++
++			@Override
++			public void remove() {
++
++			}
++		};
++    }
+ }
+\ No newline at end of file
+diff --git a/src/nu/xom/Nodes.java b/src/nu/xom/Nodes.java
+index a987783..9ca938f 100644
+--- a/src/nu/xom/Nodes.java
++++ b/src/nu/xom/Nodes.java
+@@ -22,6 +22,7 @@
+ package nu.xom;
+ 
+ import java.util.ArrayList;
++import java.util.Iterator;
+ import java.util.List;
+ 
+ /**
+@@ -45,9 +46,9 @@ import java.util.List;
+  * @version 1.1b4
+  *
+  */
+-public final class Nodes {
++public final class Nodes implements Iterable<Node> {
+     
+-    private final List nodes;
++    private final List<Node> nodes;
+     
+     
+     /**
+@@ -56,7 +57,7 @@ public final class Nodes {
+      * </p>
+      */
+     public Nodes() {
+-        nodes = new ArrayList();
++        nodes = new ArrayList<Node>();
+     }
+     
+     
+@@ -74,7 +75,7 @@ public final class Nodes {
+         if (node == null) {
+             throw new NullPointerException("Nodes content must be non-null");
+         }
+-        nodes = new ArrayList(1);
++        nodes = new ArrayList<Node>(1);
+         nodes.add(node);
+         
+     }
+@@ -113,7 +114,7 @@ public final class Nodes {
+      *     negative or greater than or equal to the size of the list
+      */
+     public Node get(int index) {
+-        return (Node) nodes.get(index);   
++        return nodes.get(index);
+     }
+ 
+     
+@@ -131,7 +132,7 @@ public final class Nodes {
+      *     negative or greater than or equal to the size of the list
+      */
+     public Node remove(int index) {
+-        return (Node) nodes.remove(index);   
++        return nodes.remove(index);
+     }
+     
+     
+@@ -187,5 +188,9 @@ public final class Nodes {
+         return nodes.contains(node);
+     }
+ 
+-    
++
++    @Override
++    public Iterator<Node> iterator() {
++        return nodes.iterator();
++    }
+ }
+\ No newline at end of file
