@@ -86,18 +86,6 @@ public abstract class BaseRequestHandler {
             respBytes = PublicKt.kbinEncode(new String(respBytes));
         }
 
-        // compress if needed
-        /*final String compressionScheme = request.headers(COMPRESSION_HEADER);
-
-        if (!StringUtils.isBlank(compressionScheme) &&
-                compressionScheme.equals(LZ77_COMPRESSION)) {
-            respBytes = Lz77.compress(respBytes);
-            response.header(COMPRESSION_HEADER, LZ77_COMPRESSION);
-        } else {
-            response.header(COMPRESSION_HEADER, "none");
-        }*/
-
-        // TODO: For some reason this is breaking on very large responses (i.e. events). Fix later, leave uncompressed for now.
         response.header(COMPRESSION_HEADER, "none");
 
         // encrypt if needed

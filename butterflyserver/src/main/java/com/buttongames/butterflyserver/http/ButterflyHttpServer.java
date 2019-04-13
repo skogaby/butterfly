@@ -324,12 +324,13 @@ public class ButterflyHttpServer {
         Machine machine = this.machineDao.findByPcbId(requestBodyPcbId);
 
         if (machine == null) {
-            // create a machine and ban them, unban manually if you want to
+            // create a machine and leave them enabled, ban them later if you want or change this
+            // to ban-by-default
             final LocalDateTime now = LocalDateTime.now();
             final ButterflyUser newUser = new ButterflyUser("0000", now, now, 10000);
             userDao.create(newUser);
 
-            machine = new Machine(newUser, requestBodyPcbId, LocalDateTime.now(), false, 0);
+            machine = new Machine(newUser, requestBodyPcbId, LocalDateTime.now(), true, 0);
             machineDao.create(machine);
 
             throw new InvalidPcbIdException();

@@ -8,5 +8,4 @@ public class PropertyNames {
 
     public static final String PORT = "${server.port}";
     public static final String MAINT_MODE = "${server.maintenance}";
-    public static final String HOME_DIR = "${server.home_dir}";
 }

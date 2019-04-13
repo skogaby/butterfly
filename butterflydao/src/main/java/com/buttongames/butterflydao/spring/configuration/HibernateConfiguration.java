@@ -54,9 +54,6 @@ public class HibernateConfiguration {
     @Value("${hibernate.show_sql}")
     private String showSql;
 
-    @Value("${hibernate.db_path}")
-    private String databasePath;
-
     @Bean
     public LocalSessionFactoryBean sessionFactory(final DriverManagerDataSource dataSource) {
         final Properties hibernateProperties = new Properties();
@@ -81,7 +78,8 @@ public class HibernateConfiguration {
 
         // locate the database in the user directory, and replace backslashes with forward slashes so it works on
         // Windows correctly, per sqlite-jdbc's spec
-        source.setUrl("jdbc:sqlite:" + this.databasePath.replace('\\', '/'));
+        final String dbPath = System.getProperty("db_path");
+        source.setUrl("jdbc:sqlite:" + dbPath.replace('\\', '/'));
 
         return source;
     }
