@@ -4,6 +4,114 @@
         <result __type="s32">0</result>
         <is_new __type="bool">0</is_new>
         <eventdata>
+            <eventid __type="u32">1</eventid>
+            <eventtype __type="s32">9999</eventtype>
+            <eventno __type="u32">0</eventno>
+            <condition __type="s64">0</condition>
+            <reward __type="u32">0</reward>
+            <comptime __type="s32">1</comptime>
+            <savedata __type="s64">0</savedata>
+        </eventdata>
+        <eventdata>
+            <eventid __type="u32">2</eventid>
+            <eventtype __type="s32">9999</eventtype>
+            <eventno __type="u32">0</eventno>
+            <condition __type="s64">0</condition>
+            <reward __type="u32">0</reward>
+            <comptime __type="s32">1</comptime>
+            <savedata __type="s64">0</savedata>
+        </eventdata>
+        <eventdata>
+            <eventid __type="u32">3</eventid>
+            <eventtype __type="s32">9999</eventtype>
+            <eventno __type="u32">0</eventno>
+            <condition __type="s64">0</condition>
+            <reward __type="u32">0</reward>
+            <comptime __type="s32">1</comptime>
+            <savedata __type="s64">0</savedata>
+        </eventdata>
+        <eventdata>
+            <eventid __type="u32">4</eventid>
+            <eventtype __type="s32">9999</eventtype>
+            <eventno __type="u32">0</eventno>
+            <condition __type="s64">0</condition>
+            <reward __type="u32">0</reward>
+            <comptime __type="s32">1</comptime>
+            <savedata __type="s64">0</savedata>
+        </eventdata>
+        <eventdata>
+            <eventid __type="u32">5</eventid>
+            <eventtype __type="s32">9999</eventtype>
+            <eventno __type="u32">0</eventno>
+            <condition __type="s64">0</condition>
+            <reward __type="u32">0</reward>
+            <comptime __type="s32">1</comptime>
+            <savedata __type="s64">0</savedata>
+        </eventdata>
+        <eventdata>
+            <eventid __type="u32">6</eventid>
+            <eventtype __type="s32">9999</eventtype>
+            <eventno __type="u32">0</eventno>
+            <condition __type="s64">0</condition>
+            <reward __type="u32">0</reward>
+            <comptime __type="s32">1</comptime>
+            <savedata __type="s64">0</savedata>
+        </eventdata>
+        <eventdata>
+            <eventid __type="u32">7</eventid>
+            <eventtype __type="s32">9999</eventtype>
+            <eventno __type="u32">0</eventno>
+            <condition __type="s64">0</condition>
+            <reward __type="u32">0</reward>
+            <comptime __type="s32">1</comptime>
+            <savedata __type="s64">0</savedata>
+        </eventdata>
+        <eventdata>
+            <eventid __type="u32">8</eventid>
+            <eventtype __type="s32">9999</eventtype>
+            <eventno __type="u32">0</eventno>
+            <condition __type="s64">0</condition>
+            <reward __type="u32">0</reward>
+            <comptime __type="s32">1</comptime>
+            <savedata __type="s64">0</savedata>
+        </eventdata>
+        <eventdata>
+            <eventid __type="u32">9</eventid>
+            <eventtype __type="s32">9999</eventtype>
+            <eventno __type="u32">0</eventno>
+            <condition __type="s64">0</condition>
+            <reward __type="u32">0</reward>
+            <comptime __type="s32">1</comptime>
+            <savedata __type="s64">0</savedata>
+        </eventdata>
+        <eventdata>
+            <eventid __type="u32">10</eventid>
+            <eventtype __type="s32">9999</eventtype>
+            <eventno __type="u32">0</eventno>
+            <condition __type="s64">0</condition>
+            <reward __type="u32">0</reward>
+            <comptime __type="s32">1</comptime>
+            <savedata __type="s64">0</savedata>
+        </eventdata>
+        <eventdata>
+            <eventid __type="u32">11</eventid>
+            <eventtype __type="s32">9999</eventtype>
+            <eventno __type="u32">0</eventno>
+            <condition __type="s64">0</condition>
+            <reward __type="u32">0</reward>
+            <comptime __type="s32">1</comptime>
+            <savedata __type="s64">0</savedata>
+        </eventdata>
+        <eventdata>
+            <eventid __type="u32">12</eventid>
+            <eventtype __type="s32">9999</eventtype>
+            <eventno __type="u32">0</eventno>
+            <condition __type="s64">0</condition>
+            <reward __type="u32">0</reward>
+            <comptime __type="s32">1</comptime>
+            <savedata __type="s64">0</savedata>
+        </eventdata>
+        <eventdata>
             <eventid __type="u32">13</eventid>
             <eventtype __type="s32">9999</eventtype>
             <eventno __type="u32">0</eventno>
@@ -13,7 +121,331 @@
             <savedata __type="s64">0</savedata>
         </eventdata>
         <eventdata>
+            <eventid __type="u32">14</eventid>
+            <eventtype __type="s32">9999</eventtype>
+            <eventno __type="u32">0</eventno>
+            <condition __type="s64">0</condition>
+            <reward __type="u32">0</reward>
+            <comptime __type="s32">1</comptime>
+            <savedata __type="s64">0</savedata>
+        </eventdata>
+        <eventdata>
+            <eventid __type="u32">15</eventid>
+            <eventtype __type="s32">9999</eventtype>
+            <eventno __type="u32">0</eventno>
+            <condition __type="s64">0</condition>
+            <reward __type="u32">0</reward>
+            <comptime __type="s32">1</comptime>
+            <savedata __type="s64">0</savedata>
+        </eventdata>
+        <eventdata>
+            <eventid __type="u32">16</eventid>
+            <eventtype __type="s32">9999</eventtype>
+            <eventno __type="u32">0</eventno>
+            <condition __type="s64">0</condition>
+            <reward __type="u32">0</reward>
+            <comptime __type="s32">1</comptime>
+            <savedata __type="s64">0</savedata>
+        </eventdata>
+        <eventdata>
+            <eventid __type="u32">17</eventid>
+            <eventtype __type="s32">9999</eventtype>
+            <eventno __type="u32">0</eventno>
+            <condition __type="s64">0</condition>
+            <reward __type="u32">0</reward>
+            <comptime __type="s32">1</comptime>
+            <savedata __type="s64">0</savedata>
+        </eventdata>
+        <eventdata>
+            <eventid __type="u32">18</eventid>
+            <eventtype __type="s32">9999</eventtype>
+            <eventno __type="u32">0</eventno>
+            <condition __type="s64">0</condition>
+            <reward __type="u32">0</reward>
+            <comptime __type="s32">1</comptime>
+            <savedata __type="s64">0</savedata>
+        </eventdata>
+        <eventdata>
+            <eventid __type="u32">19</eventid>
+            <eventtype __type="s32">9999</eventtype>
+            <eventno __type="u32">0</eventno>
+            <condition __type="s64">0</condition>
+            <reward __type="u32">0</reward>
+            <comptime __type="s32">1</comptime>
+            <savedata __type="s64">0</savedata>
+        </eventdata>
+        <eventdata>
+            <eventid __type="u32">20</eventid>
+            <eventtype __type="s32">9999</eventtype>
+            <eventno __type="u32">0</eventno>
+            <condition __type="s64">0</condition>
+            <reward __type="u32">0</reward>
+            <comptime __type="s32">1</comptime>
+            <savedata __type="s64">0</savedata>
+        </eventdata>
+        <eventdata>
+            <eventid __type="u32">21</eventid>
+            <eventtype __type="s32">9999</eventtype>
+            <eventno __type="u32">0</eventno>
+            <condition __type="s64">0</condition>
+            <reward __type="u32">0</reward>
+            <comptime __type="s32">1</comptime>
+            <savedata __type="s64">0</savedata>
+        </eventdata>
+        <eventdata>
+            <eventid __type="u32">22</eventid>
+            <eventtype __type="s32">9999</eventtype>
+            <eventno __type="u32">0</eventno>
+            <condition __type="s64">0</condition>
+            <reward __type="u32">0</reward>
+            <comptime __type="s32">1</comptime>
+            <savedata __type="s64">0</savedata>
+        </eventdata>
+        <eventdata>
+            <eventid __type="u32">23</eventid>
+            <eventtype __type="s32">9999</eventtype>
+            <eventno __type="u32">0</eventno>
+            <condition __type="s64">0</condition>
+            <reward __type="u32">0</reward>
+            <comptime __type="s32">1</comptime>
+            <savedata __type="s64">0</savedata>
+        </eventdata>
+        <eventdata>
+            <eventid __type="u32">24</eventid>
+            <eventtype __type="s32">9999</eventtype>
+            <eventno __type="u32">0</eventno>
+            <condition __type="s64">0</condition>
+            <reward __type="u32">0</reward>
+            <comptime __type="s32">1</comptime>
+            <savedata __type="s64">0</savedata>
+        </eventdata>
+        <eventdata>
+            <eventid __type="u32">25</eventid>
+            <eventtype __type="s32">9999</eventtype>
+            <eventno __type="u32">0</eventno>
+            <condition __type="s64">0</condition>
+            <reward __type="u32">0</reward>
+            <comptime __type="s32">1</comptime>
+            <savedata __type="s64">0</savedata>
+        </eventdata>
+        <eventdata>
+            <eventid __type="u32">26</eventid>
+            <eventtype __type="s32">9999</eventtype>
+            <eventno __type="u32">0</eventno>
+            <condition __type="s64">0</condition>
+            <reward __type="u32">0</reward>
+            <comptime __type="s32">1</comptime>
+            <savedata __type="s64">0</savedata>
+        </eventdata>
+        <eventdata>
+            <eventid __type="u32">27</eventid>
+            <eventtype __type="s32">9999</eventtype>
+            <eventno __type="u32">0</eventno>
+            <condition __type="s64">0</condition>
+            <reward __type="u32">0</reward>
+            <comptime __type="s32">1</comptime>
+            <savedata __type="s64">0</savedata>
+        </eventdata>
+        <eventdata>
+            <eventid __type="u32">28</eventid>
+            <eventtype __type="s32">9999</eventtype>
+            <eventno __type="u32">0</eventno>
+            <condition __type="s64">0</condition>
+            <reward __type="u32">0</reward>
+            <comptime __type="s32">1</comptime>
+            <savedata __type="s64">0</savedata>
+        </eventdata>
+        <eventdata>
+            <eventid __type="u32">29</eventid>
+            <eventtype __type="s32">9999</eventtype>
+            <eventno __type="u32">0</eventno>
+            <condition __type="s64">0</condition>
+            <reward __type="u32">0</reward>
+            <comptime __type="s32">1</comptime>
+            <savedata __type="s64">0</savedata>
+        </eventdata>
+        <eventdata>
             <eventid __type="u32">30</eventid>
+            <eventtype __type="s32">9999</eventtype>
+            <eventno __type="u32">0</eventno>
+            <condition __type="s64">0</condition>
+            <reward __type="u32">0</reward>
+            <comptime __type="s32">1</comptime>
+            <savedata __type="s64">0</savedata>
+        </eventdata>
+        <eventdata>
+            <eventid __type="u32">31</eventid>
+            <eventtype __type="s32">9999</eventtype>
+            <eventno __type="u32">0</eventno>
+            <condition __type="s64">0</condition>
+            <reward __type="u32">0</reward>
+            <comptime __type="s32">1</comptime>
+            <savedata __type="s64">0</savedata>
+        </eventdata>
+        <eventdata>
+            <eventid __type="u32">32</eventid>
+            <eventtype __type="s32">9999</eventtype>
+            <eventno __type="u32">0</eventno>
+            <condition __type="s64">0</condition>
+            <reward __type="u32">0</reward>
+            <comptime __type="s32">1</comptime>
+            <savedata __type="s64">0</savedata>
+        </eventdata>
+        <eventdata>
+            <eventid __type="u32">33</eventid>
+            <eventtype __type="s32">9999</eventtype>
+            <eventno __type="u32">0</eventno>
+            <condition __type="s64">0</condition>
+            <reward __type="u32">0</reward>
+            <comptime __type="s32">1</comptime>
+            <savedata __type="s64">0</savedata>
+        </eventdata>
+        <eventdata>
+            <eventid __type="u32">34</eventid>
+            <eventtype __type="s32">9999</eventtype>
+            <eventno __type="u32">0</eventno>
+            <condition __type="s64">0</condition>
+            <reward __type="u32">0</reward>
+            <comptime __type="s32">1</comptime>
+            <savedata __type="s64">0</savedata>
+        </eventdata>
+        <eventdata>
+            <eventid __type="u32">35</eventid>
+            <eventtype __type="s32">9999</eventtype>
+            <eventno __type="u32">0</eventno>
+            <condition __type="s64">0</condition>
+            <reward __type="u32">0</reward>
+            <comptime __type="s32">1</comptime>
+            <savedata __type="s64">0</savedata>
+        </eventdata>
+        <eventdata>
+            <eventid __type="u32">36</eventid>
+            <eventtype __type="s32">9999</eventtype>
+            <eventno __type="u32">0</eventno>
+            <condition __type="s64">0</condition>
+            <reward __type="u32">0</reward>
+            <comptime __type="s32">1</comptime>
+            <savedata __type="s64">0</savedata>
+        </eventdata>
+        <eventdata>
+            <eventid __type="u32">37</eventid>
+            <eventtype __type="s32">9999</eventtype>
+            <eventno __type="u32">0</eventno>
+            <condition __type="s64">0</condition>
+            <reward __type="u32">0</reward>
+            <comptime __type="s32">1</comptime>
+            <savedata __type="s64">0</savedata>
+        </eventdata>
+        <eventdata>
+            <eventid __type="u32">38</eventid>
+            <eventtype __type="s32">9999</eventtype>
+            <eventno __type="u32">0</eventno>
+            <condition __type="s64">0</condition>
+            <reward __type="u32">0</reward>
+            <comptime __type="s32">1</comptime>
+            <savedata __type="s64">0</savedata>
+        </eventdata>
+        <eventdata>
+            <eventid __type="u32">39</eventid>
+            <eventtype __type="s32">9999</eventtype>
+            <eventno __type="u32">0</eventno>
+            <condition __type="s64">0</condition>
+            <reward __type="u32">0</reward>
+            <comptime __type="s32">1</comptime>
+            <savedata __type="s64">0</savedata>
+        </eventdata>
+        <eventdata>
+            <eventid __type="u32">40</eventid>
+            <eventtype __type="s32">9999</eventtype>
+            <eventno __type="u32">0</eventno>
+            <condition __type="s64">0</condition>
+            <reward __type="u32">0</reward>
+            <comptime __type="s32">1</comptime>
+            <savedata __type="s64">0</savedata>
+        </eventdata>
+        <eventdata>
+            <eventid __type="u32">41</eventid>
+            <eventtype __type="s32">9999</eventtype>
+            <eventno __type="u32">0</eventno>
+            <condition __type="s64">0</condition>
+            <reward __type="u32">0</reward>
+            <comptime __type="s32">1</comptime>
+            <savedata __type="s64">0</savedata>
+        </eventdata>
+        <eventdata>
+            <eventid __type="u32">42</eventid>
+            <eventtype __type="s32">9999</eventtype>
+            <eventno __type="u32">0</eventno>
+            <condition __type="s64">0</condition>
+            <reward __type="u32">0</reward>
+            <comptime __type="s32">1</comptime>
+            <savedata __type="s64">0</savedata>
+        </eventdata>
+        <eventdata>
+            <eventid __type="u32">43</eventid>
+            <eventtype __type="s32">9999</eventtype>
+            <eventno __type="u32">0</eventno>
+            <condition __type="s64">0</condition>
+            <reward __type="u32">0</reward>
+            <comptime __type="s32">1</comptime>
+            <savedata __type="s64">0</savedata>
+        </eventdata>
+        <eventdata>
+            <eventid __type="u32">44</eventid>
+            <eventtype __type="s32">9999</eventtype>
+            <eventno __type="u32">0</eventno>
+            <condition __type="s64">0</condition>
+            <reward __type="u32">0</reward>
+            <comptime __type="s32">1</comptime>
+            <savedata __type="s64">0</savedata>
+        </eventdata>
+        <eventdata>
+            <eventid __type="u32">45</eventid>
+            <eventtype __type="s32">9999</eventtype>
+            <eventno __type="u32">0</eventno>
+            <condition __type="s64">0</condition>
+            <reward __type="u32">0</reward>
+            <comptime __type="s32">1</comptime>
+            <savedata __type="s64">0</savedata>
+        </eventdata>
+        <eventdata>
+            <eventid __type="u32">46</eventid>
+            <eventtype __type="s32">9999</eventtype>
+            <eventno __type="u32">0</eventno>
+            <condition __type="s64">0</condition>
+            <reward __type="u32">0</reward>
+            <comptime __type="s32">1</comptime>
+            <savedata __type="s64">0</savedata>
+        </eventdata>
+        <eventdata>
+            <eventid __type="u32">47</eventid>
+            <eventtype __type="s32">9999</eventtype>
+            <eventno __type="u32">0</eventno>
+            <condition __type="s64">0</condition>
+            <reward __type="u32">0</reward>
+            <comptime __type="s32">1</comptime>
+            <savedata __type="s64">0</savedata>
+        </eventdata>
+        <eventdata>
+            <eventid __type="u32">48</eventid>
+            <eventtype __type="s32">9999</eventtype>
+            <eventno __type="u32">0</eventno>
+            <condition __type="s64">0</condition>
+            <reward __type="u32">0</reward>
+            <comptime __type="s32">1</comptime>
+            <savedata __type="s64">0</savedata>
+        </eventdata>
+        <eventdata>
+            <eventid __type="u32">49</eventid>
+            <eventtype __type="s32">9999</eventtype>
+            <eventno __type="u32">0</eventno>
+            <condition __type="s64">0</condition>
+            <reward __type="u32">0</reward>
+            <comptime __type="s32">1</comptime>
+            <savedata __type="s64">0</savedata>
+        </eventdata>
+        <eventdata>
+            <eventid __type="u32">50</eventid>
             <eventtype __type="s32">9999</eventtype>
             <eventno __type="u32">0</eventno>
             <condition __type="s64">0</condition>
