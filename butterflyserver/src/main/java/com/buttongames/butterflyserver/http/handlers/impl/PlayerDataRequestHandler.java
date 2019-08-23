@@ -188,6 +188,12 @@ public class PlayerDataRequestHandler extends BaseRequestHandler {
                     return this.handleAreaScoresRequest(shopArea, request, response);
                 } else if (loadFlag == 4) {
                     return this.handleGlobalScoresRequest(request, response);
+                } else if (loadFlag == 8) {
+                    return this.handleRivalScoresRequest(refid, request, response, 1);
+                } else if (loadFlag == 16) {
+                    return this.handleRivalScoresRequest(refid, request, response, 2);
+                } else if (loadFlag == 32) {
+                    return this.handleRivalScoresRequest(refid, request, response, 3);
                 }
             // handle usergamedata_advanced.usernew requests
             } else if (mode.equals("usernew")) {
@@ -252,6 +258,32 @@ public class PlayerDataRequestHandler extends BaseRequestHandler {
     private Object handleGlobalScoresRequest(final Request request, final Response response) {
         final List<UserSongRecord> allRecords = this.songRecordDao.findAll();
         final HashMap<Integer, HashMap<Integer, Object[]>> topRecords = this.sortScoresByTopScore(allRecords);
+
+        return this.sendScoresToClient(request, response, topRecords);
+    }
+
+    /**
+     * Handle a request to load the scores for a particular rival.
+     * @param refId The refId for the calling card
+     * @param request The Spark request
+     * @param response The Spark response
+     * @param which Which rival to load (1-3)
+     * @return A response object for Spark
+     */
+    private Object handleRivalScoresRequest(final String refId, final Request request, final Response response, final int which) {
+        final UserProfile user = this.profileDao.findByUser(this.cardDao.findByRefId(refId).getUser());
+        UserProfile rival;
+
+        if (which == 1) {
+            rival = user.getRival1();
+        } else if (which == 2) {
+            rival = user.getRival2();
+        } else {
+            rival = user.getRival3();
+        }
+
+        final List<UserSongRecord> rivalRecords = this.songRecordDao.findByUser(rival);
+        final HashMap<Integer, HashMap<Integer, Object[]>> topRecords = this.sortScoresByTopScore(rivalRecords);
 
         return this.sendScoresToClient(request, response, topRecords);
     }
@@ -640,8 +672,8 @@ public class PlayerDataRequestHandler extends BaseRequestHandler {
 
         // modify the contents to send back
         elems[GAME_RIVAL_SLOT_1_ACTIVE_OFFSET] = profile.getRival1() == null ? "0" : "1";
-        elems[GAME_RIVAL_SLOT_2_ACTIVE_OFFSET] = profile.getRival2() == null ? "0" : "1";
-        elems[GAME_RIVAL_SLOT_3_ACTIVE_OFFSET] = profile.getRival3() == null ? "0" : "1";
+        elems[GAME_RIVAL_SLOT_2_ACTIVE_OFFSET] = profile.getRival2() == null ? "0" : "2";
+        elems[GAME_RIVAL_SLOT_3_ACTIVE_OFFSET] = profile.getRival3() == null ? "0" : "3";
 
         if (profile.getRival1() != null) {
             elems[GAME_RIVAL_SLOT_1_DDRCODE_OFFSET] = Integer.toHexString(profile.getRival1().getDancerCode());
@@ -752,9 +784,9 @@ public class PlayerDataRequestHandler extends BaseRequestHandler {
         // parse out RIVAL values
         if (rival != null &&
                 rival.length != 0) {
-            final boolean rival1Active = rival[GAME_RIVAL_SLOT_1_ACTIVE_OFFSET].equals("1") ? true : false;
-            final boolean rival2Active = rival[GAME_RIVAL_SLOT_2_ACTIVE_OFFSET].equals("1") ? true : false;
-            final boolean rival3Active = rival[GAME_RIVAL_SLOT_3_ACTIVE_OFFSET].equals("1") ? true : false;
+            final boolean rival1Active = rival[GAME_RIVAL_SLOT_1_ACTIVE_OFFSET].equals("0") ? false : true;
+            final boolean rival2Active = rival[GAME_RIVAL_SLOT_2_ACTIVE_OFFSET].equals("0") ? false : true;
+            final boolean rival3Active = rival[GAME_RIVAL_SLOT_3_ACTIVE_OFFSET].equals("0") ? false : true;
             UserProfile rival1 = null;
             UserProfile rival2 = null;
             UserProfile rival3 = null;
