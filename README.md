@@ -6,7 +6,7 @@ An e-AMUSEMENT server emulator, targeting Dance Dance Revolution A.
 This is **butterfly**, an e-AMUSEMENT server targeting Dance Dance Revolution A. This is a mostly-fully-featured server, intended for local usage.
 
 ### Features:
-* Full support for profile creation, score saving, options saving. etc.
+* Full support for profile creation, score saving, options saving, rivals, etc.
   * Carding in works as expected, and any number of profiles is supported
 * Forced full unlock (currently event progress is not tracked / everything is fully unlocked already)
 * Can run on Windows/Mac/Linux
@@ -18,17 +18,17 @@ Requirements:
 
 #### Usage:
 
-Put the following in a file called "run_server.bat" if on Windows, or "run_server.sh" if on Linux/Mac. The path including YOUR_USERNAME can be anything, this is where the database file will be saved. Save and run the file:
+Put the following in a file called `run_server.bat` if on Windows, or `run_server.sh` if on Linux/Mac. The path, including `YOUR_USERNAME`, can be anything, as this is where the database file will be saved. Save and run the file:
 
-`java -Ddb_path="C:\Users\YOUR_USERNAME\Desktop\db.sqlite" -jar butterfly-1.0.0.jar`
+`java -Ddb_path="C:\Users\YOUR_USERNAME\Desktop\db.sqlite" -jar butterfly-1.1.0.jar`
 
-At this point, the server should be running. Connect your game and play!
+At this point, the server should be running. Connect your game and play! Set the `services` URL to `http://localhost` and turn off `url_slash`.
 
-### How do I change webUI-only options (dancer, fast/slow judgement, etc.)?
+### How do I change webUI-only options (dancer, rivals, fast/slow judgement, etc.)?
 
 Unfortunately, I did not get around to making a web UI for this server. I might in the future. In the meantime, you'll need to manually edit the database to change these options... any SQLite database browser will work.
 
-To change your options, find your user under the "ddr_16_profiles" table and edit whichever columns you'd like. Below are the valid options for each column you probably care about:
+To change your options, find your user under the `ddr_16_profiles` table and edit whichever columns you'd like. Below are the valid options for each column you probably care about:
 
 **dancer_character**:
 ```
@@ -92,6 +92,8 @@ To change your options, find your user under the "ddr_16_profiles" table and edi
 ```
 
 If you'd like to set your weight, enter your weight in **kilograms** in the weight column.
+
+If you'd like to set your **rivals**, you can edit the `rival_1_id`, `rival_2_id`, or `rival_3_id` columns to contain the **ID** of the rival user, meaning the value from the `id` column of the user.
 
 ### What's next?
 
