@@ -28,6 +28,12 @@ public class PcbTrackerRequestHandler extends BaseRequestHandler {
     private String isMaintenance;
 
     /**
+     * Says whether or not to enable Paseli usage.
+     */
+    @Value(PropertyNames.PASELI_ENABLE)
+    private String isPaseliEnabled;
+
+    /**
      * Handles an incoming request for the <code>pcbtracker</code> module.
      * @param requestBody The XML document of the incoming request.
      * @param request The Spark request
@@ -53,9 +59,10 @@ public class PcbTrackerRequestHandler extends BaseRequestHandler {
      */
     private Object handleAliveRequest(final Request request, final Response response) {
         final boolean isMaint = Boolean.parseBoolean(this.isMaintenance);
+        final boolean isPaseliEnabled = Boolean.parseBoolean(this.isPaseliEnabled);
 
         KXmlBuilder respBuilder = KXmlBuilder.create("response")
-                .e("pcbtracker").a("ecenable", "1");
+                .e("pcbtracker").a("ecenable", isPaseliEnabled ? "1" : "0");
 
         if (isMaint) {
             respBuilder = respBuilder.a("eclimit", "0").a("expire", "0").a("limit", "0").a("status", "0");

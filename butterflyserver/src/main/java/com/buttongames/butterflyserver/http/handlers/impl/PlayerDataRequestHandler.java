@@ -32,9 +32,11 @@ import com.buttongames.butterflymodel.model.ddr16.options.TurnOption;
 import com.buttongames.butterflycore.util.TimeUtils;
 import com.buttongames.butterflycore.xml.kbinxml.KXmlBuilder;
 import com.buttongames.butterflycore.xml.XmlUtils;
+import com.buttongames.butterflyserver.util.PropertyNames;
 import com.google.common.io.ByteStreams;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -124,6 +126,12 @@ public class PlayerDataRequestHandler extends BaseRequestHandler {
      * The DAO for managing song scores.
      */
     private final UserSongRecordDao songRecordDao;
+
+    /**
+     * Says whether or not we force every session to have extra stage.
+     */
+    @Value(PropertyNames.FORCE_EXTRA_STAGE)
+    private String isForceExtraStage;
 
     /**
      * Static list of events for the server.
@@ -589,6 +597,7 @@ public class PlayerDataRequestHandler extends BaseRequestHandler {
      */
     private String buildCommonCsv(final UserProfile profile) {
         final String[] elems = "1,0,fffffff,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,0000-0000,,,,,,".split(",", -1);
+        final boolean forceExtraStage = Boolean.parseBoolean(this.isForceExtraStage);
 
         // modify the contents to send back
         String dancerCodeStr = String.format("%08d", profile.getDancerCode());
@@ -598,7 +607,7 @@ public class PlayerDataRequestHandler extends BaseRequestHandler {
         elems[GAME_COMMON_AREA_OFFSET] = Integer.toHexString(profile.getArea());
         elems[GAME_COMMON_WEIGHT_DISPLAY_OFFSET] = profile.isDisplayWeight() ? "1" : "0";
         elems[GAME_COMMON_CHARACTER_OFFSET] = Integer.toHexString(profile.getCharacter().ordinal());
-        elems[GAME_COMMON_EXTRA_CHARGE_OFFSET] = Integer.toHexString(profile.getExtraCharge());
+        elems[GAME_COMMON_EXTRA_CHARGE_OFFSET] = Integer.toHexString(forceExtraStage ? 10 : profile.getExtraCharge());
         elems[GAME_COMMON_TOTAL_PLAYS_OFFSET] = (profile.getTotalPlays() == -1) ? "ffffffffffffffff" : Integer.toHexString(profile.getTotalPlays());
         elems[GAME_COMMON_SINGLE_PLAYS_OFFSET] = Integer.toHexString(profile.getSinglesPlays());
         elems[GAME_COMMON_DOUBLE_PLAYS_OFFSET] = Integer.toHexString(profile.getDoublesPlays());
