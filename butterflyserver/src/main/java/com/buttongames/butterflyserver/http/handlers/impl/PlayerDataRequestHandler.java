@@ -1,6 +1,9 @@
 package com.buttongames.butterflyserver.http.handlers.impl;
 
-import com.buttongames.butterflyserver.Main;
+import com.buttongames.butterflydao.hibernate.dao.impl.ddr16.EventSaveDataDao;
+import com.buttongames.butterflydao.hibernate.dao.impl.ddr16.GlobalEventDao;
+import com.buttongames.butterflymodel.model.ddr16.EventSaveData;
+import com.buttongames.butterflymodel.model.ddr16.GlobalEvent;
 import com.buttongames.butterflydao.hibernate.dao.impl.ButterflyUserDao;
 import com.buttongames.butterflydao.hibernate.dao.impl.CardDao;
 import com.buttongames.butterflydao.hibernate.dao.impl.ddr16.GhostDataDao;
@@ -33,21 +36,23 @@ import com.buttongames.butterflycore.util.TimeUtils;
 import com.buttongames.butterflycore.xml.kbinxml.KXmlBuilder;
 import com.buttongames.butterflycore.xml.XmlUtils;
 import com.buttongames.butterflyserver.util.PropertyNames;
-import com.google.common.io.ByteStreams;
+import com.google.common.collect.ImmutableList;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import spark.Request;
 import spark.Response;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -128,42 +133,41 @@ public class PlayerDataRequestHandler extends BaseRequestHandler {
     private final UserSongRecordDao songRecordDao;
 
     /**
+     * The DAO for managing global events.
+     */
+    private final GlobalEventDao globalEventDao;
+
+    /**
+     * The DAO for managing user events progress.
+     */
+    private final EventSaveDataDao eventSaveDataDao;
+
+    /**
      * Says whether or not we force every session to have extra stage.
      */
     @Value(PropertyNames.FORCE_EXTRA_STAGE)
     private String isForceExtraStage;
 
     /**
-     * Static list of events for the server.
+     * This is a set of base user-level events we create for users when
+     * they have no event progress saved, yet.
      */
-    private static NodeList EVENTS;
-
-    static {
-        loadEvents();
-    }
+    private final List<EventSaveData> baseUserEvents;
 
     public PlayerDataRequestHandler(final ButterflyUserDao userDao, final CardDao cardDao, final ProfileDao profileDao,
-                                    final GhostDataDao ghostDataDao, final UserSongRecordDao songRecordDao) {
+                                    final GhostDataDao ghostDataDao, final UserSongRecordDao songRecordDao,
+                                    final GlobalEventDao globalEventDao, final EventSaveDataDao eventSaveDataDao) {
         this.userDao = userDao;
         this.cardDao = cardDao;
         this.profileDao = profileDao;
         this.ghostDataDao = ghostDataDao;
         this.songRecordDao = songRecordDao;
-    }
-
-    /**
-     * Load the events data into memory.
-     */
-    private static void loadEvents() {
-        try {
-            final byte[] respBody = ByteStreams.toByteArray(
-                    Main.class.getResourceAsStream("/static_responses/mdx/events.xml"));
-            final Element doc = XmlUtils.byteArrayToXmlFile(respBody);
-            EVENTS = XmlUtils.nodesAtPath(doc, "/response/playerdata/eventdata");
-        } catch (Exception e) {
-            e.printStackTrace();
-            System.exit(1);
-        }
+        this.globalEventDao = globalEventDao;
+        this.eventSaveDataDao = eventSaveDataDao;
+        this.baseUserEvents = ImmutableList.of(
+                // Baby-Lon's Adventure
+                new EventSaveData(null, 999, 30, 0, 0, 0, 0, 5)
+        );
     }
 
     /**
@@ -337,7 +341,7 @@ public class PlayerDataRequestHandler extends BaseRequestHandler {
     }
 
     /**
-     * Handles a request for the user scores.
+     * Handles a request for the user scores and event data.
      * @param refId The refId for the calling card
      * @param request The Spark request
      * @param response The Spark response
@@ -353,10 +357,9 @@ public class PlayerDataRequestHandler extends BaseRequestHandler {
         if (!refId.equals("X0000000000000000000000000000000")) {
             // get the user's scores and sort them out so we can get the top scores
             // for each song/difficulty
-            final List<UserSongRecord> userRecords =
-                    this.songRecordDao.findByUser(
-                            this.profileDao.findByUser(
-                                    this.cardDao.findByRefId(refId).getUser()));
+            final UserProfile user = this.profileDao.findByUser(
+                    this.cardDao.findByRefId(refId).getUser());
+            final List<UserSongRecord> userRecords = this.songRecordDao.findByUser(user);
 
             // sort them by song and difficulty, then insert them into the response
             // key for top map is the song ID
@@ -404,15 +407,50 @@ public class PlayerDataRequestHandler extends BaseRequestHandler {
 
                 respBuilder = respBuilder.up();
             }
+
+            // set the user's dan ranking
+            respBuilder.e("grade")
+                    .u32("single_grade", user.getSingleClass()).up()
+                    .u32("double_grade", user.getDoubleClass()).up().up();
+
+            // set the user's user-level event progress
+            final List<EventSaveData> userEvents = this.eventSaveDataDao.findByUser(user);
+
+            if (userEvents.isEmpty()) {
+                // if the user has no event progress, create their base event progress
+                for (EventSaveData event : this.baseUserEvents) {
+                    EventSaveData newEvent = new EventSaveData(event);
+                    newEvent.setUser(user);
+
+                    this.eventSaveDataDao.create(newEvent);
+                    userEvents.add(newEvent);
+                }
+            }
+
+            for (EventSaveData event : userEvents) {
+                respBuilder.e("eventdata")
+                        .u32("eventid", event.getEventId()).up()
+                        .s32("eventtype", event.getEventType()).up()
+                        .u32("eventno", event.getEventNo()).up()
+                        .s64("condition", event.getCondition()).up()
+                        .u32("reward", event.getReward()).up()
+                        .s32("comptime", (int) event.getCompTime()).up()
+                        .s64("savedata", event.getSaveData()).up().up();
+            }
         }
 
-        // TODO: Events isn't supposed to be a static response
-        final Document document = respBuilder.getDocument();
-        final Element elem = respBuilder.getElement();
+        // set the global events on the response
+        final List<GlobalEvent> globalEvents = this.globalEventDao.findAll();
 
-        for (int i = 0; i < EVENTS.getLength(); i++) {
-            Node tmp = document.importNode(EVENTS.item(i), true);
-            elem.appendChild(tmp);
+        for (GlobalEvent event : globalEvents) {
+            respBuilder.e("eventdata")
+                    .u32("eventid", event.getEventId()).up()
+                    .s32("eventtype", event.getEventType()).up()
+                    .u32("eventno", event.getEventNo()).up()
+                    .s64("condition", event.getCondition()).up()
+                    .u32("reward", event.getReward()).up()
+                    .s32("comptime", 1).up()
+                    .s64("savedata", 0).up().up();
         }
 
         return this.sendResponse(request, response, respBuilder);
@@ -453,7 +491,7 @@ public class PlayerDataRequestHandler extends BaseRequestHandler {
                 SpeedOption.X_1_00, BoostOption.NORMAL, AppearanceOption.VISIBLE, TurnOption.OFF, StepZoneOption.ON,
                 ScrollOption.NORMAL, ArrowColorOption.RAINBOW, CutOption.OFF, FreezeArrowOption.ON, JumpsOption.ON,
                 ArrowSkinOption.NORMAL, ScreenFilterOption.DARK, GuideLinesOption.OFF, LifeGaugeOption.NORMAL,
-                JudgementLayerOption.BACKGROUND, true, 0, null, null, null, defaultLastCsv);
+                JudgementLayerOption.BACKGROUND, true, 0, null, null, null, defaultLastCsv, 0, 0);
         this.profileDao.create(profile);
 
         // send the response
@@ -989,6 +1027,55 @@ public class PlayerDataRequestHandler extends BaseRequestHandler {
             this.songRecordDao.create(newRecord);
         }
 
+        // parse out the event progress saving and save them individually
+        final NodeList eventNodes = XmlUtils.nodesAtPath(dataNode, "/data/event");
+
+        for (int i = 0; i < eventNodes.getLength(); i++) {
+            Element eventNode = (Element) eventNodes.item(i);
+            int eventId = XmlUtils.intAtChild(eventNode, "eventid");
+
+            if (eventId == 0) {
+                continue;
+            }
+
+            int eventType = XmlUtils.intAtChild(eventNode, "eventtype");
+            int eventNo = XmlUtils.intAtChild(eventNode, "eventno");
+            long compTime = XmlUtils.longAtChild(eventNode, "comptime");
+            long saveData = XmlUtils.longAtChild(eventNode, "savedata");
+
+            // see if there's an entry for this event ID already. if there is, update its progress
+            EventSaveData eventSaveData = this.eventSaveDataDao.findByUserAndEventId(user, eventId);
+
+            // construct and save
+            if (eventSaveData != null) {
+                eventSaveData.setEventType(eventType);
+                eventSaveData.setEventNo(eventNo);
+                eventSaveData.setCompTime(compTime);
+                eventSaveData.setSaveData(saveData);
+                this.eventSaveDataDao.update(eventSaveData);
+            } else {
+                eventSaveData = new EventSaveData(user, eventId, eventType, eventNo, compTime, saveData, 0, 0);
+                this.eventSaveDataDao.create(eventSaveData);
+            }
+        }
+
+        // parse out the user's grade and also save that
+        final Element gradeNode = (Element) XmlUtils.nodeAtPath(dataNode, "/data/grade");
+
+        if (gradeNode != null) {
+            int singleGrade = XmlUtils.intAtChild(gradeNode, "single_grade");
+            int doubleGrade = XmlUtils.intAtChild(gradeNode, "double_grade");
+
+            if (user.getSingleClass() != singleGrade ||
+                    user.getDoubleClass() != doubleGrade) {
+                user.setSingleClass(singleGrade);
+                user.setDoubleClass(doubleGrade);
+
+                this.profileDao.update(user);
+            }
+        }
+
+        // send the response
         final KXmlBuilder builder = KXmlBuilder.create("response")
                 .e("playerdata")
                     .s32("result", 0).up();

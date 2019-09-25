@@ -2,8 +2,10 @@ package com.buttongames.butterflyserver.spring.configuration;
 
 import com.buttongames.butterflydao.hibernate.dao.impl.ButterflyUserDao;
 import com.buttongames.butterflydao.hibernate.dao.impl.CardDao;
+import com.buttongames.butterflydao.hibernate.dao.impl.ddr16.EventSaveDataDao;
 import com.buttongames.butterflydao.hibernate.dao.impl.ddr16.GameplayEventLogDao;
 import com.buttongames.butterflydao.hibernate.dao.impl.ddr16.GhostDataDao;
+import com.buttongames.butterflydao.hibernate.dao.impl.ddr16.GlobalEventDao;
 import com.buttongames.butterflydao.hibernate.dao.impl.ddr16.PcbEventLogDao;
 import com.buttongames.butterflydao.hibernate.dao.impl.ddr16.ProfileDao;
 import com.buttongames.butterflydao.hibernate.dao.impl.ddr16.ShopDao;
@@ -103,8 +105,9 @@ public class HttpConfiguration {
     @Bean
     public PlayerDataRequestHandler playerDataRequestHandler(final ButterflyUserDao userDao, final CardDao cardDao,
                                                              final ProfileDao profileDao, final GhostDataDao ghostDataDao,
-                                                             final UserSongRecordDao songRecordDao) {
-        return new PlayerDataRequestHandler(userDao, cardDao, profileDao, ghostDataDao, songRecordDao);
+                                                             final UserSongRecordDao songRecordDao, final GlobalEventDao globalEventDao,
+                                                             final EventSaveDataDao eventSaveDataDao) {
+        return new PlayerDataRequestHandler(userDao, cardDao, profileDao, ghostDataDao, songRecordDao, globalEventDao, eventSaveDataDao);
     }
 
     @Bean

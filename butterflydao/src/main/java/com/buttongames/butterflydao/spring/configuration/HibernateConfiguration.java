@@ -3,7 +3,9 @@ package com.buttongames.butterflydao.spring.configuration;
 import com.buttongames.butterflydao.hibernate.dao.impl.CardDao;
 import com.buttongames.butterflydao.hibernate.dao.impl.MachineDao;
 import com.buttongames.butterflydao.hibernate.dao.impl.ButterflyUserDao;
+import com.buttongames.butterflydao.hibernate.dao.impl.ddr16.EventSaveDataDao;
 import com.buttongames.butterflydao.hibernate.dao.impl.ddr16.GhostDataDao;
+import com.buttongames.butterflydao.hibernate.dao.impl.ddr16.GlobalEventDao;
 import com.buttongames.butterflydao.hibernate.dao.impl.ddr16.ProfileDao;
 import com.buttongames.butterflydao.hibernate.dao.impl.ddr16.ShopDao;
 import com.buttongames.butterflydao.hibernate.dao.impl.ddr16.GameplayEventLogDao;
@@ -54,12 +56,16 @@ public class HibernateConfiguration {
     @Value("${hibernate.show_sql}")
     private String showSql;
 
+    @Value("${hibernate.connection.pool_size}")
+    private String connectionLimit;
+
     @Bean
     public LocalSessionFactoryBean sessionFactory(final DriverManagerDataSource dataSource) {
         final Properties hibernateProperties = new Properties();
         hibernateProperties.setProperty("hibernate.hbm2ddl.auto", this.hbm2ddl);
         hibernateProperties.setProperty("hibernate.dialect", this.dialect);
         hibernateProperties.setProperty("hibernate.show_sql", this.showSql);
+        hibernateProperties.setProperty("hibernate.connection.pool_size", this.connectionLimit);
 
         final LocalSessionFactoryBean sessionFactory = new LocalSessionFactoryBean();
         sessionFactory.setDataSource(dataSource);
@@ -137,5 +143,15 @@ public class HibernateConfiguration {
     @Bean
     public GhostDataDao ghostDataDao(final SessionFactory sessionFactory) {
         return new GhostDataDao(sessionFactory);
+    }
+
+    @Bean
+    public EventSaveDataDao eventSaveDataDao(final SessionFactory sessionFactory) {
+        return new EventSaveDataDao(sessionFactory);
+    }
+
+    @Bean
+    public GlobalEventDao globalEventDao(final SessionFactory sessionFactory) {
+        return new GlobalEventDao(sessionFactory);
     }
 }

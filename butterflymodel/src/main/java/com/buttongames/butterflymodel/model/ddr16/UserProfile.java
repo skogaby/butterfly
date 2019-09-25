@@ -197,6 +197,14 @@ public class UserProfile implements Externalizable {
     @Column(name = "unk_last", columnDefinition = "TEXT")
     private String unkLast;
 
+    /** The user's Dan ranking for singles */
+    @Column(name = "single_class")
+    private Integer singleClass;
+
+    /** The user's Dan ranking for doubles */
+    @Column(name = "double_class")
+    private Integer doubleClass;
+
     public UserProfile() { }
 
     public UserProfile(ButterflyUser user, String name, int dancerCode, int area, boolean displayWeight, int extraCharge,
@@ -207,7 +215,7 @@ public class UserProfile implements Externalizable {
                        JumpsOption jumpsOption, ArrowSkinOption arrowSkinOption, ScreenFilterOption screenFilterOption,
                        GuideLinesOption guideLinesOption, LifeGaugeOption lifeGaugeOption, JudgementLayerOption judgementLayerOption,
                        boolean showFastSlow, int lastCalories, UserProfile rival1, UserProfile rival2, UserProfile rival3,
-                       String unkLast) {
+                       String unkLast, int singleClass, int doubleClass) {
         this.user = user;
         this.name = name;
         this.dancerCode = dancerCode;
@@ -240,6 +248,8 @@ public class UserProfile implements Externalizable {
         this.rival2 = rival2;
         this.rival3 = rival3;
         this.unkLast = unkLast;
+        this.singleClass = singleClass;
+        this.doubleClass = doubleClass;
     }
 
     @Override
@@ -277,6 +287,8 @@ public class UserProfile implements Externalizable {
         out.writeObject(this.rival2);
         out.writeObject(this.rival3);
         out.writeUTF(this.unkLast);
+        out.writeInt(this.singleClass);
+        out.writeInt(this.doubleClass);
     }
 
     @Override
@@ -314,6 +326,8 @@ public class UserProfile implements Externalizable {
         this.setRival2((UserProfile) in.readObject());
         this.setRival3((UserProfile) in.readObject());
         this.setUnkLast(in.readUTF());
+        this.setSingleClass(in.readInt());
+        this.setDoubleClass(in.readInt());
     }
 
     public long getId() {
@@ -578,5 +592,21 @@ public class UserProfile implements Externalizable {
 
     public void setUnkLast(String unkLast) {
         this.unkLast = unkLast;
+    }
+
+    public int getSingleClass() {
+        return (this.singleClass == null) ? 0 : singleClass;
+    }
+
+    public void setSingleClass(int singleClass) {
+        this.singleClass = singleClass;
+    }
+
+    public int getDoubleClass() {
+        return (this.doubleClass == null) ? 0 : doubleClass;
+    }
+
+    public void setDoubleClass(int doubleClass) {
+        this.doubleClass = doubleClass;
     }
 }
