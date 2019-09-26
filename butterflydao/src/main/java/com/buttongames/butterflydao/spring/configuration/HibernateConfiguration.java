@@ -84,7 +84,7 @@ public class HibernateConfiguration {
         source.setDriverClassName(this.driverClassName);
         source.setUsername(this.username);
         source.setPassword(this.password);
-        source.setUrl(this.connectionUrl);
+        source.setUrl(this.connectionUrl.replace('\\', '/'));
 
         return source;
     }
