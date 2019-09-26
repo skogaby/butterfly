@@ -54,8 +54,8 @@ public class EventSaveData implements Externalizable {
     private long saveData;
 
     /** Condition of the event */
-    @Column(name = "condition")
-    private long condition;
+    @Column(name = "event_condition")
+    private long eventCondition;
 
     /** Reward for the event */
     @Column(name = "reward")
@@ -64,14 +64,14 @@ public class EventSaveData implements Externalizable {
     public EventSaveData() { }
 
     public EventSaveData(UserProfile user, int eventId, int eventType, int eventNo, long compTime, long saveData,
-                         long condition, int reward) {
+                         long eventCondition, int reward) {
         this.user = user;
         this.eventId = eventId;
         this.eventType = eventType;
         this.eventNo = eventNo;
         this.compTime = compTime;
         this.saveData = saveData;
-        this.condition = condition;
+        this.eventCondition = eventCondition;
         this.reward = reward;
     }
 
@@ -82,7 +82,7 @@ public class EventSaveData implements Externalizable {
         this.eventNo = other.eventNo;
         this.compTime = other.compTime;
         this.saveData = other.saveData;
-        this.condition = other.condition;
+        this.eventCondition = other.eventCondition;
         this.reward = other.reward;
     }
 
@@ -94,7 +94,7 @@ public class EventSaveData implements Externalizable {
         out.writeInt(this.eventNo);
         out.writeLong(this.compTime);
         out.writeLong(this.saveData);
-        out.writeLong(this.condition);
+        out.writeLong(this.eventCondition);
         out.writeInt(this.reward);
     }
 
@@ -106,7 +106,7 @@ public class EventSaveData implements Externalizable {
         this.setEventNo(in.readInt());
         this.setCompTime(in.readLong());
         this.setSaveData(in.readLong());
-        this.setCondition(in.readLong());
+        this.setEventCondition(in.readLong());
         this.setReward(in.readInt());
     }
 
@@ -166,12 +166,12 @@ public class EventSaveData implements Externalizable {
         this.saveData = saveData;
     }
 
-    public long getCondition() {
-        return condition;
+    public long getEventCondition() {
+        return eventCondition;
     }
 
-    public void setCondition(long condition) {
-        this.condition = condition;
+    public void setEventCondition(long eventCondition) {
+        this.eventCondition = eventCondition;
     }
 
     public int getReward() {

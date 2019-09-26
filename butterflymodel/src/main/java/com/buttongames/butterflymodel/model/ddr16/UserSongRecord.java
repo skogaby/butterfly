@@ -119,8 +119,8 @@ public class UserSongRecord implements Externalizable {
     private int noteType;
 
     /** The grade for the record */
-    @Column(name = "rank")
-    private int rank;
+    @Column(name = "grade")
+    private int grade;
 
     /** Which kind of flag/lamp the user got for their record */
     @Column(name = "clear_kind")
@@ -350,7 +350,7 @@ public class UserSongRecord implements Externalizable {
 
     public UserSongRecord(UserProfile user, String machinePcbId, int playSide, int playStyle, int area, int weight100, String shopName,
                           boolean isPremium, boolean isEaPass, boolean isTakeover, boolean isRepeater, boolean isGameover,
-                          String locationId, String shopArea, int stageNum, int songId, int noteType, int rank,
+                          String locationId, String shopArea, int stageNum, int songId, int noteType, int grade,
                           int clearKind, int score, int exScore, int maxCombo, int life, int fastCount, int slowCount,
                           int marvelousCount, int perfectCount, int greatCount, int goodCount, int booCount,
                           int missCount, int okCount, int ngCount, int calories, GhostData ghostData, SpeedOption speedOption,
@@ -379,7 +379,7 @@ public class UserSongRecord implements Externalizable {
         this.stageNum = stageNum;
         this.songId = songId;
         this.noteType = noteType;
-        this.rank = rank;
+        this.grade = grade;
         this.clearKind = clearKind;
         this.score = score;
         this.exScore = exScore;
@@ -454,7 +454,7 @@ public class UserSongRecord implements Externalizable {
         out.writeInt(this.stageNum);
         out.writeInt(this.songId);
         out.writeInt(this.noteType);
-        out.writeInt(this.rank);
+        out.writeInt(this.grade);
         out.writeInt(this.clearKind);
         out.writeInt(this.score);
         out.writeInt(this.exScore);
@@ -529,7 +529,7 @@ public class UserSongRecord implements Externalizable {
         this.setStageNum(in.readInt());
         this.setSongId(in.readInt());
         this.setNoteType(in.readInt());
-        this.setRank(in.readInt());
+        this.setGrade(in.readInt());
         this.setClearKind(in.readInt());
         this.setScore(in.readInt());
         this.setExScore(in.readInt());
@@ -728,12 +728,12 @@ public class UserSongRecord implements Externalizable {
         this.noteType = noteType;
     }
 
-    public int getRank() {
-        return rank;
+    public int getGrade() {
+        return grade;
     }
 
-    public void setRank(int rank) {
-        this.rank = rank;
+    public void setGrade(int grade) {
+        this.grade = grade;
     }
 
     public int getClearKind() {

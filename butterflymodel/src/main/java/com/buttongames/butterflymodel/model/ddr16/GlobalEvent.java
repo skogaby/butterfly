@@ -33,8 +33,8 @@ public class GlobalEvent implements Externalizable {
     private int eventNo;
 
     /** Condition of the event */
-    @Column(name = "condition")
-    private long condition;
+    @Column(name = "event_condition")
+    private long eventCondition;
 
     /** Reward for the event */
     @Column(name = "reward")
@@ -42,11 +42,11 @@ public class GlobalEvent implements Externalizable {
 
     public GlobalEvent() { }
 
-    public GlobalEvent(int eventId, int eventType, int eventNo, long condition, int reward) {
+    public GlobalEvent(int eventId, int eventType, int eventNo, long eventCondition, int reward) {
         this.eventId = eventId;
         this.eventType = eventType;
         this.eventNo = eventNo;
-        this.condition = condition;
+        this.eventCondition = eventCondition;
         this.reward = reward;
     }
 
@@ -55,7 +55,7 @@ public class GlobalEvent implements Externalizable {
         out.writeInt(this.eventId);
         out.writeInt(this.eventType);
         out.writeInt(this.eventNo);
-        out.writeLong(this.condition);
+        out.writeLong(this.eventCondition);
         out.writeInt(this.reward);
     }
 
@@ -64,7 +64,7 @@ public class GlobalEvent implements Externalizable {
         this.setEventId(in.readInt());
         this.setEventType(in.readInt());
         this.setEventNo(in.readInt());
-        this.setCondition(in.readLong());
+        this.setEventCondition(in.readLong());
         this.setReward(in.readInt());
     }
 
@@ -92,12 +92,12 @@ public class GlobalEvent implements Externalizable {
         this.eventNo = eventNo;
     }
 
-    public long getCondition() {
-        return condition;
+    public long getEventCondition() {
+        return eventCondition;
     }
 
-    public void setCondition(long condition) {
-        this.condition = condition;
+    public void setEventCondition(long eventCondition) {
+        this.eventCondition = eventCondition;
     }
 
     public int getReward() {

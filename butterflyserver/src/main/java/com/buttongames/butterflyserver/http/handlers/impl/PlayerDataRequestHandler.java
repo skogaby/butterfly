@@ -48,11 +48,9 @@ import spark.Response;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -325,7 +323,7 @@ public class PlayerDataRequestHandler extends BaseRequestHandler {
                     respBuilder = respBuilder.e("record")
                             .u32("mcode", topRecord.getSongId()).up()
                             .u8("notetype", i).up()
-                            .u8("rank", topRecord.getRank()).up()
+                            .u8("rank", topRecord.getGrade()).up()
                             .u8("clearkind", topRecord.getClearKind()).up()
                             .u8("flagdata", 0).up()
                             .str("name", topRecord.getUser().getName()).up()
@@ -385,7 +383,7 @@ public class PlayerDataRequestHandler extends BaseRequestHandler {
                         UserSongRecord topRecord = (UserSongRecord) record[1];
 
                         count = (Integer) record[0];
-                        rank = topRecord.getRank();
+                        rank = topRecord.getGrade();
                         clearkind = topRecord.getClearKind();
                         score = topRecord.getScore();
                         ghostid = ((Long) topRecord.getGhostData().getId()).intValue();
@@ -432,7 +430,7 @@ public class PlayerDataRequestHandler extends BaseRequestHandler {
                         .u32("eventid", event.getEventId()).up()
                         .s32("eventtype", event.getEventType()).up()
                         .u32("eventno", event.getEventNo()).up()
-                        .s64("condition", event.getCondition()).up()
+                        .s64("condition", event.getEventCondition()).up()
                         .u32("reward", event.getReward()).up()
                         .s32("comptime", (int) event.getCompTime()).up()
                         .s64("savedata", event.getSaveData()).up().up();
@@ -447,7 +445,7 @@ public class PlayerDataRequestHandler extends BaseRequestHandler {
                     .u32("eventid", event.getEventId()).up()
                     .s32("eventtype", event.getEventType()).up()
                     .u32("eventno", event.getEventNo()).up()
-                    .s64("condition", event.getCondition()).up()
+                    .s64("condition", event.getEventCondition()).up()
                     .u32("reward", event.getReward()).up()
                     .s32("comptime", 1).up()
                     .s64("savedata", 0).up().up();

@@ -16,7 +16,7 @@ public class TimeUtils {
      * @return
      */
     public static LocalDateTime timeFromEpoch(final long millis) {
-        final Instant instant = Instant.ofEpochSecond(millis);
+        final Instant instant = Instant.ofEpochMilli(millis);
 
         return instant.atZone(ZoneId.systemDefault()).toLocalDateTime();
     }

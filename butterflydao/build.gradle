@@ -25,6 +25,8 @@ dependencies {
     compile group: 'org.hibernate', name: 'hibernate-java8', version: '5.4.0.Final'
     compile group: 'org.springframework', name: 'spring-orm', version: '5.1.3.RELEASE'
     compile group: 'org.xerial', name: 'sqlite-jdbc', version: '3.25.2'
+    compile group: 'mysql', name: 'mysql-connector-java', version: '8.0.17'
+
 
     // Models
     implementation project(':butterflymodel')
