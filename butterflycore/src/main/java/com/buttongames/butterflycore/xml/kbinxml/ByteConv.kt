@@ -1,11 +1,11 @@
 package com.buttongames.butterflycore.xml.kbinxml
 
 import com.buttongames.butterflycore.xml.kbinxml.ByteConv.E.longToBytes
-
 import java.lang.Double
 import java.lang.Float
 import java.math.BigInteger
 import java.nio.ByteBuffer
+import java.util.*
 import kotlin.experimental.and
 
 internal class ByteConv {
@@ -67,8 +67,8 @@ internal class ByteConv {
 
         fun stringToIp(string: String) = string.split(".").map { it.toUByte().toByte() }.toByteArray()
 
-        fun floatToString(array: ByteArray) = String.format("%.6f", ByteBuffer.wrap(array).float)
-        fun doubleToString(array: ByteArray) = String.format("%.6f", ByteBuffer.wrap(array).double)
+        fun floatToString(array: ByteArray) = String.format(Locale.US, "%.6f", ByteBuffer.wrap(array).float)
+        fun doubleToString(array: ByteArray) = String.format(Locale.US, "%.6f", ByteBuffer.wrap(array).double)
 
         fun stringToFloat(string: String) = Float.floatToRawIntBits(Float.parseFloat(string)).toByteArray()
         fun stringToDouble(string: String) = Double.doubleToRawLongBits(Double.parseDouble(string)).toByteArray()
@@ -99,3 +99,5 @@ internal inline fun String.toUByteA() = this.toByteA()
 internal inline fun String.toUShortBytes() = this.toShortBytes()
 internal inline fun String.toUIntBytes() = this.toIntBytes()
 internal inline fun String.toULongBytes() = this.toLongBytes()
+
+internal inline fun Byte.posInt() = this.toUByte().toInt()

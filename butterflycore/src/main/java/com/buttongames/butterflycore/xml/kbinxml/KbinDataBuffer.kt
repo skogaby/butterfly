@@ -35,8 +35,8 @@ internal class KbinDataBuffer(bytes: ByteArray, val encoding: Charset) {
             }
             else -> throw KbinException("Invalid read of $num bytes")
         }
-        realign(num)
         // println("Read bytes $debug")
+        realign(num)
         return result
     }
 
@@ -67,15 +67,18 @@ internal class KbinDataBuffer(bytes: ByteArray, val encoding: Charset) {
         if (pos16Follows()) {
             pos16 = pos32
         }
-        //println("Index 4: $pos32")
-        //println("Index 2: $pos16")
-        //println("Index 1: $pos8")
+        /*println("Index 4: $pos32")
+        println("Index 2: $pos16")
+        println("Index 1: $pos8")
+        println()*/
     }
 
     fun realign4Byte(num: Int) {
-        realign(num + (if (num % 4 != 0) {
-            4 - (num % 4)
-        } else 0))
+        realign(
+            num + (if (num % 4 != 0) {
+                4 - (num % 4)
+            } else 0)
+        )
     }
 
     fun reset() {
@@ -100,15 +103,14 @@ internal class KbinDataBuffer(bytes: ByteArray, val encoding: Charset) {
     fun readFrom4Byte(num: Int): ByteArray {
         if (num == 0) return byteArrayOf()
         val read = data.slice(pos32 until pos32 + num)
+        // println("Read bytes $pos32 - ${pos32 + num}")
         realign4Byte(num)
         return read.toByteArray()
     }
 
     fun readString(length: Int): String {
         var readBytes = readFrom4Byte(length)
-        if (readBytes.last() == 0x00.toByte()) { // null bytes are scary
-            readBytes = readBytes.sliceArray(0 until readBytes.lastIndex)
-        }
+        readBytes = readBytes.sliceArray(0 until readBytes.lastIndex)
         return readBytes.toString(encoding)
     }
 
@@ -146,7 +148,7 @@ internal class KbinDataBuffer(bytes: ByteArray, val encoding: Charset) {
     }
 
     fun writeString(string: String) {
-        var bytes = string.toByteArray(encoding) + 0 // null byte
+        val bytes = string.toByteArray(encoding) + 0 // null byte
         writeU32(bytes.size.toUInt())
         writeTo4Byte(bytes)
     }

@@ -1,11 +1,15 @@
 package com.buttongames.butterflycore.xml.kbinxml
 
-import nu.xom.Document
-import nu.xom.Element
 import com.buttongames.butterflycore.xml.kbinxml.ControlTypes.*
+import com.buttongames.butterflycore.xml.kbinxml.Types.Companion.binStub
+import com.buttongames.butterflycore.xml.kbinxml.Types.Companion.strStub
+import org.w3c.dom.Document
+import org.w3c.dom.Element
 import java.nio.charset.Charset
 import java.util.*
+import javax.xml.parsers.DocumentBuilderFactory
 import kotlin.experimental.inv
+
 
 internal class KbinReader(data: ByteArray) {
 
@@ -48,6 +52,11 @@ internal class KbinReader(data: ByteArray) {
         val nodeStack = ArrayDeque<Element>()
         var end = false
 
+        val dbf = DocumentBuilderFactory.newInstance()
+        val builder = dbf.newDocumentBuilder()
+        val doc = builder.newDocument()
+        doc.xmlStandalone = true
+
         while (!end) {
             val current = nodeBuffer.readU8().toInt()
             val actual = current and (1 shl 6).inv()
@@ -59,7 +68,7 @@ internal class KbinReader(data: ByteArray) {
                     NodeStart -> {
                         val name = nodeBuffer.readString()
 
-                        val newNode = Element(name)
+                        val newNode = doc.createElement(name)
                         if (currentNode != null) {
                             currentNode.appendChild(newNode)
                             nodeStack.push(currentNode)
@@ -81,7 +90,7 @@ internal class KbinReader(data: ByteArray) {
 
                         //println("Got attribute $name with value $value")
 
-                        currentNode!!.addAttribute(name, value)
+                        currentNode!!.setAttribute(name, value)
                     }
                     FileEnd -> {
                         if (nodeStack.size == 0) {
@@ -95,24 +104,25 @@ internal class KbinReader(data: ByteArray) {
                 val nodeName = nodeBuffer.readString()
                 val arraySize = if (isArray) dataBuffer.readU32().toInt() else valueType.size
 
-                nodeStack.push(currentNode)
-                val newNode = Element(nodeName)
-                newNode.addAttribute("__type", valueName)
-                currentNode!!.appendChild(newNode)
+                nodeStack.push(currentNode!!)
+                val newNode = doc.createElement(nodeName)
+                newNode.setAttribute("__type", valueName)
+                currentNode.appendChild(newNode)
                 currentNode = newNode
 
                 val numElements = arraySize / valueType.size
-                when (valueName) {
-                    "bin" -> {
-                        currentNode.addAttribute("__size", arraySize.toString())
+
+                when (valueType) {
+                    binStub -> {
+                        currentNode.setAttribute("__size", arraySize.toString())
                         val bytes = dataBuffer.readFrom4Byte(arraySize)
                         currentNode.text = ByteConv.binToString(bytes)
                     }
-                    "str" -> {
+                    strStub -> {
                         currentNode.text = dataBuffer.readString(arraySize)
                     }
                     else -> {
-                        if (isArray) currentNode.addAttribute("__count", numElements.toString())
+                        if (isArray) currentNode.setAttribute("__count", numElements.toString())
 
                         val byteList = dataBuffer.readBytes(arraySize)
                         val stringList = mutableListOf<String>()
@@ -128,6 +138,7 @@ internal class KbinReader(data: ByteArray) {
                 throw KbinException("Unsupported node type with ID $actual")
             }
         }
-        return Document(currentNode)
+        doc.appendChild(currentNode)
+        return doc
     }
 }

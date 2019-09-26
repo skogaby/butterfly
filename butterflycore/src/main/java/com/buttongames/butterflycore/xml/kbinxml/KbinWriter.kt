@@ -1,26 +1,38 @@
 package com.buttongames.butterflycore.xml.kbinxml
 
-import nu.xom.Document
-import nu.xom.Element
+import com.buttongames.butterflycore.xml.kbinxml.Types.Companion.binStub
+import com.buttongames.butterflycore.xml.kbinxml.Types.Companion.strStub
+import org.w3c.dom.Attr
+import org.w3c.dom.Document
+import org.w3c.dom.Element
+import org.w3c.dom.Node
 import java.io.ByteArrayOutputStream
 import java.nio.charset.Charset
 import kotlin.experimental.inv
 
-internal class KbinWriter(val xml: Document, val encoding: String = "SHIFT_JIS", val compressed: Boolean = true) {
+
+internal class KbinWriter(val xml: Document, val encoding: String = "UTF-8", val compressed: Boolean = true) {
     private val header = ByteArray(4)
 
     val charset = Charset.forName(encoding)
 
     fun getKbin(): ByteArray {
+        if (reverseKbinTypeMap.isEmpty()) {
+            for (entry in kbinTypeMap.entries) {
+                for (name in entry.value.names) {
+                    reverseKbinTypeMap[name] = entry.key
+                }
+            }
+        }
         val dataBuffer = KbinDataBuffer(charset)
         val nodeBuffer = KbinNodeBuffer(compressed, charset)
 
-        header[0] = 0xa0u.toByte()
+        header[0] = 0xA0u.toByte()
         header[1] = (if (compressed) 0x42u else 0x45u).toByte()
         header[2] = (Constants.encodingsReverse[encoding]!! shl 5).toByte()
         header[3] = header[2].inv()
 
-        nodeRecurse(xml.rootElement, dataBuffer, nodeBuffer)
+        nodeRecurse(xml.documentElement, dataBuffer, nodeBuffer)
 
         nodeBuffer.writeU8(255u)
         nodeBuffer.pad()
@@ -36,13 +48,27 @@ internal class KbinWriter(val xml: Document, val encoding: String = "SHIFT_JIS",
     }
 
     private fun nodeRecurse(e: Element, dataBuffer: KbinDataBuffer, nodeBuffer: KbinNodeBuffer) {
-        val typeName = e.getAttribute("__type")?.value
+        var typeName = e.getAttribute("__type")
+        val text = e.text
+        if (typeName == "" && text.trim() != "") {
+            typeName = "str"
+        }
         val typeId = reverseKbinTypeMap[typeName]
-        if (typeName != null && typeId == null) throw KbinException("Type $typeName is not supported")
+        if (typeName != "" && typeId == null)
+            throw KbinException("Type $typeName is not supported")
         val type = kbinTypeMap[typeId]
-        val count = (e.getAttribute("__count")?.value ?: e.getAttribute("__size")?.value)?.toInt()
 
-        val isArray = (count != null) && type?.name !in listOf("bin", "str")
+        var count = run {
+            val count_attr = e.getAttribute("__count")
+            val size_attr = e.getAttribute("__size")
+            when {
+                count_attr != "" -> count_attr
+                size_attr != "" -> size_attr
+                else -> null
+            }?.toInt()
+        }
+
+        val isArray = (count != null) && type?.name !in strStub.names + binStub.names
 
         if (typeId == null) {
             nodeBuffer.writeU8(1u)
@@ -53,45 +79,39 @@ internal class KbinWriter(val xml: Document, val encoding: String = "SHIFT_JIS",
             }
             nodeBuffer.writeU8(toWrite)
         }
-        nodeBuffer.writeString(e.localName)
+        nodeBuffer.writeString(e.nodeName)
+
         if (type != null) {
-            if (type.name == "bin") {
-                if (count != null) {
-                    dataBuffer.writeU32(count.toUInt())
-                }
-                val toWrite = ByteConv.stringToBin(e.text)
+            if (type == binStub) {
+                count = text.length / 2
+                dataBuffer.writeU32(count.toUInt())
+                val toWrite = ByteConv.stringToBin(text)
                 dataBuffer.writeTo4Byte(toWrite)
-            } else if (type.name == "str") {
-                dataBuffer.writeString(e.text)
+            } else if (type == strStub) {
+                dataBuffer.writeString(text)
             } else {
                 if (count != null) {
                     dataBuffer.writeU32((count * type.size).toUInt())
                 }
-                val split = e.text.splitAndJoin(type.count)
+                val split = text.splitAndJoin(type.count)
+                //val toWrite = split.flatMap { type.fromString(it).asIterable() }.toByteArray()
                 val toWrite = split.flatMap { type.fromString(it).asIterable() }.toByteArray()
                 dataBuffer.writeBytes(toWrite)
             }
         }
-        /*for (a in e) {
-            val name = a.localName
-            if (name in arrayOf("__count", "__size", "__type"))
-                continue
-            val value = a.value
-            nodeBuffer.writeU8(46u)
-            nodeBuffer.writeString(name)
-            dataBuffer.writeString(value)
-        }*/
-        val attributes = e.iterator().asSequence()
-                .filter { it.localName !in listOf("__type", "__count", "__size") }
-                .sortedBy { it.localName }
+
+        val attributes = e.attributeList.filter { it.nodeName !in listOf("__type", "__count", "__size") }
+            .sortedBy { it.nodeName }
 
         for (a in attributes) {
+            a as Attr
             nodeBuffer.writeU8(46u)
-            nodeBuffer.writeString(a.localName)
+            nodeBuffer.writeString(a.nodeName)
             dataBuffer.writeString(a.value)
         }
-        for (c in e.childElements) {
-            nodeRecurse(c, dataBuffer, nodeBuffer)
+
+        for (thing in e.childNodes(Node.ELEMENT_NODE)) {
+            nodeRecurse(thing as Element, dataBuffer, nodeBuffer)
         }
         nodeBuffer.writeU8(254u)
     }

@@ -83,7 +83,7 @@ public abstract class BaseRequestHandler {
 
         // convert them to binary XML
         if (!XmlUtils.isBinaryXML(respBytes)) {
-            respBytes = PublicKt.kbinEncode(new String(respBytes));
+            respBytes = PublicKt.kbinEncode(new String(respBytes), "UTF-8");
         }
 
         response.header(COMPRESSION_HEADER, "none");

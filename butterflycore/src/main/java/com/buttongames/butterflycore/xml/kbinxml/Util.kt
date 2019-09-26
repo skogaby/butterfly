@@ -1,7 +1,5 @@
 package com.buttongames.butterflycore.xml.kbinxml
 
-import nu.xom.Attribute
-import nu.xom.Element
 import java.nio.charset.Charset
 
 fun byteArrayOfInts(vararg ints: Int) = ByteArray(ints.size) { pos -> ints[pos].toByte() }
@@ -16,10 +14,6 @@ internal fun ByteArray.unsigned(): UByteArray {
 }
 
 class KbinException internal constructor(override var message: String) : Exception(message)
-
-internal fun Element.addAttribute(key: String, value: String) {
-    this.addAttribute(Attribute(key, value))
-}
 
 internal fun MutableList<Byte>.setOrAdd(pos: Int, byte: Byte) {
     if (pos == this.size) {
@@ -42,14 +36,18 @@ internal fun MutableList<Byte>.setOrAddAll(pos: Int, bytes: ByteArray) {
 
 internal fun ByteArray.toString(encoding: String) = this.toString(Charset.forName(encoding))
 
-internal fun String.splitAndJoin(count: Int): Array<String> {
+/*internal fun String.splitAndJoin(count: Int): Array<String> {
     val input = this.split(" ")
     val output = Array(input.size / count) { "" }
     for (i in 0 until output.size) {
         output[i] = input.slice(i * count until (i + 1) * count).joinToString(" ")
     }
     return output
-}
+}*/
+
+internal fun String.splitAndJoin(count: Int) =
+    this.split(" ").chunked(count).map { it.joinToString(" ") }.toTypedArray()
+
 
 fun measureMs(times: Int = 1, function: () -> Unit) {
     for (i in 0 until times) {
@@ -61,5 +59,3 @@ fun measureMs(times: Int = 1, function: () -> Unit) {
         println("Took ${duration / 1000000.0} ms")
     }
 }
-
-internal inline fun Byte.posInt() = this.toUByte().toInt()
