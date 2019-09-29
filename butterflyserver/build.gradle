@@ -5,7 +5,7 @@ apply plugin: 'java'
 apply plugin: 'application'
 apply plugin: 'com.github.johnrengelman.shadow'
 
-sourceCompatibility = 1.8
+sourceCompatibility = 1.11
 
 mainClassName = "com.buttongames.butterflyserver.Main"
 
@@ -53,7 +53,7 @@ buildscript {
     }
 
     dependencies {
-        classpath 'com.github.jengelman.gradle.plugins:shadow:2.0.1'
+        classpath 'com.github.jengelman.gradle.plugins:shadow:5.1.0'
     }
 }
 
