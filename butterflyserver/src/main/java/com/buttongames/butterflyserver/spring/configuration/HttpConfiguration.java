@@ -21,10 +21,11 @@ import com.buttongames.butterflyserver.http.handlers.impl.MessageRequestHandler;
 import com.buttongames.butterflyserver.http.handlers.impl.PackageRequestHandler;
 import com.buttongames.butterflyserver.http.handlers.impl.PcbEventRequestHandler;
 import com.buttongames.butterflyserver.http.handlers.impl.PcbTrackerRequestHandler;
-import com.buttongames.butterflyserver.http.handlers.impl.PlayerDataRequestHandler;
+import com.buttongames.butterflyserver.http.handlers.impl.mdx.BaseMdxRequestHandler;
+import com.buttongames.butterflyserver.http.handlers.impl.mdx.PlayerDataRequestHandler;
 import com.buttongames.butterflyserver.http.handlers.impl.ServicesRequestHandler;
 import com.buttongames.butterflyserver.http.handlers.impl.SystemRequestHandler;
-import com.buttongames.butterflyserver.http.handlers.impl.TaxRequestHandler;
+import com.buttongames.butterflyserver.http.handlers.impl.mdx.TaxRequestHandler;
 import com.buttongames.butterflycore.util.CardIdUtils;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -42,7 +43,14 @@ import org.springframework.context.annotation.PropertySource;
 public class HttpConfiguration {
 
     @Bean
-    public ButterflyHttpServer butterflyHttpServer(final ServicesRequestHandler servicesRequestHandler,
+    public ButterflyHttpServer butterflyHttpServer(final BaseMdxRequestHandler baseMdxRequestHandler,
+                                                   final MachineDao machineDao,
+                                                   final ButterflyUserDao userDao) {
+        return new ButterflyHttpServer(baseMdxRequestHandler, machineDao, userDao);
+    }
+
+    @Bean
+    public BaseMdxRequestHandler baseMdxRequestHandler(final ServicesRequestHandler servicesRequestHandler,
                                                    final PcbEventRequestHandler pcbEventRequestHandler,
                                                    final PcbTrackerRequestHandler pcbTrackerRequestHandler,
                                                    final MessageRequestHandler messageRequestHandler,
@@ -53,13 +61,11 @@ public class HttpConfiguration {
                                                    final PlayerDataRequestHandler playerDataRequestHandler,
                                                    final CardManageRequestHandler cardManageRequestHandler,
                                                    final SystemRequestHandler systemRequestHandler,
-                                                   final EacoinRequestHandler eacoinRequestHandler,
-                                                   final MachineDao machineDao,
-                                                   final ButterflyUserDao userDao) {
-        return new ButterflyHttpServer(servicesRequestHandler, pcbEventRequestHandler, pcbTrackerRequestHandler,
+                                                   final EacoinRequestHandler eacoinRequestHandler) {
+        return new BaseMdxRequestHandler(servicesRequestHandler, pcbEventRequestHandler, pcbTrackerRequestHandler,
                 messageRequestHandler, facilityRequestHandler, packageRequestHandler, eventLogRequestHandler,
                 taxRequestHandler, playerDataRequestHandler, cardManageRequestHandler, systemRequestHandler,
-                eacoinRequestHandler, machineDao, userDao);
+                eacoinRequestHandler);
     }
 
     @Bean

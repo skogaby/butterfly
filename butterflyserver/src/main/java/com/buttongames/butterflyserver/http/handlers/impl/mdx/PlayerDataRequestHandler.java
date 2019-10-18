@@ -1,4 +1,4 @@
-package com.buttongames.butterflyserver.http.handlers.impl;
+package com.buttongames.butterflyserver.http.handlers.impl.mdx;
 
 import com.buttongames.butterflydao.hibernate.dao.impl.ddr16.EventSaveDataDao;
 import com.buttongames.butterflydao.hibernate.dao.impl.ddr16.GlobalEventDao;
@@ -35,6 +35,7 @@ import com.buttongames.butterflymodel.model.ddr16.options.TurnOption;
 import com.buttongames.butterflycore.util.TimeUtils;
 import com.buttongames.butterflycore.xml.kbinxml.KXmlBuilder;
 import com.buttongames.butterflycore.xml.XmlUtils;
+import com.buttongames.butterflyserver.http.handlers.impl.PcbEventRequestHandler;
 import com.buttongames.butterflyserver.util.PropertyNames;
 import com.google.common.collect.ImmutableList;
 import org.apache.logging.log4j.LogManager;
@@ -695,16 +696,7 @@ public class PlayerDataRequestHandler extends BaseRequestHandler {
      * @return The CSV string.
      */
     private String buildLastCsv(final UserProfile profile) {
-        final String[] elems = profile.getUnkLast().split(",", -1);
-
-        // modify the last song to be whatever they last played
-        final UserSongRecord lastScore = this.songRecordDao.findLatestScoreForUser(profile);
-
-        if (lastScore != null) {
-            elems[GAME_LAST_SONG_OFFSET] = Integer.toHexString(lastScore.getSongId());
-        }
-
-        return String.join(",", elems);
+        return profile.getUnkLast();
     }
 
     /**
