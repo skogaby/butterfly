@@ -4,6 +4,7 @@ import com.buttongames.butterflydao.hibernate.dao.AbstractHibernateDao;
 import com.buttongames.butterflymodel.model.ddr16.UserProfile;
 import com.buttongames.butterflymodel.model.ddr16.UserSongRecord;
 import org.hibernate.SessionFactory;
+import org.hibernate.query.NativeQuery;
 import org.hibernate.query.Query;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanDefinition;
@@ -11,6 +12,7 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.NoResultException;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -22,6 +24,11 @@ import java.util.List;
 @Repository
 @Transactional
 public class UserSongRecordDao extends AbstractHibernateDao<UserSongRecord> {
+
+    /**
+     * The base of the String we use to query for top scores for various levels.
+     */
+    private static final String BASE_TOP_SCORE_QUERY = "SELECT * FROM ddr_16_user_song_records r ";
 
     @Autowired
     public UserSongRecordDao(final SessionFactory sessionFactory) {
@@ -39,72 +46,97 @@ public class UserSongRecordDao extends AbstractHibernateDao<UserSongRecord> {
         final Query<UserSongRecord> query = this.getCurrentSession().createQuery("from UserSongRecord where user = :user and endtime = :endtime");
         query.setParameter("user", user);
         query.setParameter("endtime", endtime);
+        query.setTimeout(20);
 
-        return query.uniqueResult();
+        try {
+            return query.getSingleResult();
+        } catch (NoResultException e) {
+            return null;
+        }
     }
 
     /**
-     * Finds the top score for a given song and difficulty
-     * @param mcode The mcode of the song to search for
-     * @param difficulty The difficulty to search for
-     * @return A matching record, or null
+     * Finds the global top scores for all songs for the given difficulty.
+     * @param difficulty The difficulty to query the top songs for
+     * @return A list of the top record for every song for the given difficulty
      */
-    public UserSongRecord findTopScoreForSongDifficulty(int mcode, int difficulty) {
-        final Query<UserSongRecord> query = this.getCurrentSession().createQuery(
-                "from UserSongRecord r where r.songId = :songId and r.noteType = :noteType order by r.score desc")
-                .setMaxResults(1);
-        query.setParameter("songId", mcode);
-        query.setParameter("noteType", difficulty);
-
-        return query.uniqueResult();
-    }
-
-    /**
-     * Finds all song records for a user.
-     * @param user The user of the records
-     * @return A list of matching records
-     */
-    public List<UserSongRecord> findByUser(final UserProfile user) {
-        final Query<UserSongRecord> query = this.getCurrentSession().createQuery("from UserSongRecord where user = :user");
-        query.setParameter("user", user);
+    public List<UserSongRecord> findTopScoresForDifficulty(final int difficulty) {
+        final NativeQuery<UserSongRecord> query = this.getCurrentSession().createSQLQuery(BASE_TOP_SCORE_QUERY +
+                "INNER JOIN (" +
+                "    SELECT song_id, MAX(score) score, note_type " +
+                "    FROM ddr_16_user_song_records " +
+                "    WHERE note_type = :difficulty " +
+                "    GROUP BY song_id, note_type " +
+                ") s ON r.song_id = s.song_id AND r.score = s.score and r.note_type = s.note_type");
+        query.addEntity(UserSongRecord.class);
+        query.setParameter("difficulty", difficulty);
+        query.setTimeout(20);
 
         return query.getResultList();
     }
 
     /**
-     * Finds the latest score for a given user, so we can make sure they start on the last song they played
-     * @param user The user of the records
-     * @return The latest record
+     * Finds the top scores for all songs for the given difficulty and user
+     * @param user The user to query the top scores for
+     * @param difficulty The difficulty to query the top songs for
+     * @return A list of the top record for every song for the given difficulty
      */
-    public UserSongRecord findLatestScoreForUser(final UserProfile user) {
-        final Query<UserSongRecord> query = this.getCurrentSession().createQuery(
-                "from UserSongRecord r where r.user = :user order by r.endtime desc")
-                .setMaxResults(1);
-        query.setParameter("user", user);
+    public List<UserSongRecord> findTopScoresForDifficultyByUser(final UserProfile user, final int difficulty) {
+        final NativeQuery<UserSongRecord> query = this.getCurrentSession().createSQLQuery(BASE_TOP_SCORE_QUERY +
+                "INNER JOIN (" +
+                "    SELECT song_id, MAX(score) score, note_type, user_id " +
+                "    FROM ddr_16_user_song_records " +
+                "    WHERE note_type = :difficulty AND user_id = :user " +
+                "    GROUP BY song_id, note_type, user_id " +
+                ") s ON r.song_id = s.song_id AND r.score = s.score AND r.note_type = s.note_type AND r.user_id = s.user_id");
+        query.addEntity(UserSongRecord.class);
+        query.setParameter("difficulty", difficulty);
+        query.setParameter("user", user.getId());
+        query.setTimeout(20);
 
-        return query.uniqueResult();
+        return query.getResultList();
     }
 
     /**
-     * Finds all song records for a machine.
-     * @param pcbid The PCBID of the machine to query for
-     * @return A list of matching records
+     * Finds the top scores for all songs for the given difficulty and machine
+     * @param pcbid The pcbid to query the top scores for
+     * @param difficulty The difficulty to query the top songs for
+     * @return A list of the top record for every song for the given difficulty
      */
-    public List<UserSongRecord> findByMachine(final String pcbid) {
-        final Query<UserSongRecord> query = this.getCurrentSession().createQuery("from UserSongRecord r where r.machinePcbId = :pcbid");
+    public List<UserSongRecord> findTopScoresForDifficultyByMachine(final String pcbid, final int difficulty) {
+        final NativeQuery<UserSongRecord> query = this.getCurrentSession().createSQLQuery(BASE_TOP_SCORE_QUERY +
+                "INNER JOIN (" +
+                "    SELECT song_id, MAX(score) score, note_type, machine_pcbid " +
+                "    FROM ddr_16_user_song_records " +
+                "    WHERE note_type = :difficulty AND machine_pcbid = :pcbid " +
+                "    GROUP BY song_id, note_type, machine_pcbid " +
+                ") s ON r.song_id = s.song_id AND r.score = s.score AND r.note_type = s.note_type AND r.machine_pcbid = s.machine_pcbid");
+        query.addEntity(UserSongRecord.class);
+        query.setParameter("difficulty", difficulty);
         query.setParameter("pcbid", pcbid);
+        query.setTimeout(20);
 
         return query.getResultList();
     }
 
     /**
-     * Finds all song records for a shop area.
-     * @param shopArea The area to query for
-     * @return A list of matching records
+     * Finds the top scores for all songs for the given difficulty and shop area
+     * @param shopArea The shop area to query the top scores for
+     * @param difficulty The difficulty to query the top songs for
+     * @return A list of the top record for every song for the given difficulty
      */
-    public List<UserSongRecord> findByShopArea(final String shopArea) {
-        final Query<UserSongRecord> query = this.getCurrentSession().createQuery("from UserSongRecord r where r.shopArea = :shopArea");
+    public List<UserSongRecord> findTopScoresForDifficultyByShopArea(final String shopArea, final int difficulty) {
+        final NativeQuery<UserSongRecord> query = this.getCurrentSession().createSQLQuery(BASE_TOP_SCORE_QUERY +
+                "INNER JOIN (" +
+                "    SELECT song_id, MAX(score) score, note_type, shop_area " +
+                "    FROM ddr_16_user_song_records " +
+                "    WHERE note_type = :difficulty AND shop_area = :shopArea " +
+                "    GROUP BY song_id, note_type, shop_area " +
+                ") s ON r.song_id = s.song_id AND r.score = s.score AND r.note_type = s.note_type AND r.shop_area = s.shop_area");
+        query.addEntity(UserSongRecord.class);
+        query.setParameter("difficulty", difficulty);
         query.setParameter("shopArea", shopArea);
+        query.setTimeout(20);
 
         return query.getResultList();
     }

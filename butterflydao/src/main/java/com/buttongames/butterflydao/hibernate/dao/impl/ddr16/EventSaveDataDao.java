@@ -11,6 +11,7 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.NoResultException;
 import java.util.List;
 
 /**
@@ -53,6 +54,10 @@ public class EventSaveDataDao extends AbstractHibernateDao<EventSaveData> {
         query.setParameter("user", user);
         query.setParameter("eventId", eventId);
 
-        return query.getSingleResult();
+        try {
+            return query.getSingleResult();
+        } catch (NoResultException e) {
+            return null;
+        }
     }
 }

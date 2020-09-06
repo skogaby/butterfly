@@ -1,4 +1,4 @@
-package com.buttongames.butterflyserver.http.handlers.impl.mdx;
+package com.buttongames.butterflyserver.http.handlers.impl.mdx.ddr16;
 
 import com.buttongames.butterflydao.hibernate.dao.impl.MachineDao;
 import com.buttongames.butterflydao.hibernate.dao.impl.UserPhasesDao;

@@ -105,8 +105,20 @@ public abstract class BaseRequestHandler {
             rawResponse.getOutputStream().flush();
             rawResponse.getOutputStream().close();
 
-            LOG.info("Response sent: " + request.queryParams("model") + " (" +
-                    request.queryParams("module") + "." + request.queryParams("method") + ")");
+            final String requestUriModel = request.queryParams("model");
+            final String requestUriModule;
+            final String requestUriMethod;
+
+            if(request.queryParams("module") != null){
+                requestUriModule = request.queryParams("module");
+                requestUriMethod = request.queryParams("method");
+            } else {
+                String[] moduleMethod = request.queryParams("f").split("\\.");
+                requestUriModule = moduleMethod[0];
+                requestUriMethod = moduleMethod[1];
+            }
+
+            LOG.info("Response sent: " + requestUriModel + " (" + requestUriModule + "." + requestUriMethod + ")");
 
             return 200;
         } catch (IOException e) {

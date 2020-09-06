@@ -2,8 +2,16 @@ package com.buttongames.butterflyserver.http;
 
 import com.buttongames.butterflycore.compression.Lz77;
 import com.buttongames.butterflycore.encryption.Rc4;
+import com.buttongames.butterflycore.xml.XmlUtils;
+import com.buttongames.butterflycore.xml.kbinxml.PublicKt;
 import com.buttongames.butterflydao.hibernate.dao.impl.ButterflyUserDao;
 import com.buttongames.butterflydao.hibernate.dao.impl.MachineDao;
+import com.buttongames.butterflymodel.model.ButterflyUser;
+import com.buttongames.butterflymodel.model.Machine;
+import com.buttongames.butterflymodel.model.SupportedGames;
+import com.buttongames.butterflyserver.graphql.GraphQLRequest;
+import com.buttongames.butterflyserver.graphql.types.ButterflyQuery;
+import com.buttongames.butterflyserver.graphql.types.ddr16.Ddr16Query;
 import com.buttongames.butterflyserver.http.exception.CardCipherException;
 import com.buttongames.butterflyserver.http.exception.InvalidPcbIdException;
 import com.buttongames.butterflyserver.http.exception.InvalidRequestException;
@@ -12,13 +20,16 @@ import com.buttongames.butterflyserver.http.exception.InvalidRequestModelExcepti
 import com.buttongames.butterflyserver.http.exception.InvalidRequestModuleException;
 import com.buttongames.butterflyserver.http.exception.MismatchedRequestUriException;
 import com.buttongames.butterflyserver.http.exception.UnsupportedRequestException;
-import com.buttongames.butterflyserver.http.handlers.impl.mdx.BaseMdxRequestHandler;
-import com.buttongames.butterflymodel.model.ButterflyUser;
-import com.buttongames.butterflymodel.model.Machine;
+import com.buttongames.butterflyserver.http.handlers.impl.mdx.ddr16.BaseDdr16RequestHandler;
 import com.buttongames.butterflyserver.util.PropertyNames;
-import com.buttongames.butterflycore.xml.XmlUtils;
-import com.buttongames.butterflycore.xml.kbinxml.PublicKt;
-import com.google.common.collect.ImmutableSet;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import graphql.ExecutionResult;
+import graphql.GraphQL;
+import graphql.GraphQLError;
+import graphql.InvalidSyntaxError;
+import graphql.schema.GraphQLSchema;
+import graphql.validation.ValidationError;
+import io.leangen.graphql.GraphQLSchemaGenerator;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,15 +38,21 @@ import org.springframework.stereotype.Component;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 import spark.Request;
+import spark.Spark;
 import spark.utils.StringUtils;
 
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import static com.buttongames.butterflycore.util.Constants.COMPRESSION_HEADER;
 import static com.buttongames.butterflycore.util.Constants.CRYPT_KEY_HEADER;
 import static com.buttongames.butterflycore.util.Constants.LZ77_COMPRESSION;
+import static spark.Spark.before;
 import static spark.Spark.exception;
 import static spark.Spark.port;
 import static spark.Spark.post;
@@ -56,8 +73,8 @@ public class ButterflyHttpServer {
     @Value(PropertyNames.PORT)
     private String port;
 
-    /** Handler for requests for the <code>services</code> module. */
-    private final BaseMdxRequestHandler baseMdxRequestHandler;
+    /** Handler for requests for DDR Ace. */
+    private final BaseDdr16RequestHandler baseDdr16RequestHandler;
 
     /** DAO for interacting with <code>Machine</code> objects in the database. */
     private final MachineDao machineDao;
@@ -65,16 +82,26 @@ public class ButterflyHttpServer {
     /** DAO for interacting with <code>ButterflyUser</code> objects in the database. */
     private final ButterflyUserDao userDao;
 
+    /** GraphQL query object for server-level entities. */
+    private final ButterflyQuery butterflyQuery;
+
+    /** GraphQL query object for game-level entities for DDR16. */
+    private final Ddr16Query ddr16Query;
+
     /**
      * Constructor.
      */
     @Autowired
-    public ButterflyHttpServer(final BaseMdxRequestHandler baseMdxRequestHandler,
+    public ButterflyHttpServer(final BaseDdr16RequestHandler baseDdr16RequestHandler,
                                final MachineDao machineDao,
-                               final ButterflyUserDao userDao) {
-        this.baseMdxRequestHandler = baseMdxRequestHandler;
+                               final ButterflyUserDao userDao,
+                               final ButterflyQuery butterflyQuery,
+                               final Ddr16Query ddr16Query) {
+        this.baseDdr16RequestHandler = baseDdr16RequestHandler;
         this.machineDao = machineDao;
         this.userDao = userDao;
+        this.butterflyQuery = butterflyQuery;
+        this.ddr16Query = ddr16Query;
     }
 
     /**
@@ -103,19 +130,38 @@ public class ButterflyHttpServer {
      * Configures the routes on the server, and the exception handlers.
      */
     private void configureRoutesAndExceptions() {
+        // enable a static file location, for graphiql
+        Spark.staticFileLocation("/static");
+
+        // CORS header, for the GraphQL APIs
+        before((request, response) -> response.header("Access-Control-Allow-Origin", "*"));
+
         // configure our root route; its handler will parse the request and go from there
         post("/", ((request, response) -> {
             // send the request to the right module handler
             final Element requestBody = validateAndUnpackRequest(request);
-            final String requestModel = request.attribute("model");
+            final SupportedGames gameModel = SupportedGames.fromModel(request.attribute("model"));
 
-            // handle requests for DDR
-            if (requestModel.startsWith("MDX")) {
-                return this.baseMdxRequestHandler.handleRequest(requestBody, request, response);
-            } else {
-                throw new InvalidRequestModelException();
+            switch (gameModel) {
+                case DDR_A_A20:
+                    return this.baseDdr16RequestHandler.handleRequest(requestBody, request, response);
+                default:
+                    throw new InvalidRequestModelException();
             }
         }));
+
+        // configure the graphql handler
+        final GraphQLSchema graphQLSchema = this.graphQLServerSetupSchema();
+        final ObjectMapper mapper = new ObjectMapper();
+
+        post("/graphql", (request, response) -> {
+            final GraphQLRequest graphQLRequest = mapper.readValue(request.body(), GraphQLRequest.class);
+            final ExecutionResult executionResult = new GraphQL.Builder(graphQLSchema)
+                    .build()
+                    .execute(graphQLRequest.getQuery(), graphQLRequest.getOperationName(), (Object) null);
+            response.type("application/json");
+            return mapper.writeValueAsString(this.createResultFromDataAndErrors(executionResult.getData(), executionResult.getErrors()));
+        });
 
         // configure the exception handlers
         exception(InvalidRequestMethodException.class, ((exception, request, response) -> {
@@ -129,6 +175,8 @@ public class ButterflyHttpServer {
         exception(InvalidRequestModuleException.class, ((exception, request, response) -> {
                     response.status(400);
                     response.body("Invalid request module.");
+                    LOG.info(String.format("RECEIVED AN UNSUPPORTED REQUEST MODULE: %s.%s",
+                            request.attribute("module"), request.attribute("method")));
                 }));
         exception(MismatchedRequestUriException.class, (((exception, request, response) -> {
                     response.status(400);
@@ -162,8 +210,17 @@ public class ButterflyHttpServer {
      */
     private Element validateAndUnpackRequest(Request request) {
         final String requestUriModel = request.queryParams("model");
-        final String requestUriModule = request.queryParams("module");
-        final String requestUriMethod = request.queryParams("method");
+        final String requestUriModule;
+        final String requestUriMethod;
+
+        if(request.queryParams("module") != null){
+            requestUriModule = request.queryParams("module");
+            requestUriMethod = request.queryParams("method");
+        } else {
+            String[] moduleMethod = request.queryParams("f").split("\\.");
+            requestUriModule = moduleMethod[0];
+            requestUriMethod = moduleMethod[1];
+        }
 
         LOG.info("Request received: " + requestUriModel + " (" + requestUriModule + "." + requestUriMethod + ")");
 
@@ -212,7 +269,6 @@ public class ButterflyHttpServer {
             final LocalDateTime now = LocalDateTime.now();
             final ButterflyUser newUser = new ButterflyUser("0000", now, now, 10000);
             userDao.create(newUser);
-
             machine = new Machine(newUser, requestBodyPcbId, LocalDateTime.now(), false, 0);
             machineDao.create(machine);
 
@@ -240,5 +296,62 @@ public class ButterflyHttpServer {
 
         // return the node corresponding to the actual call
         return moduleNode;
+    }
+
+    /**
+     * Setups up the GraphQL schema.
+     * @return
+     */
+    private GraphQLSchema graphQLServerSetupSchema() {
+        return new GraphQLSchemaGenerator()
+                .withOperationsFromSingletons(this.butterflyQuery, this.ddr16Query)
+                .generate();
+    }
+
+    /**
+     * Creates a GraphQL result from the data and the errors.
+     * @param data
+     * @param errors
+     * @return
+     */
+    private Map<String, Object> createResultFromDataAndErrors(final Object data, final List<GraphQLError> errors) {
+        final Map<String, Object> result = new HashMap<>();
+        result.put("data", data);
+
+        if (errors != null &&
+                !errors.isEmpty()) {
+            final List<GraphQLError> clientErrors = filterGraphQLErrors(errors);
+
+            if (clientErrors.size() < errors.size()) {
+                errors.stream()
+                        .filter(error -> !isClientError(error))
+                        .forEach(error -> LOG.error("Error executing query ({}): {}", error.getClass().getSimpleName(), error.getMessage()));
+            }
+
+            result.put("errors", clientErrors);
+        }
+
+        return result;
+    }
+
+    /**
+     * Says whether or not a GraphQL error is a client error.
+     * @param error
+     * @return
+     */
+    private boolean isClientError(final GraphQLError error) {
+        return ((error instanceof InvalidSyntaxError) ||
+                (error instanceof ValidationError));
+    }
+
+    /**
+     * Filter a list of errors for only the client errors.
+     * @param errors
+     * @return
+     */
+    private List<GraphQLError> filterGraphQLErrors(final List<GraphQLError> errors) {
+        return errors.stream()
+                .filter(this::isClientError)
+                .collect(Collectors.toList());
     }
 }

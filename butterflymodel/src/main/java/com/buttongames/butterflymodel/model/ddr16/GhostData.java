@@ -1,5 +1,7 @@
 package com.buttongames.butterflymodel.model.ddr16;
 
+import io.leangen.graphql.annotations.GraphQLQuery;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -72,6 +74,7 @@ public class GhostData implements Externalizable {
         this.setNoteType(in.readInt());
     }
 
+    @GraphQLQuery(name = "id")
     public long getId() {
         return id;
     }
@@ -80,6 +83,7 @@ public class GhostData implements Externalizable {
         this.id = id;
     }
 
+    @GraphQLQuery(name = "user")
     public UserProfile getUser() {
         return user;
     }
@@ -88,6 +92,7 @@ public class GhostData implements Externalizable {
         this.user = user;
     }
 
+    @GraphQLQuery(name = "ghostData")
     public String getGhostData() {
         return ghostData;
     }
@@ -96,6 +101,7 @@ public class GhostData implements Externalizable {
         this.ghostData = ghostData;
     }
 
+    @GraphQLQuery(name = "mcode")
     public int getMcode() {
         return mcode;
     }
@@ -104,6 +110,7 @@ public class GhostData implements Externalizable {
         this.mcode = mcode;
     }
 
+    @GraphQLQuery(name = "noteType")
     public int getNoteType() {
         return noteType;
     }

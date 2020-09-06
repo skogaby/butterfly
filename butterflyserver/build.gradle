@@ -31,6 +31,11 @@ dependencies {
     // Spring, dependency injection
     compile group: 'org.springframework', name: 'spring-context', version: '5.1.3.RELEASE'
     testCompile group: 'org.springframework', name: 'spring-test', version: '5.1.3.RELEASE'
+
+    // GraphQL API support
+    compile group: 'com.graphql-java', name: 'graphql-java', version: '13.0'
+    compile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.9.10'
+    compile group: 'io.leangen.graphql', name: 'graphql-spqr-spring-boot-starter', version: '0.0.4'
 }
 
 jar {

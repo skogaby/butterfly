@@ -27,7 +27,6 @@ dependencies {
     compile group: 'org.xerial', name: 'sqlite-jdbc', version: '3.25.2'
     compile group: 'mysql', name: 'mysql-connector-java', version: '8.0.17'
 
-
     // Models
     implementation project(':butterflymodel')
 }

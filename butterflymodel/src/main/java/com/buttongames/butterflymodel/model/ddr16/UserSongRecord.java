@@ -15,6 +15,8 @@ import com.buttongames.butterflymodel.model.ddr16.options.ScrollOption;
 import com.buttongames.butterflymodel.model.ddr16.options.SpeedOption;
 import com.buttongames.butterflymodel.model.ddr16.options.StepZoneOption;
 import com.buttongames.butterflymodel.model.ddr16.options.TurnOption;
+import io.leangen.graphql.annotations.GraphQLIgnore;
+import io.leangen.graphql.annotations.GraphQLQuery;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -584,6 +586,7 @@ public class UserSongRecord implements Externalizable {
         this.setFolder(in.readInt());
     }
 
+    @GraphQLQuery(name = "id")
     public long getId() {
         return id;
     }
@@ -592,6 +595,7 @@ public class UserSongRecord implements Externalizable {
         this.id = id;
     }
 
+    @GraphQLQuery(name = "user")
     public UserProfile getUser() {
         return user;
     }
@@ -600,6 +604,7 @@ public class UserSongRecord implements Externalizable {
         this.user = user;
     }
 
+    @GraphQLIgnore
     public String getMachinePcbId() {
         return machinePcbId;
     }
@@ -608,6 +613,7 @@ public class UserSongRecord implements Externalizable {
         this.machinePcbId = machinePcbId;
     }
 
+    @GraphQLQuery(name = "playSide")
     public int getPlaySide() {
         return playSide;
     }
@@ -616,6 +622,7 @@ public class UserSongRecord implements Externalizable {
         this.playSide = playSide;
     }
 
+    @GraphQLQuery(name = "playStyle")
     public int getPlayStyle() {
         return playStyle;
     }
@@ -624,6 +631,7 @@ public class UserSongRecord implements Externalizable {
         this.playStyle = playStyle;
     }
 
+    @GraphQLQuery(name = "area")
     public int getArea() {
         return area;
     }
@@ -632,6 +640,7 @@ public class UserSongRecord implements Externalizable {
         this.area = area;
     }
 
+    @GraphQLIgnore
     public int getWeight100() {
         return weight100;
     }
@@ -640,6 +649,7 @@ public class UserSongRecord implements Externalizable {
         this.weight100 = weight100;
     }
 
+    @GraphQLIgnore
     public String getShopName() {
         return shopName;
     }
@@ -648,6 +658,7 @@ public class UserSongRecord implements Externalizable {
         this.shopName = shopName;
     }
 
+    @GraphQLIgnore
     public boolean isPremium() {
         return isPremium;
     }
@@ -656,6 +667,7 @@ public class UserSongRecord implements Externalizable {
         isPremium = premium;
     }
 
+    @GraphQLIgnore
     public boolean isEaPass() {
         return isEaPass;
     }
@@ -664,6 +676,7 @@ public class UserSongRecord implements Externalizable {
         isEaPass = eaPass;
     }
 
+    @GraphQLIgnore
     public boolean isTakeover() {
         return isTakeover;
     }
@@ -672,6 +685,7 @@ public class UserSongRecord implements Externalizable {
         isTakeover = takeover;
     }
 
+    @GraphQLIgnore
     public boolean isRepeater() {
         return isRepeater;
     }
@@ -680,6 +694,7 @@ public class UserSongRecord implements Externalizable {
         isRepeater = repeater;
     }
 
+    @GraphQLQuery(name = "isGameover")
     public boolean isGameover() {
         return isGameover;
     }
@@ -688,6 +703,7 @@ public class UserSongRecord implements Externalizable {
         isGameover = gameover;
     }
 
+    @GraphQLQuery(name = "locationId")
     public String getLocationId() {
         return locationId;
     }
@@ -696,6 +712,7 @@ public class UserSongRecord implements Externalizable {
         this.locationId = locationId;
     }
 
+    @GraphQLQuery(name = "shopArea")
     public String getShopArea() {
         return shopArea;
     }
@@ -704,6 +721,7 @@ public class UserSongRecord implements Externalizable {
         this.shopArea = shopArea;
     }
 
+    @GraphQLQuery(name = "stageNum")
     public int getStageNum() {
         return stageNum;
     }
@@ -712,6 +730,7 @@ public class UserSongRecord implements Externalizable {
         this.stageNum = stageNum;
     }
 
+    @GraphQLQuery(name = "songId")
     public int getSongId() {
         return songId;
     }
@@ -720,6 +739,7 @@ public class UserSongRecord implements Externalizable {
         this.songId = songId;
     }
 
+    @GraphQLQuery(name = "noteType")
     public int getNoteType() {
         return noteType;
     }
@@ -728,6 +748,7 @@ public class UserSongRecord implements Externalizable {
         this.noteType = noteType;
     }
 
+    @GraphQLQuery(name = "grade")
     public int getGrade() {
         return grade;
     }
@@ -736,6 +757,7 @@ public class UserSongRecord implements Externalizable {
         this.grade = grade;
     }
 
+    @GraphQLQuery(name = "clearKind")
     public int getClearKind() {
         return clearKind;
     }
@@ -744,6 +766,7 @@ public class UserSongRecord implements Externalizable {
         this.clearKind = clearKind;
     }
 
+    @GraphQLQuery(name = "score")
     public int getScore() {
         return score;
     }
@@ -752,6 +775,7 @@ public class UserSongRecord implements Externalizable {
         this.score = score;
     }
 
+    @GraphQLQuery(name = "exScore")
     public int getExScore() {
         return exScore;
     }
@@ -760,6 +784,7 @@ public class UserSongRecord implements Externalizable {
         this.exScore = exScore;
     }
 
+    @GraphQLQuery(name = "maxCombo")
     public int getMaxCombo() {
         return maxCombo;
     }
@@ -768,6 +793,7 @@ public class UserSongRecord implements Externalizable {
         this.maxCombo = maxCombo;
     }
 
+    @GraphQLQuery(name = "life")
     public int getLife() {
         return life;
     }
@@ -776,6 +802,7 @@ public class UserSongRecord implements Externalizable {
         this.life = life;
     }
 
+    @GraphQLQuery(name = "fastCount")
     public int getFastCount() {
         return fastCount;
     }
@@ -784,6 +811,7 @@ public class UserSongRecord implements Externalizable {
         this.fastCount = fastCount;
     }
 
+    @GraphQLQuery(name = "slowCount")
     public int getSlowCount() {
         return slowCount;
     }
@@ -792,6 +820,7 @@ public class UserSongRecord implements Externalizable {
         this.slowCount = slowCount;
     }
 
+    @GraphQLQuery(name = "marvelousCount")
     public int getMarvelousCount() {
         return marvelousCount;
     }
@@ -800,6 +829,7 @@ public class UserSongRecord implements Externalizable {
         this.marvelousCount = marvelousCount;
     }
 
+    @GraphQLQuery(name = "perfectCount")
     public int getPerfectCount() {
         return perfectCount;
     }
@@ -808,6 +838,7 @@ public class UserSongRecord implements Externalizable {
         this.perfectCount = perfectCount;
     }
 
+    @GraphQLQuery(name = "greatCount")
     public int getGreatCount() {
         return greatCount;
     }
@@ -816,6 +847,7 @@ public class UserSongRecord implements Externalizable {
         this.greatCount = greatCount;
     }
 
+    @GraphQLQuery(name = "goodCount")
     public int getGoodCount() {
         return goodCount;
     }
@@ -824,6 +856,7 @@ public class UserSongRecord implements Externalizable {
         this.goodCount = goodCount;
     }
 
+    @GraphQLQuery(name = "booCount")
     public int getBooCount() {
         return booCount;
     }
@@ -832,6 +865,7 @@ public class UserSongRecord implements Externalizable {
         this.booCount = booCount;
     }
 
+    @GraphQLQuery(name = "missCount")
     public int getMissCount() {
         return missCount;
     }
@@ -840,6 +874,7 @@ public class UserSongRecord implements Externalizable {
         this.missCount = missCount;
     }
 
+    @GraphQLQuery(name = "okCount")
     public int getOkCount() {
         return okCount;
     }
@@ -848,6 +883,7 @@ public class UserSongRecord implements Externalizable {
         this.okCount = okCount;
     }
 
+    @GraphQLQuery(name = "ngCount")
     public int getNgCount() {
         return ngCount;
     }
@@ -856,6 +892,7 @@ public class UserSongRecord implements Externalizable {
         this.ngCount = ngCount;
     }
 
+    @GraphQLQuery(name = "calories")
     public int getCalories() {
         return calories;
     }
@@ -864,6 +901,7 @@ public class UserSongRecord implements Externalizable {
         this.calories = calories;
     }
 
+    @GraphQLQuery(name = "ghostData")
     public GhostData getGhostData() {
         return ghostData;
     }
@@ -872,6 +910,7 @@ public class UserSongRecord implements Externalizable {
         this.ghostData = ghostData;
     }
 
+    @GraphQLQuery(name = "speedOption")
     public SpeedOption getSpeedOption() {
         return speedOption;
     }
@@ -880,6 +919,7 @@ public class UserSongRecord implements Externalizable {
         this.speedOption = speedOption;
     }
 
+    @GraphQLQuery(name = "boostOption")
     public BoostOption getBoostOption() {
         return boostOption;
     }
@@ -888,6 +928,7 @@ public class UserSongRecord implements Externalizable {
         this.boostOption = boostOption;
     }
 
+    @GraphQLQuery(name = "appearanceOption")
     public AppearanceOption getAppearanceOption() {
         return appearanceOption;
     }
@@ -896,6 +937,7 @@ public class UserSongRecord implements Externalizable {
         this.appearanceOption = appearanceOption;
     }
 
+    @GraphQLQuery(name = "turnOption")
     public TurnOption getTurnOption() {
         return turnOption;
     }
@@ -904,6 +946,7 @@ public class UserSongRecord implements Externalizable {
         this.turnOption = turnOption;
     }
 
+    @GraphQLQuery(name = "stepZoneOption")
     public StepZoneOption getStepZoneOption() {
         return stepZoneOption;
     }
@@ -912,6 +955,7 @@ public class UserSongRecord implements Externalizable {
         this.stepZoneOption = stepZoneOption;
     }
 
+    @GraphQLQuery(name = "scrollOption")
     public ScrollOption getScrollOption() {
         return scrollOption;
     }
@@ -920,6 +964,7 @@ public class UserSongRecord implements Externalizable {
         this.scrollOption = scrollOption;
     }
 
+    @GraphQLQuery(name = "arrowColorOption")
     public ArrowColorOption getArrowColorOption() {
         return arrowColorOption;
     }
@@ -928,6 +973,7 @@ public class UserSongRecord implements Externalizable {
         this.arrowColorOption = arrowColorOption;
     }
 
+    @GraphQLQuery(name = "cutOption")
     public CutOption getCutOption() {
         return cutOption;
     }
@@ -936,6 +982,7 @@ public class UserSongRecord implements Externalizable {
         this.cutOption = cutOption;
     }
 
+    @GraphQLQuery(name = "freezeArrowOption")
     public FreezeArrowOption getFreezeArrowOption() {
         return freezeArrowOption;
     }
@@ -944,6 +991,7 @@ public class UserSongRecord implements Externalizable {
         this.freezeArrowOption = freezeArrowOption;
     }
 
+    @GraphQLQuery(name = "jumpsOption")
     public JumpsOption getJumpsOption() {
         return jumpsOption;
     }
@@ -952,6 +1000,7 @@ public class UserSongRecord implements Externalizable {
         this.jumpsOption = jumpsOption;
     }
 
+    @GraphQLQuery(name = "arrowSkinOption")
     public ArrowSkinOption getArrowSkinOption() {
         return arrowSkinOption;
     }
@@ -960,6 +1009,7 @@ public class UserSongRecord implements Externalizable {
         this.arrowSkinOption = arrowSkinOption;
     }
 
+    @GraphQLQuery(name = "screenFilterOption")
     public ScreenFilterOption getScreenFilterOption() {
         return screenFilterOption;
     }
@@ -968,6 +1018,7 @@ public class UserSongRecord implements Externalizable {
         this.screenFilterOption = screenFilterOption;
     }
 
+    @GraphQLQuery(name = "guideLinesOption")
     public GuideLinesOption getGuideLinesOption() {
         return guideLinesOption;
     }
@@ -976,6 +1027,7 @@ public class UserSongRecord implements Externalizable {
         this.guideLinesOption = guideLinesOption;
     }
 
+    @GraphQLQuery(name = "lifeGaugeOption")
     public LifeGaugeOption getLifeGaugeOption() {
         return lifeGaugeOption;
     }
@@ -984,6 +1036,7 @@ public class UserSongRecord implements Externalizable {
         this.lifeGaugeOption = lifeGaugeOption;
     }
 
+    @GraphQLQuery(name = "judgementLayerOption")
     public JudgementLayerOption getJudgementLayerOption() {
         return judgementLayerOption;
     }
@@ -992,6 +1045,7 @@ public class UserSongRecord implements Externalizable {
         this.judgementLayerOption = judgementLayerOption;
     }
 
+    @GraphQLQuery(name = "showFastSlow")
     public boolean isShowFastSlow() {
         return showFastSlow;
     }
@@ -1000,6 +1054,7 @@ public class UserSongRecord implements Externalizable {
         this.showFastSlow = showFastSlow;
     }
 
+    @GraphQLQuery(name = "songBaseName")
     public String getSongBaseName() {
         return songBaseName;
     }
@@ -1008,6 +1063,7 @@ public class UserSongRecord implements Externalizable {
         this.songBaseName = songBaseName;
     }
 
+    @GraphQLQuery(name = "songTitle")
     public String getSongTitle() {
         return songTitle;
     }
@@ -1016,6 +1072,7 @@ public class UserSongRecord implements Externalizable {
         this.songTitle = songTitle;
     }
 
+    @GraphQLQuery(name = "songArtist")
     public String getSongArtist() {
         return songArtist;
     }
@@ -1024,6 +1081,7 @@ public class UserSongRecord implements Externalizable {
         this.songArtist = songArtist;
     }
 
+    @GraphQLQuery(name = "bpmMin")
     public int getBpmMin() {
         return bpmMin;
     }
@@ -1032,6 +1090,7 @@ public class UserSongRecord implements Externalizable {
         this.bpmMin = bpmMin;
     }
 
+    @GraphQLQuery(name = "bpmMax")
     public int getBpmMax() {
         return bpmMax;
     }
@@ -1040,6 +1099,7 @@ public class UserSongRecord implements Externalizable {
         this.bpmMax = bpmMax;
     }
 
+    @GraphQLQuery(name = "level")
     public int getLevel() {
         return level;
     }
@@ -1048,6 +1108,7 @@ public class UserSongRecord implements Externalizable {
         this.level = level;
     }
 
+    @GraphQLQuery(name = "series")
     public int getSeries() {
         return series;
     }
@@ -1056,6 +1117,7 @@ public class UserSongRecord implements Externalizable {
         this.series = series;
     }
 
+    @GraphQLQuery(name = "bemaniFlag")
     public int getBemaniFlag() {
         return bemaniFlag;
     }
@@ -1064,6 +1126,7 @@ public class UserSongRecord implements Externalizable {
         this.bemaniFlag = bemaniFlag;
     }
 
+    @GraphQLQuery(name = "genreFlag")
     public int getGenreFlag() {
         return genreFlag;
     }
@@ -1072,6 +1135,7 @@ public class UserSongRecord implements Externalizable {
         this.genreFlag = genreFlag;
     }
 
+    @GraphQLQuery(name = "limited")
     public int getLimited() {
         return limited;
     }
@@ -1080,6 +1144,7 @@ public class UserSongRecord implements Externalizable {
         this.limited = limited;
     }
 
+    @GraphQLQuery(name = "region")
     public int getRegion() {
         return region;
     }
@@ -1088,6 +1153,7 @@ public class UserSongRecord implements Externalizable {
         this.region = region;
     }
 
+    @GraphQLQuery(name = "grVoltage")
     public int getGrVoltage() {
         return grVoltage;
     }
@@ -1096,6 +1162,7 @@ public class UserSongRecord implements Externalizable {
         this.grVoltage = grVoltage;
     }
 
+    @GraphQLQuery(name = "grStream")
     public int getGrStream() {
         return grStream;
     }
@@ -1104,6 +1171,7 @@ public class UserSongRecord implements Externalizable {
         this.grStream = grStream;
     }
 
+    @GraphQLQuery(name = "grChaos")
     public int getGrChaos() {
         return grChaos;
     }
@@ -1112,6 +1180,7 @@ public class UserSongRecord implements Externalizable {
         this.grChaos = grChaos;
     }
 
+    @GraphQLQuery(name = "grFreeze")
     public int getGrFreeze() {
         return grFreeze;
     }
@@ -1120,6 +1189,7 @@ public class UserSongRecord implements Externalizable {
         this.grFreeze = grFreeze;
     }
 
+    @GraphQLQuery(name = "grAir")
     public int getGrAir() {
         return grAir;
     }
@@ -1128,6 +1198,7 @@ public class UserSongRecord implements Externalizable {
         this.grAir = grAir;
     }
 
+    @GraphQLQuery(name = "share")
     public boolean isShare() {
         return share;
     }
@@ -1136,6 +1207,7 @@ public class UserSongRecord implements Externalizable {
         this.share = share;
     }
 
+    @GraphQLQuery(name = "endtime")
     public LocalDateTime getEndtime() {
         return endtime;
     }
@@ -1144,6 +1216,7 @@ public class UserSongRecord implements Externalizable {
         this.endtime = endtime;
     }
 
+    @GraphQLQuery(name = "folder")
     public int getFolder() {
         return folder;
     }

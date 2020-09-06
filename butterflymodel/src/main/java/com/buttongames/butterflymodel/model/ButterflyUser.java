@@ -1,5 +1,8 @@
 package com.buttongames.butterflymodel.model;
 
+import io.leangen.graphql.annotations.GraphQLIgnore;
+import io.leangen.graphql.annotations.GraphQLQuery;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -84,6 +87,7 @@ public class ButterflyUser implements Externalizable {
         this.setPaseliBalance(in.readInt());
     }
 
+    @GraphQLQuery(name = "id")
     public long getId() {
         return id;
     }
@@ -92,6 +96,7 @@ public class ButterflyUser implements Externalizable {
         this.id = id;
     }
 
+    @GraphQLQuery(name = "registerTime")
     public LocalDateTime getRegisterTime() {
         return registerTime;
     }
@@ -100,6 +105,7 @@ public class ButterflyUser implements Externalizable {
         this.registerTime = registerTime;
     }
 
+    @GraphQLIgnore
     public String getPin() {
         return pin;
     }
@@ -108,6 +114,7 @@ public class ButterflyUser implements Externalizable {
         this.pin = pin;
     }
 
+    @GraphQLQuery(name = "lastPlayTime")
     public LocalDateTime getLastPlayTime() {
         return lastPlayTime;
     }
@@ -116,6 +123,7 @@ public class ButterflyUser implements Externalizable {
         this.lastPlayTime = lastPlayTime;
     }
 
+    @GraphQLIgnore
     public int getPaseliBalance() {
         return paseliBalance;
     }

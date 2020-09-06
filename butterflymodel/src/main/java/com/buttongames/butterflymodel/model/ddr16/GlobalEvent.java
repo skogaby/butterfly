@@ -1,5 +1,7 @@
 package com.buttongames.butterflymodel.model.ddr16;
 
+import io.leangen.graphql.annotations.GraphQLQuery;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
@@ -68,6 +70,7 @@ public class GlobalEvent implements Externalizable {
         this.setReward(in.readInt());
     }
 
+    @GraphQLQuery(name = "eventId")
     public int getEventId() {
         return eventId;
     }
@@ -76,6 +79,7 @@ public class GlobalEvent implements Externalizable {
         this.eventId = eventId;
     }
 
+    @GraphQLQuery(name = "eventType")
     public int getEventType() {
         return eventType;
     }
@@ -84,6 +88,7 @@ public class GlobalEvent implements Externalizable {
         this.eventType = eventType;
     }
 
+    @GraphQLQuery(name = "eventNo")
     public int getEventNo() {
         return eventNo;
     }
@@ -92,6 +97,7 @@ public class GlobalEvent implements Externalizable {
         this.eventNo = eventNo;
     }
 
+    @GraphQLQuery(name = "eventCondition")
     public long getEventCondition() {
         return eventCondition;
     }
@@ -100,6 +106,7 @@ public class GlobalEvent implements Externalizable {
         this.eventCondition = eventCondition;
     }
 
+    @GraphQLQuery(name = "reward")
     public int getReward() {
         return reward;
     }

@@ -10,6 +10,8 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.NoResultException;
+
 /**
  * DAO for interacting with <code>Shop</code> objects in the database.
  * @author skogaby (skogabyskogaby@gmail.com)
@@ -34,6 +36,10 @@ public class ShopDao extends AbstractHibernateDao<Shop> {
         final Query<Shop> query = this.getCurrentSession().createQuery("from Shop where pcb_id = :pcbid");
         query.setParameter("pcbid", pcbId);
 
-        return query.uniqueResult();
+        try {
+            return query.getSingleResult();
+        } catch (NoResultException e) {
+            return null;
+        }
     }
 }

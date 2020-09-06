@@ -4,5 +4,3 @@ include 'butterflymodel'
 include 'butterflydao'
 include 'butterflycore'
 include 'butterflyserver'
-include 'butterflywebui'
-

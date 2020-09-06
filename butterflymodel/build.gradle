@@ -15,4 +15,9 @@ dependencies {
     // Hibernate, SQL support
     compile group: 'org.hibernate', name: 'hibernate-core', version: '5.4.0.Final'
     compile group: 'org.hibernate', name: 'hibernate-java8', version: '5.4.0.Final'
+
+    // GraphQL API support
+    compile group: 'com.graphql-java', name: 'graphql-java', version: '13.0'
+    compile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.9.10'
+    compile group: 'io.leangen.graphql', name: 'graphql-spqr-spring-boot-starter', version: '0.0.4'
 }

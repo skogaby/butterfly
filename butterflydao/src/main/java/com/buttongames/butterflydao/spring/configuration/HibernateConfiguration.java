@@ -6,6 +6,8 @@ import com.buttongames.butterflydao.hibernate.dao.impl.ButterflyUserDao;
 import com.buttongames.butterflydao.hibernate.dao.impl.ddr16.EventSaveDataDao;
 import com.buttongames.butterflydao.hibernate.dao.impl.ddr16.GhostDataDao;
 import com.buttongames.butterflydao.hibernate.dao.impl.ddr16.GlobalEventDao;
+import com.buttongames.butterflydao.hibernate.dao.impl.ddr16.GoldenLeaguePeriodDao;
+import com.buttongames.butterflydao.hibernate.dao.impl.ddr16.GoldenLeagueStatusDao;
 import com.buttongames.butterflydao.hibernate.dao.impl.ddr16.ProfileDao;
 import com.buttongames.butterflydao.hibernate.dao.impl.ddr16.ShopDao;
 import com.buttongames.butterflydao.hibernate.dao.impl.ddr16.GameplayEventLogDao;
@@ -152,5 +154,15 @@ public class HibernateConfiguration {
     @Bean
     public GlobalEventDao globalEventDao(final SessionFactory sessionFactory) {
         return new GlobalEventDao(sessionFactory);
+    }
+
+    @Bean
+    public GoldenLeaguePeriodDao goldenLeaguePeriodDao(final SessionFactory sessionFactory) {
+        return new GoldenLeaguePeriodDao(sessionFactory);
+    }
+
+    @Bean
+    public GoldenLeagueStatusDao goldenLeagueStatusDao(final SessionFactory sessionFactory) {
+        return new GoldenLeagueStatusDao(sessionFactory);
     }
 }

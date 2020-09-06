@@ -3,7 +3,7 @@ An e-AMUSEMENT server emulator, targeting Dance Dance Revolution A.
 
 ## What is this?
 
-This is **butterfly**, an e-AMUSEMENT server targeting Dance Dance Revolution A. This is a mostly-fully-featured server, intended for local usage.
+This is **butterfly**, an e-AMUSEMENT server emulator. This is a mostly-fully-featured server, intended for local usage.
 
 ### Features:
 * Full support for profile creation, score saving, options saving, rivals, etc.
@@ -14,7 +14,7 @@ This is **butterfly**, an e-AMUSEMENT server targeting Dance Dance Revolution A.
 ### How do I use it?
 
 Requirements:
-* Java 8 or above needs to be installed. Most users should already have this, but if not, download the latest JRE for your platform
+* Java 11 or above needs to be installed. Most users should already have this, but if not, download the latest JRE for your platform
 
 #### Usage:
 

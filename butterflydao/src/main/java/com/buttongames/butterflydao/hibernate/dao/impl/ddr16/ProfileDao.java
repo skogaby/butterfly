@@ -11,6 +11,8 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.NoResultException;
+
 /**
  * DAO for interacting with <code>UserProfile</code> objects in the database.
  * @author skogaby (skogabyskogaby@gmail.com)
@@ -35,7 +37,11 @@ public class ProfileDao extends AbstractHibernateDao<UserProfile> {
         final Query<UserProfile> query = this.getCurrentSession().createQuery("from UserProfile where user = :user");
         query.setParameter("user", user);
 
-        return query.uniqueResult();
+        try {
+            return query.getSingleResult();
+        } catch (NoResultException e) {
+            return null;
+        }
     }
 
     /**
@@ -47,6 +53,10 @@ public class ProfileDao extends AbstractHibernateDao<UserProfile> {
         final Query<UserProfile> query = this.getCurrentSession().createQuery("from UserProfile where dancer_code = :dancerCode");
         query.setParameter("dancerCode", dancerCode);
 
-        return query.uniqueResult();
+        try {
+            return query.getSingleResult();
+        } catch (NoResultException e) {
+            return null;
+        }
     }
 }

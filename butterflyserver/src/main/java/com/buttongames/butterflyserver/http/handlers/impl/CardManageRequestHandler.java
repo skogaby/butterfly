@@ -2,6 +2,8 @@ package com.buttongames.butterflyserver.http.handlers.impl;
 
 import com.buttongames.butterflydao.hibernate.dao.impl.ButterflyUserDao;
 import com.buttongames.butterflydao.hibernate.dao.impl.CardDao;
+import com.buttongames.butterflydao.hibernate.dao.impl.ddr16.ProfileDao;
+import com.buttongames.butterflymodel.model.SupportedGames;
 import com.buttongames.butterflyserver.http.exception.InvalidRequestException;
 import com.buttongames.butterflyserver.http.exception.UnsupportedRequestException;
 import com.buttongames.butterflyserver.http.handlers.BaseRequestHandler;
@@ -46,10 +48,17 @@ public class CardManageRequestHandler extends BaseRequestHandler {
      */
     private final CardIdUtils cardIdUtils;
 
-    public CardManageRequestHandler(final CardDao cardDao, final ButterflyUserDao userDao, final CardIdUtils cardIdUtils) {
+    /**
+     * Helper class for querying for DDR A/A20 profiles.
+     */
+    private final ProfileDao ddrProfileDao;
+
+    public CardManageRequestHandler(final CardDao cardDao, final ButterflyUserDao userDao, final CardIdUtils cardIdUtils,
+                                    final ProfileDao ddrProfileDao) {
         this.cardDao = cardDao;
         this.userDao = userDao;
         this.cardIdUtils = cardIdUtils;
+        this.ddrProfileDao = ddrProfileDao;
     }
 
     /**
@@ -63,15 +72,18 @@ public class CardManageRequestHandler extends BaseRequestHandler {
     public Object handleRequest(final Element requestBody, final Request request, final Response response) {
         final String requestMethod = request.attribute("method");
 
-        if (requestMethod.equals("inquire")) {
-            return this.handleInquireRequest(requestBody, request, response);
-        } else if (requestMethod.equals("getrefid")) {
-            return this.handleGetRefIdRequest(requestBody, request, response);
-        } else if (requestMethod.equals("authpass")) {
-            return this.handleAuthPassRequest(requestBody, request, response);
+        switch (requestMethod) {
+            case "inquire":
+                return this.handleInquireRequest(requestBody, request, response);
+            case "getrefid":
+                return this.handleGetRefIdRequest(requestBody, request, response);
+            case "authpass":
+                return this.handleAuthPassRequest(requestBody, request, response);
+            case "bindmodel":
+                return this.handleBindModelRequest(requestBody, request, response);
+            default:
+                throw new UnsupportedRequestException();
         }
-
-        throw new UnsupportedRequestException();
     }
 
     /**
@@ -92,14 +104,19 @@ public class CardManageRequestHandler extends BaseRequestHandler {
         KXmlBuilder builder = KXmlBuilder.create("response");
 
         if (card == null) {
+            // the card has never been used
             builder = builder.e("cardmng").a("status", "112");
         } else {
+            // the card's been used. check if a profile exists for this
+            // user for the given game and set the flags appropriately
+            final boolean profileExists = this.profileExistsForGame(card, request.attribute("model"));
+
             builder = builder.e("cardmng")
-                                    .a("binded", "1")
+                                    .a("binded", profileExists ? "1" : "0") // 0 for new profiles, 1 for existing profiles
                                     .a("dataid", card.getRefId())
                                     .a("ecflag", "1")
                                     .a("expired", "0")
-                                    .a("newflag", "0")
+                                    .a("newflag", profileExists ? "0" : "1") // 1 for new profiles, 0 for existing profiles
                                     .a("refid", card.getRefId());
         }
 
@@ -168,5 +185,45 @@ public class CardManageRequestHandler extends BaseRequestHandler {
         final KXmlBuilder builder = KXmlBuilder.create("response")
                 .e("cardmng").a("status", String.valueOf(status));
         return this.sendResponse(request, response, builder);
+    }
+
+    /**
+     * Handles an incoming request for the <code>cardmng.bindmodel</code> module.
+     * @param requestBody The XML document of the incoming request.
+     * @param request The Spark request
+     * @param response The Spark response
+     * @return A response object for Spark
+     */
+    private Object handleBindModelRequest(final Element requestBody, final Request request, final Response response) {
+        final Node requestNode = XmlUtils.nodeAtPath(requestBody, "/cardmng");
+        final String refid = requestNode.getAttributes().getNamedItem("refid").getNodeValue();
+
+         // send the response
+        final KXmlBuilder builder = KXmlBuilder.create("response")
+                .e("cardmng").a("dataid", refid);
+        return this.sendResponse(request, response, builder);
+    }
+
+    /**
+     * Says whether or not a profile exists for the given card for the given game.
+     * @param card The card to check for a profile
+     * @param model The request model for the game
+     * @return Whether or not a profile exists for the given card and game
+     */
+    private boolean profileExistsForGame(final Card card, final String model) {
+        // if the card exists, we need to see if the profile exists
+        // for the game that has been requested for this user
+        final SupportedGames gameModel = SupportedGames.fromModel(model);
+        Object profile = null;
+
+        switch (gameModel) {
+            case DDR_A_A20:
+                profile = this.ddrProfileDao.findByUser(card.getUser());
+                break;
+            default:
+                break;
+        }
+
+        return (profile != null);
     }
 }

@@ -1,4 +1,4 @@
-package com.buttongames.butterflyserver.http.handlers.impl.mdx;
+package com.buttongames.butterflyserver.http.handlers.impl.mdx.ddr16;
 
 import com.buttongames.butterflyserver.http.exception.InvalidRequestModuleException;
 import com.buttongames.butterflyserver.http.handlers.impl.CardManageRequestHandler;
@@ -24,9 +24,9 @@ import spark.Response;
  * @author skogaby (skogabyskogaby@gmail.com)
  */
 @Component
-public class BaseMdxRequestHandler {
+public class BaseDdr16RequestHandler {
 
-    private static final Logger LOG = LogManager.getLogger(BaseMdxRequestHandler.class);
+    private static final Logger LOG = LogManager.getLogger(BaseDdr16RequestHandler.class);
 
     /** Handler for requests for the <code>services</code> module. */
     private final ServicesRequestHandler servicesRequestHandler;
@@ -68,18 +68,18 @@ public class BaseMdxRequestHandler {
      * Constructor.
      */
     @Autowired
-    public BaseMdxRequestHandler(final ServicesRequestHandler servicesRequestHandler,
-                               final PcbEventRequestHandler pcbEventRequestHandler,
-                               final PcbTrackerRequestHandler pcbTrackerRequestHandler,
-                               final MessageRequestHandler messageRequestHandler,
-                               final FacilityRequestHandler facilityRequestHandler,
-                               final PackageRequestHandler packageRequestHandler,
-                               final EventLogRequestHandler eventLogRequestHandler,
-                               final TaxRequestHandler taxRequestHandler,
-                               final PlayerDataRequestHandler playerDataRequestHandler,
-                               final CardManageRequestHandler cardManageRequestHandler,
-                               final SystemRequestHandler systemRequestHandler,
-                               final EacoinRequestHandler eacoinRequestHandler) {
+    public BaseDdr16RequestHandler(final ServicesRequestHandler servicesRequestHandler,
+                                   final PcbEventRequestHandler pcbEventRequestHandler,
+                                   final PcbTrackerRequestHandler pcbTrackerRequestHandler,
+                                   final MessageRequestHandler messageRequestHandler,
+                                   final FacilityRequestHandler facilityRequestHandler,
+                                   final PackageRequestHandler packageRequestHandler,
+                                   final EventLogRequestHandler eventLogRequestHandler,
+                                   final TaxRequestHandler taxRequestHandler,
+                                   final PlayerDataRequestHandler playerDataRequestHandler,
+                                   final CardManageRequestHandler cardManageRequestHandler,
+                                   final SystemRequestHandler systemRequestHandler,
+                                   final EacoinRequestHandler eacoinRequestHandler) {
         this.servicesRequestHandler = servicesRequestHandler;
         this.pcbEventRequestHandler = pcbEventRequestHandler;
         this.pcbTrackerRequestHandler = pcbTrackerRequestHandler;

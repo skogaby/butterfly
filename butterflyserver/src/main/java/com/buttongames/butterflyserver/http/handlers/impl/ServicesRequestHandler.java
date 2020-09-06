@@ -28,10 +28,9 @@ public class ServicesRequestHandler extends BaseRequestHandler {
     @Value(PropertyNames.PORT)
     private String port;
 
-    /**
-     * URL to return in the <code>services.get</code> request.
-     */
-    private String hostUrl = "http://localhost";
+    /** URL to return in the <code>services.get</code> request */
+    @Value(PropertyNames.URL)
+    private String hostUrl;
 
     /**
      * Mapping of services to their URLs.

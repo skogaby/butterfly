@@ -17,6 +17,8 @@ import com.buttongames.butterflymodel.model.ddr16.options.ScrollOption;
 import com.buttongames.butterflymodel.model.ddr16.options.SpeedOption;
 import com.buttongames.butterflymodel.model.ddr16.options.StepZoneOption;
 import com.buttongames.butterflymodel.model.ddr16.options.TurnOption;
+import io.leangen.graphql.annotations.GraphQLIgnore;
+import io.leangen.graphql.annotations.GraphQLQuery;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -330,6 +332,7 @@ public class UserProfile implements Externalizable {
         this.setDoubleClass(in.readInt());
     }
 
+    @GraphQLQuery(name = "id")
     public long getId() {
         return id;
     }
@@ -338,6 +341,7 @@ public class UserProfile implements Externalizable {
         this.id = id;
     }
 
+    @GraphQLQuery(name = "user")
     public ButterflyUser getUser() {
         return user;
     }
@@ -346,6 +350,7 @@ public class UserProfile implements Externalizable {
         this.user = user;
     }
 
+    @GraphQLQuery(name = "name")
     public String getName() {
         return name;
     }
@@ -354,6 +359,7 @@ public class UserProfile implements Externalizable {
         this.name = name;
     }
 
+    @GraphQLQuery(name = "dancerCode")
     public int getDancerCode() {
         return dancerCode;
     }
@@ -362,6 +368,7 @@ public class UserProfile implements Externalizable {
         this.dancerCode = dancerCode;
     }
 
+    @GraphQLQuery(name = "area")
     public int getArea() {
         return area;
     }
@@ -370,6 +377,7 @@ public class UserProfile implements Externalizable {
         this.area = area;
     }
 
+    @GraphQLIgnore
     public boolean isDisplayWeight() {
         return displayWeight;
     }
@@ -378,6 +386,7 @@ public class UserProfile implements Externalizable {
         this.displayWeight = displayWeight;
     }
 
+    @GraphQLIgnore
     public int getExtraCharge() {
         return extraCharge;
     }
@@ -386,6 +395,7 @@ public class UserProfile implements Externalizable {
         this.extraCharge = extraCharge;
     }
 
+    @GraphQLQuery(name = "singlesPlays")
     public int getSinglesPlays() {
         return singlesPlays;
     }
@@ -394,6 +404,7 @@ public class UserProfile implements Externalizable {
         this.singlesPlays = singlesPlays;
     }
 
+    @GraphQLQuery(name = "doublesPlays")
     public int getDoublesPlays() {
         return doublesPlays;
     }
@@ -402,6 +413,7 @@ public class UserProfile implements Externalizable {
         this.doublesPlays = doublesPlays;
     }
 
+    @GraphQLQuery(name = "totalPlays")
     public int getTotalPlays() {
         return totalPlays;
     }
@@ -410,6 +422,7 @@ public class UserProfile implements Externalizable {
         this.totalPlays = totalPlays;
     }
 
+    @GraphQLIgnore
     public double getWeight() {
         return weight;
     }
@@ -418,6 +431,7 @@ public class UserProfile implements Externalizable {
         this.weight = weight;
     }
 
+    @GraphQLQuery(name = "character")
     public DancerOption getCharacter() {
         return character;
     }
@@ -426,6 +440,7 @@ public class UserProfile implements Externalizable {
         this.character = character;
     }
 
+    @GraphQLQuery(name = "speedOption")
     public SpeedOption getSpeedOption() {
         return speedOption;
     }
@@ -434,6 +449,7 @@ public class UserProfile implements Externalizable {
         this.speedOption = speedOption;
     }
 
+    @GraphQLQuery(name = "boostOption")
     public BoostOption getBoostOption() {
         return boostOption;
     }
@@ -442,6 +458,7 @@ public class UserProfile implements Externalizable {
         this.boostOption = boostOption;
     }
 
+    @GraphQLQuery(name = "appearanceOption")
     public AppearanceOption getAppearanceOption() {
         return appearanceOption;
     }
@@ -450,6 +467,7 @@ public class UserProfile implements Externalizable {
         this.appearanceOption = appearanceOption;
     }
 
+    @GraphQLQuery(name = "turnOption")
     public TurnOption getTurnOption() {
         return turnOption;
     }
@@ -458,6 +476,7 @@ public class UserProfile implements Externalizable {
         this.turnOption = turnOption;
     }
 
+    @GraphQLQuery(name = "stepZoneOption")
     public StepZoneOption getStepZoneOption() {
         return stepZoneOption;
     }
@@ -466,6 +485,7 @@ public class UserProfile implements Externalizable {
         this.stepZoneOption = stepZoneOption;
     }
 
+    @GraphQLQuery(name = "scrollOption")
     public ScrollOption getScrollOption() {
         return scrollOption;
     }
@@ -474,6 +494,7 @@ public class UserProfile implements Externalizable {
         this.scrollOption = scrollOption;
     }
 
+    @GraphQLQuery(name = "arrowColorOption")
     public ArrowColorOption getArrowColorOption() {
         return arrowColorOption;
     }
@@ -482,6 +503,7 @@ public class UserProfile implements Externalizable {
         this.arrowColorOption = arrowColorOption;
     }
 
+    @GraphQLQuery(name = "cutOption")
     public CutOption getCutOption() {
         return cutOption;
     }
@@ -490,6 +512,7 @@ public class UserProfile implements Externalizable {
         this.cutOption = cutOption;
     }
 
+    @GraphQLQuery(name = "freezeArrowOption")
     public FreezeArrowOption getFreezeArrowOption() {
         return freezeArrowOption;
     }
@@ -498,6 +521,7 @@ public class UserProfile implements Externalizable {
         this.freezeArrowOption = freezeArrowOption;
     }
 
+    @GraphQLQuery(name = "jumpsOption")
     public JumpsOption getJumpsOption() {
         return jumpsOption;
     }
@@ -506,6 +530,7 @@ public class UserProfile implements Externalizable {
         this.jumpsOption = jumpsOption;
     }
 
+    @GraphQLQuery(name = "arrowSkinOption")
     public ArrowSkinOption getArrowSkinOption() {
         return arrowSkinOption;
     }
@@ -514,6 +539,7 @@ public class UserProfile implements Externalizable {
         this.arrowSkinOption = arrowSkinOption;
     }
 
+    @GraphQLQuery(name = "screenFilterOption")
     public ScreenFilterOption getScreenFilterOption() {
         return screenFilterOption;
     }
@@ -522,6 +548,7 @@ public class UserProfile implements Externalizable {
         this.screenFilterOption = screenFilterOption;
     }
 
+    @GraphQLQuery(name = "guideLinesOption")
     public GuideLinesOption getGuideLinesOption() {
         return guideLinesOption;
     }
@@ -530,6 +557,7 @@ public class UserProfile implements Externalizable {
         this.guideLinesOption = guideLinesOption;
     }
 
+    @GraphQLQuery(name = "lifeGaugeOption")
     public LifeGaugeOption getLifeGaugeOption() {
         return lifeGaugeOption;
     }
@@ -538,6 +566,7 @@ public class UserProfile implements Externalizable {
         this.lifeGaugeOption = lifeGaugeOption;
     }
 
+    @GraphQLQuery(name = "judgementLayerOption")
     public JudgementLayerOption getJudgementLayerOption() {
         return judgementLayerOption;
     }
@@ -546,6 +575,7 @@ public class UserProfile implements Externalizable {
         this.judgementLayerOption = judgementLayerOption;
     }
 
+    @GraphQLQuery(name = "showFastSlow")
     public boolean isShowFastSlow() {
         return showFastSlow;
     }
@@ -554,6 +584,7 @@ public class UserProfile implements Externalizable {
         this.showFastSlow = showFastSlow;
     }
 
+    @GraphQLIgnore
     public int getLastCalories() {
         return lastCalories;
     }
@@ -562,6 +593,7 @@ public class UserProfile implements Externalizable {
         this.lastCalories = lastCalories;
     }
 
+    @GraphQLQuery(name = "rival1")
     public UserProfile getRival1() {
         return rival1;
     }
@@ -570,6 +602,7 @@ public class UserProfile implements Externalizable {
         this.rival1 = rival1;
     }
 
+    @GraphQLQuery(name = "rival2")
     public UserProfile getRival2() {
         return rival2;
     }
@@ -578,6 +611,7 @@ public class UserProfile implements Externalizable {
         this.rival2 = rival2;
     }
 
+    @GraphQLQuery(name = "rival3")
     public UserProfile getRival3() {
         return rival3;
     }
@@ -586,6 +620,7 @@ public class UserProfile implements Externalizable {
         this.rival3 = rival3;
     }
 
+    @GraphQLIgnore
     public String getUnkLast() {
         return unkLast;
     }
@@ -594,6 +629,7 @@ public class UserProfile implements Externalizable {
         this.unkLast = unkLast;
     }
 
+    @GraphQLQuery(name = "singleClass")
     public int getSingleClass() {
         return (this.singleClass == null) ? 0 : singleClass;
     }
@@ -602,6 +638,7 @@ public class UserProfile implements Externalizable {
         this.singleClass = singleClass;
     }
 
+    @GraphQLQuery(name = "doubleClass")
     public int getDoubleClass() {
         return (this.doubleClass == null) ? 0 : doubleClass;
     }

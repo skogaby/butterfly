@@ -1,7 +1,9 @@
-package com.buttongames.butterflyserver.http.handlers.impl.mdx;
+package com.buttongames.butterflyserver.http.handlers.impl.mdx.ddr16;
 
 import com.buttongames.butterflydao.hibernate.dao.impl.ddr16.EventSaveDataDao;
 import com.buttongames.butterflydao.hibernate.dao.impl.ddr16.GlobalEventDao;
+import com.buttongames.butterflydao.hibernate.dao.impl.ddr16.GoldenLeaguePeriodDao;
+import com.buttongames.butterflydao.hibernate.dao.impl.ddr16.GoldenLeagueStatusDao;
 import com.buttongames.butterflymodel.model.ddr16.EventSaveData;
 import com.buttongames.butterflymodel.model.ddr16.GlobalEvent;
 import com.buttongames.butterflydao.hibernate.dao.impl.ButterflyUserDao;
@@ -9,6 +11,8 @@ import com.buttongames.butterflydao.hibernate.dao.impl.CardDao;
 import com.buttongames.butterflydao.hibernate.dao.impl.ddr16.GhostDataDao;
 import com.buttongames.butterflydao.hibernate.dao.impl.ddr16.ProfileDao;
 import com.buttongames.butterflydao.hibernate.dao.impl.ddr16.UserSongRecordDao;
+import com.buttongames.butterflymodel.model.ddr16.GoldenLeaguePeriod;
+import com.buttongames.butterflymodel.model.ddr16.GoldenLeagueStatus;
 import com.buttongames.butterflyserver.http.exception.InvalidRequestException;
 import com.buttongames.butterflyserver.http.exception.UnsupportedRequestException;
 import com.buttongames.butterflyserver.http.handlers.BaseRequestHandler;
@@ -35,7 +39,6 @@ import com.buttongames.butterflymodel.model.ddr16.options.TurnOption;
 import com.buttongames.butterflycore.util.TimeUtils;
 import com.buttongames.butterflycore.xml.kbinxml.KXmlBuilder;
 import com.buttongames.butterflycore.xml.XmlUtils;
-import com.buttongames.butterflyserver.http.handlers.impl.PcbEventRequestHandler;
 import com.buttongames.butterflyserver.util.PropertyNames;
 import com.google.common.collect.ImmutableList;
 import org.apache.logging.log4j.LogManager;
@@ -47,11 +50,12 @@ import org.w3c.dom.NodeList;
 import spark.Request;
 import spark.Response;
 
-import java.time.Instant;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
-import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -64,7 +68,7 @@ import java.util.Random;
 @Component
 public class PlayerDataRequestHandler extends BaseRequestHandler {
 
-    private final Logger LOG = LogManager.getLogger(PcbEventRequestHandler.class);
+    private final Logger LOG = LogManager.getLogger(PlayerDataRequestHandler.class);
 
     // These are all constants for indexing into CSVs for profile data
     private static final int GAME_COMMON_AREA_OFFSET = 1;
@@ -106,6 +110,8 @@ public class PlayerDataRequestHandler extends BaseRequestHandler {
     private static final int GAME_RIVAL_SLOT_2_DDRCODE_OFFSET = 10;
     private static final int GAME_RIVAL_SLOT_3_DDRCODE_OFFSET = 11;
 
+    private static final String NO_DATA_VALUE = "<NODATA>";
+
     /**
      * The DAO for managing users in the database.
      */
@@ -142,10 +148,26 @@ public class PlayerDataRequestHandler extends BaseRequestHandler {
     private final EventSaveDataDao eventSaveDataDao;
 
     /**
+     * The DAO for managing user Golden League progress.
+     */
+    private final GoldenLeagueStatusDao goldenLeagueStatusDao;
+
+    /**
+     * The DAO for managing Golden League periods.
+     */
+    private final GoldenLeaguePeriodDao goldenLeaguePeriodDao;
+
+    /**
      * Says whether or not we force every session to have extra stage.
      */
     @Value(PropertyNames.FORCE_EXTRA_STAGE)
     private String isForceExtraStage;
+
+    /**
+     * Says whether or not we use percentiles for Golden League promotions, or raw thresholds.
+     */
+    @Value(PropertyNames.GOLDEN_LEAGUE_PERCENTILES)
+    private String isGoldenLeaguePercentiles;
 
     /**
      * This is a set of base user-level events we create for users when
@@ -155,7 +177,8 @@ public class PlayerDataRequestHandler extends BaseRequestHandler {
 
     public PlayerDataRequestHandler(final ButterflyUserDao userDao, final CardDao cardDao, final ProfileDao profileDao,
                                     final GhostDataDao ghostDataDao, final UserSongRecordDao songRecordDao,
-                                    final GlobalEventDao globalEventDao, final EventSaveDataDao eventSaveDataDao) {
+                                    final GlobalEventDao globalEventDao, final EventSaveDataDao eventSaveDataDao,
+                                    final GoldenLeagueStatusDao goldenLeagueStatusDao, final GoldenLeaguePeriodDao goldenLeaguePeriodDao) {
         this.userDao = userDao;
         this.cardDao = cardDao;
         this.profileDao = profileDao;
@@ -163,6 +186,9 @@ public class PlayerDataRequestHandler extends BaseRequestHandler {
         this.songRecordDao = songRecordDao;
         this.globalEventDao = globalEventDao;
         this.eventSaveDataDao = eventSaveDataDao;
+        this.goldenLeagueStatusDao = goldenLeagueStatusDao;
+        this.goldenLeaguePeriodDao = goldenLeaguePeriodDao;
+
         this.baseUserEvents = ImmutableList.of(
                 // Baby-Lon's Adventure
                 new EventSaveData(null, 999, 30, 0, 0, 0, 0, 5)
@@ -240,9 +266,13 @@ public class PlayerDataRequestHandler extends BaseRequestHandler {
      * @return A response object for Spark
      */
     private Object handleMachineScoresRequest(final Request request, final Response response) {
-        final List<UserSongRecord> allRecords = this.songRecordDao.findByMachine(request.attribute("pcbid"));
-        final HashMap<Integer, HashMap<Integer, Object[]>> topRecords = this.sortScoresByTopScore(allRecords);
+        final List<UserSongRecord> allRecords = new ArrayList<>();
 
+        for (int i = 0; i < 9; i++) {
+            allRecords.addAll(this.songRecordDao.findTopScoresForDifficultyByMachine(request.attribute("pcbid"), i));
+        }
+
+        final HashMap<Integer, HashMap<Integer, UserSongRecord>> topRecords = this.sortTopScores(allRecords);
         return this.sendScoresToClient(request, response, topRecords);
     }
 
@@ -254,9 +284,13 @@ public class PlayerDataRequestHandler extends BaseRequestHandler {
      * @return A response object for Spark
      */
     private Object handleAreaScoresRequest(final String area, final Request request, final Response response) {
-        final List<UserSongRecord> allRecords = this.songRecordDao.findByShopArea(area);
-        final HashMap<Integer, HashMap<Integer, Object[]>> topRecords = this.sortScoresByTopScore(allRecords);
+        final List<UserSongRecord> allRecords = new ArrayList<>();
 
+        for (int i = 0; i < 9; i++) {
+            allRecords.addAll(this.songRecordDao.findTopScoresForDifficultyByShopArea(area, i));
+        }
+
+        final HashMap<Integer, HashMap<Integer, UserSongRecord>> topRecords = this.sortTopScores(allRecords);
         return this.sendScoresToClient(request, response, topRecords);
     }
 
@@ -267,9 +301,13 @@ public class PlayerDataRequestHandler extends BaseRequestHandler {
      * @return A response object for Spark
      */
     private Object handleGlobalScoresRequest(final Request request, final Response response) {
-        final List<UserSongRecord> allRecords = this.songRecordDao.findAll();
-        final HashMap<Integer, HashMap<Integer, Object[]>> topRecords = this.sortScoresByTopScore(allRecords);
+        final List<UserSongRecord> allRecords = new ArrayList<>();
 
+        for (int i = 0; i < 9; i++) {
+            allRecords.addAll(this.songRecordDao.findTopScoresForDifficulty(i));
+        }
+
+        final HashMap<Integer, HashMap<Integer, UserSongRecord>> topRecords = this.sortTopScores(allRecords);
         return this.sendScoresToClient(request, response, topRecords);
     }
 
@@ -293,9 +331,13 @@ public class PlayerDataRequestHandler extends BaseRequestHandler {
             rival = user.getRival3();
         }
 
-        final List<UserSongRecord> rivalRecords = this.songRecordDao.findByUser(rival);
-        final HashMap<Integer, HashMap<Integer, Object[]>> topRecords = this.sortScoresByTopScore(rivalRecords);
+        final List<UserSongRecord> allRecords = new ArrayList<>();
 
+        for (int i = 0; i < 9; i++) {
+            allRecords.addAll(this.songRecordDao.findTopScoresForDifficultyByUser(rival, i));
+        }
+
+        final HashMap<Integer, HashMap<Integer, UserSongRecord>> topRecords = this.sortTopScores(allRecords);
         return this.sendScoresToClient(request, response, topRecords);
     }
 
@@ -306,7 +348,7 @@ public class PlayerDataRequestHandler extends BaseRequestHandler {
      * @param topRecords The sorted list of top records to send to the client
      * @return A response object for Spark
      */
-    private Object sendScoresToClient(final Request request, final Response response, final HashMap<Integer, HashMap<Integer, Object[]>> topRecords) {
+    private Object sendScoresToClient(final Request request, final Response response, final HashMap<Integer, HashMap<Integer, UserSongRecord>> topRecords) {
         KXmlBuilder respBuilder = KXmlBuilder.create("response")
                 .e("playerdata")
                     .s32("result", 0).up()
@@ -314,12 +356,11 @@ public class PlayerDataRequestHandler extends BaseRequestHandler {
                         .s32("recordtype", 0).up();
 
         // we need to return the top score for every song/difficulty
-        for (Map.Entry<Integer, HashMap<Integer, Object[]>> entry : topRecords.entrySet()) {
+        for (Map.Entry<Integer, HashMap<Integer, UserSongRecord>> entry : topRecords.entrySet()) {
             // iterate through each difficulty
             for (int i = 0; i < 9; i++) {
                 if (entry.getValue().containsKey(i)) {
-                    Object[] record = entry.getValue().get(i);
-                    UserSongRecord topRecord = (UserSongRecord) record[1];
+                    UserSongRecord topRecord = entry.getValue().get(i);
 
                     respBuilder = respBuilder.e("record")
                             .u32("mcode", topRecord.getSongId()).up()
@@ -350,99 +391,288 @@ public class PlayerDataRequestHandler extends BaseRequestHandler {
         KXmlBuilder respBuilder = KXmlBuilder.create("response")
                 .e("playerdata")
                     .s32("result", 0).up()
-                    .bool("is_new", false).up();
+                    .bool("is_new", false).up()
+                    .bool("is_refid_locked", false).up();
 
-        // load user scores if this was for a particular user
+        // load user data if this was for a particular user
         if (!refId.equals("X0000000000000000000000000000000")) {
+            /////////////////////////////////////////////////////////////////////////////////////////////////
             // get the user's scores and sort them out so we can get the top scores
             // for each song/difficulty
             final UserProfile user = this.profileDao.findByUser(
                     this.cardDao.findByRefId(refId).getUser());
-            final List<UserSongRecord> userRecords = this.songRecordDao.findByUser(user);
 
-            // sort them by song and difficulty, then insert them into the response
-            // key for top map is the song ID
-            // key for the 2nd map is the difficulty
-            // the array: a[0] = count, a[1] = top UserSongRecord
-            final HashMap<Integer, HashMap<Integer, Object[]>> userTopScores = this.sortScoresByTopScore(userRecords);
+            if (user != null) {
+                final List<UserSongRecord> userRecords = new ArrayList<>();
 
-            int count = 0;
-            int rank = 0;
-            int clearkind = 0;
-            int score = 0;
-            int ghostid = 0;
-
-            // insert them into the response
-            for (Map.Entry<Integer, HashMap<Integer, Object[]>> entry : userTopScores.entrySet()) {
-                respBuilder = respBuilder.e("music")
-                        .u32("mcode", entry.getKey()).up();
-
-                // iterate through each difficulty
+                // sort them by song and difficulty, then insert them into the response
+                // key for top map is the song ID
+                // key for the 2nd map is the difficulty
                 for (int i = 0; i < 9; i++) {
-                    if (entry.getValue().containsKey(i)) {
-                        Object[] record = entry.getValue().get(i);
-                        UserSongRecord topRecord = (UserSongRecord) record[1];
+                    userRecords.addAll(this.songRecordDao.findTopScoresForDifficultyByUser(user, i));
+                }
 
-                        count = (Integer) record[0];
-                        rank = topRecord.getGrade();
-                        clearkind = topRecord.getClearKind();
-                        score = topRecord.getScore();
-                        ghostid = ((Long) topRecord.getGhostData().getId()).intValue();
-                    } else {
-                        count = 0;
-                        rank = 0;
-                        clearkind = 0;
-                        score = 0;
-                        ghostid = 0;
+                final HashMap<Integer, HashMap<Integer, UserSongRecord>> userTopScores = this.sortTopScores(userRecords);
+                int count = 0;
+                int rank = 0;
+                int clearkind = 0;
+                int score = 0;
+                int ghostid = 0;
+
+                // insert them into the response
+                for (Map.Entry<Integer, HashMap<Integer, UserSongRecord>> entry : userTopScores.entrySet()) {
+                    respBuilder = respBuilder.e("music")
+                            .u32("mcode", entry.getKey()).up();
+
+                    // iterate through each difficulty
+                    for (int i = 0; i < 9; i++) {
+                        if (entry.getValue().containsKey(i)) {
+                            UserSongRecord topRecord = entry.getValue().get(i);
+
+                            count = 1;
+                            rank = topRecord.getGrade();
+                            clearkind = topRecord.getClearKind();
+                            score = topRecord.getScore();
+                            ghostid = ((Long) topRecord.getGhostData().getId()).intValue();
+                        } else {
+                            count = 0;
+                            rank = 0;
+                            clearkind = 0;
+                            score = 0;
+                            ghostid = 0;
+                        }
+
+                        respBuilder = respBuilder.e("note")
+                                .u16("count", count).up()
+                                .u8("rank", rank).up()
+                                .u8("clearkind", clearkind).up()
+                                .s32("score", score).up()
+                                .s32("ghostid", ghostid).up().up();
                     }
 
-                    respBuilder = respBuilder.e("note")
-                            .u16("count", count).up()
-                            .u8("rank", rank).up()
-                            .u8("clearkind", clearkind).up()
-                            .s32("score", score).up()
-                            .s32("ghostid", ghostid).up().up();
+                    respBuilder = respBuilder.up();
                 }
 
-                respBuilder = respBuilder.up();
-            }
+                /////////////////////////////////////////////////////////////////////////////////////////////////
+                // set the user's dan ranking
+                respBuilder.e("grade")
+                        .u32("single_grade", user.getSingleClass()).up()
+                        .u32("double_grade", user.getDoubleClass()).up().up();
 
-            // set the user's dan ranking
-            respBuilder.e("grade")
-                    .u32("single_grade", user.getSingleClass()).up()
-                    .u32("double_grade", user.getDoubleClass()).up().up();
+                /////////////////////////////////////////////////////////////////////////////////////////////////
+                // set the user's Golden League status as appropriate
+                final GoldenLeaguePeriod lastPeriod = this.goldenLeaguePeriodDao.getLastGoldenLeaguePeriod();
+                final boolean usePercentileRankings = Boolean.parseBoolean(this.isGoldenLeaguePercentiles);
 
-            // set the user's user-level event progress
-            final List<EventSaveData> userEvents = this.eventSaveDataDao.findByUser(user);
+                if (lastPeriod != null) {
+                    // there's a Golden League period defined in the database
+                    GoldenLeagueStatus status = this.goldenLeagueStatusDao.findByUserAndPeriod(user, lastPeriod);
 
-            if (userEvents.isEmpty()) {
-                // if the user has no event progress, create their base event progress
-                for (EventSaveData event : this.baseUserEvents) {
-                    EventSaveData newEvent = new EventSaveData(event);
-                    newEvent.setUser(user);
+                    // create a status for this period and user if none exists, otherwise just update their status for this period
+                    if (status == null) {
+                        // see if there's a status for the previous period to copy over, otherwise create a fresh one
+                        GoldenLeaguePeriod prevPeriod = this.goldenLeaguePeriodDao.getGoldenLeaguePeriodById(lastPeriod.getId() - 1);
+                        GoldenLeagueStatus prevStatus = null;
 
-                    this.eventSaveDataDao.create(newEvent);
-                    userEvents.add(newEvent);
+                        if (prevPeriod != null) {
+                            prevStatus = this.goldenLeagueStatusDao.findByUserAndPeriod(user, prevPeriod);
+                        }
+
+                        if (prevStatus == null) {
+                            status = new GoldenLeagueStatus(user, lastPeriod, 1, 0, 0, 1, false);
+                        } else {
+                            status = new GoldenLeagueStatus(user, lastPeriod, prevStatus.getGoldenLeagueClass(), 0, 0, 1, false);
+                        }
+
+                        this.goldenLeagueStatusDao.create(status);
+                    }
+
+                    // calculate the promotion and demotion criteria
+                    float promotionPercentile = 0.0f;
+                    float demotionPercentile = 0.0f;
+                    int promotionExScore = 0;
+                    int demotionExScore = 0;
+                    int totalPlayers = 0;
+                    boolean addedPeriodInfo = false;
+
+                    if (status.getGoldenLeagueClass() <= 1) {
+                        promotionPercentile = lastPeriod.getBronzePromotionPercentage();
+                        promotionExScore = lastPeriod.getBronzePromotionExScore();
+                        totalPlayers = lastPeriod.getNumBronzePlayers();
+                    } else if (status.getGoldenLeagueClass() == 2) {
+                        promotionPercentile = lastPeriod.getSilverPromotionPercentage();
+                        promotionExScore = lastPeriod.getSilverPromotionExScore();
+                        demotionPercentile = lastPeriod.getSilverDemotionPercentage();
+                        demotionExScore = lastPeriod.getSilverDemotionExScore();
+                        totalPlayers = lastPeriod.getNumSilverPlayers();
+                    } else {
+                        demotionPercentile = lastPeriod.getGoldDemotionPercentage();
+                        demotionExScore = lastPeriod.getGoldDemotionExScore();
+                        totalPlayers = lastPeriod.getNumGoldPlayers();
+                    }
+
+                    respBuilder = respBuilder.e("golden_league")
+                            .s32("league_class", status.getGoldenLeagueClass()).up();
+
+                    if (!lastPeriod.isPeriodCurrent() &&
+                            status.getLeagueEndTransition()) {
+                        // the last period is no longer active, so calculate promotions and demotions and show results if necessary
+                        status.setLeagueEndTransition(false);
+
+                        // calculate promotions and demotions
+                        int origClass = status.getGoldenLeagueClass();
+
+                        if (status.getGoldenLeagueClass() < 3 &&
+                                status.getTotalExScore() >= promotionExScore) {
+                            status.setGoldenLeagueClass(status.getGoldenLeagueClass() + 1);
+                        } else if (status.getGoldenLeagueClass() > 1 &&
+                                status.getTotalExScore() <= demotionExScore) {
+                            status.setGoldenLeagueClass(status.getGoldenLeagueClass() - 1);
+                        }
+
+                        this.goldenLeagueStatusDao.update(status);
+
+                        respBuilder = respBuilder.e("result")
+                                .s32("id", lastPeriod.getId()).up()
+                                .str("league_name_base64", Base64.getEncoder().encodeToString(lastPeriod.getName().getBytes(StandardCharsets.UTF_8))).up()
+                                .u64("start_time", lastPeriod.getStartTime().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()).up()
+                                .u64("end_time", lastPeriod.getEndTime().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()).up()
+                                .u64("summary_time", lastPeriod.getSummaryTime().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()).up()
+                                .s32("league_status", 0).up()
+                                .s32("league_class", origClass).up()
+                                .s32("league_class_result", status.getGoldenLeagueClass()).up()
+                                .s32("ranking_number", status.getGoldenLeagueRank()).up()
+                                .s32("total_exscore", status.getTotalExScore()).up()
+                                .s32("total_play_count", status.getNumJoins()).up()
+                                .s32("join_number", lastPeriod.getNumBronzePlayers()).up(3);
+                        addedPeriodInfo = true;
+                    } else if (lastPeriod.isPeriodCurrent()) {
+                        // the period is currently active
+                        status.setLeagueEndTransition(true);
+                        status.setNumJoins(status.getNumJoins() + 1);
+                        this.goldenLeagueStatusDao.update(status);
+
+                        respBuilder = respBuilder.e("current")
+                                .s32("id", lastPeriod.getId()).up()
+                                .str("league_name_base64", Base64.getEncoder().encodeToString(lastPeriod.getName().getBytes(StandardCharsets.UTF_8))).up()
+                                .u64("start_time", lastPeriod.getStartTime().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()).up()
+                                .u64("end_time", lastPeriod.getEndTime().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()).up()
+                                .u64("summary_time", lastPeriod.getSummaryTime().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()).up()
+                                .s32("league_status", 1).up()
+                                .s32("league_class", status.getGoldenLeagueClass()).up()
+                                .s32("league_class_result", status.getGoldenLeagueClass()).up()
+                                .s32("ranking_number", usePercentileRankings ? status.getGoldenLeagueRank() : status.getTotalExScore()).up() // line on the in-game graph
+                                .s32("total_exscore", status.getTotalExScore()).up()
+                                .s32("total_play_count", status.getNumJoins()).up();
+                        addedPeriodInfo = true;
+
+                        final boolean[] showPromotions = {true, true, false};
+                        final boolean[] showDemotions = {false, true, true};
+
+                        if (usePercentileRankings) {
+                            // we're using global ranking to determine promotions and demotions, so just use
+                            // the *actual* promotion and demotion ranking numbers
+                            if (showPromotions[status.getGoldenLeagueClass() - 1]) {
+                                respBuilder = respBuilder.s32("promotion_ranking_number", (int) (promotionPercentile * totalPlayers)).up() // promotion line on the graph
+                                        .s32("promotion_exscore", promotionExScore).up();
+                            }
+
+                            if (showDemotions[status.getGoldenLeagueClass() - 1]) {
+                                respBuilder = respBuilder.s32("demotion_ranking_number", (int) (demotionPercentile * totalPlayers)).up() // demotion line on the graph
+                                        .s32("demotion_exscore", demotionExScore).up();
+                            }
+
+                            respBuilder = respBuilder.s32("join_number", totalPlayers).up(); // max of the in-game graph
+                        } else {
+                            // if we're not using global ranking, we need to sort of fake out the in-game graph to be relative to the user's
+                            // EX score, instead of their ranking on the global leaderboard.
+                            if (showPromotions[status.getGoldenLeagueClass() - 1]) {
+                                respBuilder = respBuilder.s32("promotion_ranking_number", promotionExScore).up() // promotion line on the graph
+                                        .s32("promotion_exscore", promotionExScore).up();
+                            }
+
+                            if (showDemotions[status.getGoldenLeagueClass() - 1]) {
+                                respBuilder = respBuilder.s32("demotion_ranking_number", demotionExScore).up() // demotion line on the graph
+                                        .s32("demotion_exscore", demotionExScore).up();
+                            }
+
+                            // max of the in-game graph, we'll make sure it's higher than both the current EX score and
+                            // total EX score combined, so everything fits on the graph guaranteed
+                            respBuilder = respBuilder.s32("join_number", (int) (1.5 * (status.getTotalExScore() + promotionExScore))).up();
+                        }
+
+                        respBuilder = respBuilder.up(2);
+                    }
+
+                    if (!addedPeriodInfo) {
+                        respBuilder = respBuilder.up();
+                    }
                 }
-            }
 
-            for (EventSaveData event : userEvents) {
-                respBuilder.e("eventdata")
-                        .u32("eventid", event.getEventId()).up()
-                        .s32("eventtype", event.getEventType()).up()
-                        .u32("eventno", event.getEventNo()).up()
-                        .s64("condition", event.getEventCondition()).up()
-                        .u32("reward", event.getReward()).up()
-                        .s32("comptime", (int) event.getCompTime()).up()
-                        .s64("savedata", event.getSaveData()).up().up();
+                /////////////////////////////////////////////////////////////////////////////////////////////////
+                // 20th Anniversary Grand Finale?
+                respBuilder = respBuilder.e("championship")
+                        .s32("championship_id", 1).up()
+                        .str("name_base64", "c2tvZydlbXM=").up()
+                        .bool("is_entry", true).up()
+                        .e("lang")
+                        .str("destinationcodes", "33").up()
+                        .str("name_base64", "c2tvZydlbXM=").up(2)
+                        .e("music")
+                        .u32("mcode", 38222).up()
+                        .s8("notetype", 4).up()
+                        .s32("playstyle", 0).up(3);
+
+                /////////////////////////////////////////////////////////////////////////////////////////////////
+                // enable the song rewards for the "Ichika no BEMANI touhyou senbatsusen 2019" event
+                int[] mcodes = {38264, 38289, 38279, 38291, 38292, 38294, 38290, 38293, 38295};
+                int eventId = 1010;
+
+                for (int mcode : mcodes) {
+                    respBuilder = respBuilder.e("eventdata")
+                            .u32("eventid", eventId++).up()
+                            .s32("eventtype", 10).up()
+                            .u32("eventno", 0).up()
+                            .s64("condition", 10000).up()
+                            .u32("reward", mcode).up()
+                            .s32("comptime", 1).up()
+                            .s64("savedata", 0).up().up();
+                }
+
+                /////////////////////////////////////////////////////////////////////////////////////////////////
+                // set the user's user-level event progress
+                final List<EventSaveData> userEvents = this.eventSaveDataDao.findByUser(user);
+
+                if (userEvents.isEmpty()) {
+                    // if the user has no event progress, create their base event progress
+                    for (EventSaveData event : this.baseUserEvents) {
+                        EventSaveData newEvent = new EventSaveData(event);
+                        newEvent.setUser(user);
+
+                        this.eventSaveDataDao.create(newEvent);
+                        userEvents.add(newEvent);
+                    }
+                }
+
+                for (EventSaveData event : userEvents) {
+                    respBuilder = respBuilder.e("eventdata")
+                            .u32("eventid", event.getEventId()).up()
+                            .s32("eventtype", event.getEventType()).up()
+                            .u32("eventno", event.getEventNo()).up()
+                            .s64("condition", event.getEventCondition()).up()
+                            .u32("reward", event.getReward()).up()
+                            .s32("comptime", (int) event.getCompTime()).up()
+                            .s64("savedata", event.getSaveData()).up().up();
+                }
             }
         }
 
+        /////////////////////////////////////////////////////////////////////////////////////////////////
         // set the global events on the response
         final List<GlobalEvent> globalEvents = this.globalEventDao.findAll();
 
         for (GlobalEvent event : globalEvents) {
-            respBuilder.e("eventdata")
+            respBuilder = respBuilder.e("eventdata")
                     .u32("eventid", event.getEventId()).up()
                     .s32("eventtype", event.getEventType()).up()
                     .u32("eventno", event.getEventNo()).up()
@@ -522,11 +752,6 @@ public class PlayerDataRequestHandler extends BaseRequestHandler {
 
         final UserProfile profile = this.profileDao.findByUser(card.getUser());
 
-        // if a profile doesn't exist, throw an error
-        if (profile == null) {
-            throw new InvalidRequestException();
-        }
-
         // figure out which fields are requested
         final int recvNum = XmlUtils.intAtPath(requestBody, "/playerdata/data/recv_num");
         final String recvCsv = XmlUtils.strAtPath(requestBody, "/playerdata/data/recv_csv");
@@ -549,18 +774,19 @@ public class PlayerDataRequestHandler extends BaseRequestHandler {
 
         for (String col : colsToSend) {
             if (col.equals("COMMON")) {
-                val = this.buildCommonCsv(profile);
+                val = (profile == null) ? NO_DATA_VALUE : this.buildCommonCsv(profile);
             } else if (col.equals("OPTION")) {
-                val = this.buildOptionCsv(profile);
+                val = (profile == null) ? NO_DATA_VALUE : this.buildOptionCsv(profile);
             } else if (col.equals("LAST")) {
-                val = this.buildLastCsv(profile);
+                val = (profile == null) ? NO_DATA_VALUE : this.buildLastCsv(profile);
             } else if (col.equals("RIVAL")) {
-                val = this.buildRivalCsv(profile);
+                val = (profile == null) ? NO_DATA_VALUE : this.buildRivalCsv(profile);
             } else {
                 throw new InvalidRequestException();
             }
 
-            builder = builder.str("d", Base64.getEncoder().encodeToString(val.getBytes())).up();
+            builder = builder.str("d",
+                    (profile == null) ? val : Base64.getEncoder().encodeToString(val.getBytes())).up();
         }
 
         // send the response
@@ -1015,6 +1241,18 @@ public class PlayerDataRequestHandler extends BaseRequestHandler {
                     showFastSlow, songBaseName, songTitle, songArtist, bpmMin, bpmMax, level, series, bemaniFlag, genreFlag,
                     limited, region, grVoltage, grStream, grChaos, grFreeze, grAir, share, endtime, folder);
             this.songRecordDao.create(newRecord);
+
+            // update the golden league period's EX score, if applicable
+            final GoldenLeaguePeriod currentPeriod = this.goldenLeaguePeriodDao.getLastGoldenLeaguePeriod();
+
+            if (currentPeriod != null && currentPeriod.isPeriodCurrent()) {
+                final GoldenLeagueStatus status = this.goldenLeagueStatusDao.findByUserAndPeriod(user, currentPeriod);
+
+                if (status != null) {
+                    status.setTotalExScore(status.getTotalExScore() + exScore);
+                    this.goldenLeagueStatusDao.update(status);
+                }
+            }
         }
 
         // parse out the event progress saving and save them individually
@@ -1083,7 +1321,7 @@ public class PlayerDataRequestHandler extends BaseRequestHandler {
         // TODO: Save this eventually
         final KXmlBuilder respBuilder = KXmlBuilder.create("response")
                 .e("playerdata")
-                    .s32("result", 0);
+                .s32("result", 0);
 
         return this.sendResponse(request, response, respBuilder);
     }
@@ -1093,33 +1331,16 @@ public class PlayerDataRequestHandler extends BaseRequestHandler {
      * @param records The records to sort
      * @return The sorted results
      */
-    private HashMap<Integer, HashMap<Integer, Object[]>> sortScoresByTopScore(final List<UserSongRecord> records) {
-        // sort them by song and difficulty, then insert them into the response
-        // key for top map is the song ID
-        // key for the 2nd map is the difficulty
-        // the array: a[0] = count, a[1] = top UserSongRecord
-        final HashMap<Integer, HashMap<Integer, Object[]>> topScores = new HashMap<>();
+    private HashMap<Integer, HashMap<Integer, UserSongRecord>> sortTopScores(final List<UserSongRecord> records) {
+        final HashMap<Integer, HashMap<Integer, UserSongRecord>> topScores = new HashMap<>();
 
         for (UserSongRecord record : records) {
             if (!topScores.containsKey(record.getSongId())) {
                 topScores.put(record.getSongId(), new HashMap<>());
-                topScores.get(record.getSongId()).put(record.getNoteType(), new Object[] { 1, record });
-            } else {
-                if (!topScores.get(record.getSongId()).containsKey(record.getNoteType())) {
-                    topScores.get(record.getSongId()).put(record.getNoteType(), new Object[] { 1, record });
-                } else {
-                    Object[] currRecord = topScores.get(record.getSongId()).get(record.getNoteType());
-                    currRecord[0] = ((Integer) currRecord[0]) + 1;
-
-                    if (((UserSongRecord) currRecord[1]).getScore() < record.getScore()) {
-                        currRecord[1] = record;
-                    }
-
-                    topScores.get(record.getSongId()).put(record.getNoteType(), currRecord);
-                }
             }
-        }
 
+            topScores.get(record.getSongId()).put(record.getNoteType(), record);
+        }
         return topScores;
     }
 }
