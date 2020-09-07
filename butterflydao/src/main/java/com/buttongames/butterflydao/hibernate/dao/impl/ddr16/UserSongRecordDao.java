@@ -84,7 +84,7 @@ public class UserSongRecordDao extends AbstractHibernateDao<UserSongRecord> {
     public List<UserSongRecord> findTopScoresForDifficultyByUser(final UserProfile user, final int difficulty) {
         final NativeQuery<UserSongRecord> query = this.getCurrentSession().createSQLQuery(BASE_TOP_SCORE_QUERY +
                 "INNER JOIN (" +
-                "    SELECT song_id, MAX(score) score, note_type, user_id " +
+                "    SELECT song_id, MAX(score) score, MAX(clear_kind) clear_kind, note_type, user_id " +
                 "    FROM ddr_16_user_song_records " +
                 "    WHERE note_type = :difficulty AND user_id = :user " +
                 "    GROUP BY song_id, note_type, user_id " +
